@@ -8,6 +8,7 @@
     "node": ">=20.0.0"
   },
   "scripts": {
+    "netlify": "netlify",
     "dev": "netlify dev",
     "build": "netlify build",
     "deploy": "netlify deploy --prod",

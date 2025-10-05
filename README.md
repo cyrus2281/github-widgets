@@ -208,6 +208,8 @@ github-widgets/
 │       ├── cache.js                  # LRU cache implementation
 │       ├── validation.js             # Request validation
 │       └── errors.js                 # Error response utilities
+├── public/
+│   └── index.html                    # Index page with redirect to GitHub repo
 ├── netlify.toml                      # Netlify configuration
 ├── .env.example                      # Environment variables template
 ├── package.json                      # Dependencies and scripts
