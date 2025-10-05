@@ -1,0 +1,31 @@
+{
+  "name": "github-widgets",
+  "version": "1.0.0",
+  "description": "A serverless app for GitHub widgets",
+  "main": "index.js",
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "netlify build",
+    "deploy": "netlify deploy --prod",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "github",
+    "widgets",
+    "svg",
+    "netlify",
+    "serverless"
+  ],
+  "author": "",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "lru-cache": "^10.4.3"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.36.4"
+  }
+}
