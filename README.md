@@ -2,6 +2,11 @@
 
 A serverless application for generating dynamic GitHub contribution widgets as SVG images. Built with Netlify Functions and designed to be embedded anywhere.
 
+## Widgets
+
+![time-series-sample](./samples/timeseries-history-sample.svg)
+
+
 ## Features
 
 - 🎨 **Beautiful SVG Widgets** - Animated, responsive contribution timeseries charts
@@ -71,11 +76,13 @@ curl "http://localhost:8888/api/v1/timeseries-history.svg?userName=cyrus2281"
 
 ### Endpoints
 
+
 #### GET `/api/v1/timeseries-history.svg`
 
-![Sample](./sampples/timeseries-history-sample.svg)
+![time-series-sample](./samples/timeseries-history-sample.svg)
 
 Generate a GitHub contribution timeseries chart as an SVG image.
+
 
 **Query Parameters:**
 
@@ -94,9 +101,6 @@ Generate a GitHub contribution timeseries chart as an SVG image.
 
 # With date range
 /api/v1/timeseries-history.svg?userName=octocat&range=2024-01-01:2024-12-31
-
-# Specific date range
-/api/v1/timeseries-history.svg?userName=cyrus2281&range=2025-01-01:2025-10-15
 ```
 
 **Response:**
@@ -207,7 +211,6 @@ github-widgets/
 ├── netlify.toml                      # Netlify configuration
 ├── .env.example                      # Environment variables template
 ├── package.json                      # Dependencies and scripts
-├── ARCHITECTURE.md                   # Detailed architecture docs
 └── README.md                         # This file
 ```
 
