@@ -4,7 +4,11 @@ A serverless application for generating dynamic GitHub contribution widgets as S
 
 ## Widgets
 
+### GitHub Contribution Timeseries
 ![time-series-sample](./samples/timeseries-history-sample.svg)
+
+### Experience Timeline
+![experience-timeline-sample](./samples/experience-timeline-sample.svg)
 
 
 ## Features
@@ -58,13 +62,17 @@ The API will be available at `http://localhost:8888/api/v1/`
 
 ### Testing
 
-Test the timeseries endpoint:
+Test the endpoints:
 ```bash
-# With username and date range
+# Timeseries history - with username and date range
 curl "http://localhost:8888/api/v1/timeseries-history.svg?userName=cyrus2281&range=2025-01-01:2025-10-15"
 
-# With username only (defaults to last 365 days)
+# Timeseries history - with username only (defaults to last 365 days)
 curl "http://localhost:8888/api/v1/timeseries-history.svg?userName=cyrus2281"
+
+# Experience timeline - with CSV data
+CSV_DATA="company,start,end,title,logo,color%0AGoogle,2025-10,,AI/ML%20Engineer,,#4285F4"
+curl "http://localhost:8888/api/v1/experience-timeline.svg?experienceCSV=${CSV_DATA}"
 ```
 
 ## API Documentation
@@ -76,13 +84,11 @@ curl "http://localhost:8888/api/v1/timeseries-history.svg?userName=cyrus2281"
 
 ### Endpoints
 
-
 #### GET `/api/v1/timeseries-history.svg`
 
 ![time-series-sample](./samples/timeseries-history-sample.svg)
 
 Generate a GitHub contribution timeseries chart as an SVG image.
-
 
 **Query Parameters:**
 
@@ -109,14 +115,82 @@ Generate a GitHub contribution timeseries chart as an SVG image.
 - **Cache-Control**: `public, max-age=3600`
 - **X-Cache**: `HIT` or `MISS` (indicates cache status)
 
+---
+
+#### GET `/api/v1/experience-timeline.svg`
+
+![experience-timeline-sample](./samples/experience-timeline-sample.svg)
+
+Generate a professional experience timeline as an SVG image.
+
+**Query Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `experienceCSV` | string | Yes | URI-encoded CSV data with experience entries |
+
+**CSV Format:**
+
+The CSV must have the following header (in this exact order):
+```
+company,start,end,title,logo,color
+```
+
+**Field Descriptions:**
+
+- `company` (required): Company name
+- `start` (required): Start date in format `YYYY`, `YYYY-MM`, or `YYYY-MM-DD`
+- `end` (optional): End date in same format as start, or empty for "present"
+- `title` (optional): Job title/position
+- `logo` (optional): URL to company logo image
+- `color` (optional): Hex color code for the timeline bar (e.g., `#4285F4`)
+
+**Example CSV:**
+
+```csv
+company,start,end,title,logo,color
+Google,2025-10,,AI/ML Engineer,https://example.com/google-logo.png,#4285F4
+Spotify,2024-08,2025-06,Sr Software Developer,https://example.com/spotify-logo.png,#1DB954
+Netflix,2024-04,2024-12,Software Engineer - Contract,,#E50914
+Amazon,2022-01,2024-08,Software Developer,https://example.com/amazon-logo.png,#FF9900
+Meta,2020-06,2021-10,Web Developer,https://example.com/meta-logo.png,#0668E1
+```
+
+**Usage Examples:**
+
+```bash
+# Basic example with minimal data
+CSV="company,start,end,title,logo,color%0AGoogle,2025-10,,AI/ML%20Engineer,,#4285F4"
+curl "http://localhost:8888/api/v1/experience-timeline.svg?experienceCSV=${CSV}"
+
+# With multiple entries (URL encode the entire CSV)
+# Use online URL encoder or encodeURIComponent() in JavaScript
+```
+
+**JavaScript Example:**
+
+```javascript
+const experienceData = `company,start,end,title,logo,color
+Google,2025-10,,AI/ML Engineer,https://example.com/logo.png,#4285F4
+Spotify,2024-08,2025-06,Sr Software Developer,,#1DB954`;
+
+const encodedCSV = encodeURIComponent(experienceData);
+const url = `https://your-site.netlify.app/api/v1/experience-timeline.svg?experienceCSV=${encodedCSV}`;
+```
+
+**Response:**
+
+- **Content-Type**: `image/svg+xml`
+- **Cache-Control**: `public, max-age=3600`
+- **X-Cache**: `HIT` or `MISS` (indicates cache status)
+
 **Error Responses:**
 
 All errors are returned as SVG images with appropriate HTTP status codes:
 
-- `400 Bad Request` - Invalid parameters (username format, date range, etc.)
-- `403 Forbidden` - Username provided when `LOCK_GITHUB_USER` is set
-- `404 Not Found` - GitHub user not found or invalid endpoint
-- `500 Internal Server Error` - Server configuration or GitHub API errors
+- `400 Bad Request` - Invalid CSV format, missing required fields, or invalid dates
+- `404 Not Found` - Invalid endpoint
+- `500 Internal Server Error` - Server error during SVG generation
 
 ### Embedding in Markdown
 

@@ -1,4 +1,5 @@
 import { handler as timeseriesHistoryHandler } from '../../src/handlers/v1/timeseries-history.js';
+import { handler as experienceTimelineHandler } from '../../src/handlers/v1/experience-timeline.js';
 import { createNotFoundSVG } from '../../src/utils/errors.js';
 
 /**
@@ -65,6 +66,9 @@ async function routeV1(endpoint, event) {
   switch (endpoint) {
     case 'timeseries-history.svg':
       return timeseriesHistoryHandler(event);
+    
+    case 'experience-timeline.svg':
+      return experienceTimelineHandler(event);
     
     default:
       return createNotFoundSVG(`Endpoint ${endpoint}`);
