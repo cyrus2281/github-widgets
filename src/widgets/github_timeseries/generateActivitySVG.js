@@ -349,7 +349,6 @@ async function generateActivitySVG(username, opts = {}) {
   return svg;
 }
 
-// Export functions for use as a module
 export {
   generateActivitySVG,
   parseDateSafe,

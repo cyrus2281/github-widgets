@@ -191,31 +191,6 @@ The application uses standard Netlify Functions format. To deploy elsewhere:
 3. Set environment variables
 4. Configure routing to `/api/*` → function handler
 
-## Project Structure
-
-```
-github-widgets/
-├── netlify/
-│   └── functions/
-│       └── api.js                    # Main API router
-├── src/
-│   ├── handlers/
-│   │   └── v1/
-│   │       └── timeseries-history.js # Timeseries endpoint handler
-│   ├── github_timeseries/
-│   │   └── generateActivitySVG.js    # SVG generation logic
-│   └── utils/
-│       ├── cache.js                  # LRU cache implementation
-│       ├── validation.js             # Request validation
-│       └── errors.js                 # Error response utilities
-├── public/
-│   └── index.html                    # Index page with redirect to GitHub repo
-├── netlify.toml                      # Netlify configuration
-├── .env.example                      # Environment variables template
-├── package.json                      # Dependencies and scripts
-└── README.md                         # This file
-```
-
 ## Architecture
 
 The application follows a modular, extensible architecture:
