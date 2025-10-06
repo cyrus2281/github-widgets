@@ -1,4 +1,4 @@
-import { generateActivitySVG } from '../../github_timeseries/generateActivitySVG.js';
+import { generateActivitySVG } from '../../widgets/github_timeseries/generateActivitySVG.js';
 import { cache, generateCacheKey } from '../../utils/cache.js';
 import { validateUsername, validateDateRange, parseQueryParams } from '../../utils/validation.js';
 import { handleError, createForbiddenSVG, createValidationErrorSVG } from '../../utils/errors.js';
