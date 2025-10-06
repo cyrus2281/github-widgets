@@ -5,10 +5,41 @@ A serverless application for generating dynamic GitHub contribution widgets as S
 ## Widgets
 
 ### GitHub Contribution Timeseries
-![time-series-sample](./samples/timeseries-history-sample.svg)
+![time-series-sample](https://raw.githubusercontent.com/cyrus2281/github-widgets/refs/heads/main/samples/timeseries-history-sample.svg)
 
 ### Experience Timeline
-![experience-timeline-sample](./samples/experience-timeline-sample.svg)
+![experience-timeline-sample](https://raw.githubusercontent.com/cyrus2281/github-widgets/refs/heads/main/samples/experience-timeline-sample.svg)
+
+## Contents
+- [GitHub Widgets](#github-widgets)
+  - [Widgets](#widgets)
+    - [GitHub Contribution Timeseries](#github-contribution-timeseries)
+    - [Experience Timeline](#experience-timeline)
+  - [Contents](#contents)
+  - [Features](#features)
+  - [Quick Start](#quick-start)
+    - [Prerequisites](#prerequisites)
+    - [Installation](#installation)
+    - [Local Development](#local-development)
+    - [Testing](#testing)
+  - [API Documentation](#api-documentation)
+    - [Base URL](#base-url)
+    - [Endpoints](#endpoints)
+      - [GET `/api/v1/timeseries-history.svg`](#get-apiv1timeseries-historysvg)
+      - [GET `/api/v1/experience-timeline.svg`](#get-apiv1experience-timelinesvg)
+    - [Embedding in Markdown](#embedding-in-markdown)
+    - [Embedding in HTML](#embedding-in-html)
+  - [Environment Variables](#environment-variables)
+    - [Required](#required)
+    - [Optional](#optional)
+  - [Deployment](#deployment)
+    - [Deploy to Netlify](#deploy-to-netlify)
+    - [Deploy to Other Platforms](#deploy-to-other-platforms)
+  - [Architecture](#architecture)
+  - [Caching Strategy](#caching-strategy)
+  - [Adding New Endpoints](#adding-new-endpoints)
+  - [Contributing](#contributing)
+  - [License](#license)
 
 
 ## Features
@@ -86,7 +117,7 @@ curl "http://localhost:8888/api/v1/experience-timeline.svg?experienceCSV=${CSV_D
 
 #### GET `/api/v1/timeseries-history.svg`
 
-![time-series-sample](./samples/timeseries-history-sample.svg)
+![time-series-sample](https://raw.githubusercontent.com/cyrus2281/github-widgets/refs/heads/main/samples/timeseries-history-sample.svg)
 
 Generate a GitHub contribution timeseries chart as an SVG image.
 
@@ -119,7 +150,7 @@ Generate a GitHub contribution timeseries chart as an SVG image.
 
 #### GET `/api/v1/experience-timeline.svg`
 
-![experience-timeline-sample](./samples/experience-timeline-sample.svg)
+![experience-timeline-sample](https://raw.githubusercontent.com/cyrus2281/github-widgets/refs/heads/main/samples/experience-timeline-sample.svg)
 
 Generate a professional experience timeline as an SVG image.
 

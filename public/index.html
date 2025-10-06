@@ -4,14 +4,381 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GitHub Widgets</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+            font-size: 16px;
+            line-height: 1.5;
+            color: #e6edf3;
+            background-color: #0d1117;
+        }
+
+        .container {
+            max-width: 1012px;
+            margin: 0 auto;
+            padding: 32px 16px;
+        }
+
+        /* GitHub Repo Card */
+        .repo-card {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .repo-card-icon {
+            width: 20px;
+            height: 20px;
+            fill: #7d8590;
+            flex-shrink: 0;
+        }
+
+        .repo-card-content {
+            flex: 1;
+        }
+
+        .repo-card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #58a6ff;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 4px;
+        }
+
+        .repo-card-title:hover {
+            text-decoration: underline;
+        }
+
+        .repo-card-description {
+            font-size: 12px;
+            color: #7d8590;
+            margin-bottom: 8px;
+        }
+
+        .repo-card-stats {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            color: #7d8590;
+        }
+
+        .repo-card-stat {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .repo-card-stat svg {
+            width: 16px;
+            height: 16px;
+            fill: #7d8590;
+        }
+
+        #loading {
+            text-align: center;
+            padding: 40px;
+            color: #7d8590;
+        }
+
+        #content {
+            display: none;
+        }
+
+        #content.loaded {
+            display: block;
+        }
+
+        /* GitHub Markdown Styles - Dark Mode */
+        .markdown-body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+            font-size: 16px;
+            line-height: 1.5;
+            word-wrap: break-word;
+        }
+
+        .markdown-body h1,
+        .markdown-body h2,
+        .markdown-body h3,
+        .markdown-body h4,
+        .markdown-body h5,
+        .markdown-body h6 {
+            margin-top: 24px;
+            margin-bottom: 16px;
+            font-weight: 600;
+            line-height: 1.25;
+        }
+
+        .markdown-body h1 {
+            font-size: 2em;
+            padding-bottom: 0.3em;
+            border-bottom: 1px solid #3d444d;
+        }
+
+        .markdown-body h2 {
+            font-size: 1.5em;
+            padding-bottom: 0.3em;
+            border-bottom: 1px solid #3d444d;
+        }
+
+        .markdown-body h3 {
+            font-size: 1.25em;
+        }
+
+        .markdown-body h4 {
+            font-size: 1em;
+        }
+
+        .markdown-body h5 {
+            font-size: 0.875em;
+        }
+
+        .markdown-body h6 {
+            font-size: 0.85em;
+            color: #7d8590;
+        }
+
+        .markdown-body p {
+            margin-top: 0;
+            margin-bottom: 16px;
+        }
+
+        .markdown-body a {
+            color: #58a6ff;
+            text-decoration: none;
+        }
+
+        .markdown-body a:hover {
+            text-decoration: underline;
+        }
+
+        .markdown-body ul,
+        .markdown-body ol {
+            margin-top: 0;
+            margin-bottom: 16px;
+            padding-left: 2em;
+        }
+
+        .markdown-body li {
+            margin-top: 0.25em;
+        }
+
+        .markdown-body code {
+            padding: 0.2em 0.4em;
+            margin: 0;
+            font-size: 85%;
+            background-color: #161b22;
+            border-radius: 6px;
+            font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+        }
+
+        .markdown-body pre {
+            padding: 16px;
+            overflow: auto;
+            font-size: 85%;
+            line-height: 1.45;
+            background-color: #161b22;
+            border-radius: 6px;
+            margin-bottom: 16px;
+        }
+
+        .markdown-body pre code {
+            display: inline;
+            padding: 0;
+            margin: 0;
+            overflow: visible;
+            line-height: inherit;
+            word-wrap: normal;
+            background-color: transparent;
+            border: 0;
+        }
+
+        .markdown-body blockquote {
+            padding: 0 1em;
+            color: #7d8590;
+            border-left: 0.25em solid #3d444d;
+            margin-bottom: 16px;
+        }
+
+        .markdown-body table {
+            border-spacing: 0;
+            border-collapse: collapse;
+            margin-bottom: 16px;
+            width: 100%;
+        }
+
+        .markdown-body table th,
+        .markdown-body table td {
+            padding: 6px 13px;
+            border: 1px solid #3d444d;
+        }
+
+        .markdown-body table th {
+            font-weight: 600;
+            background-color: #161b22;
+        }
+
+        .markdown-body table tr {
+            background-color: #0d1117;
+            border-top: 1px solid #3d444d;
+        }
+
+        .markdown-body table tr:nth-child(2n) {
+            background-color: #161b22;
+        }
+
+        .markdown-body img {
+            max-width: 100%;
+            box-sizing: content-box;
+            background-color: #0d1117;
+        }
+
+        .markdown-body hr {
+            height: 0.25em;
+            padding: 0;
+            margin: 24px 0;
+            background-color: #3d444d;
+            border: 0;
+        }
+
+        .markdown-body strong {
+            font-weight: 600;
+        }
+
+        .markdown-body em {
+            font-style: italic;
+        }
+
+        #error {
+            display: none;
+            padding: 16px;
+            background-color: #2d1517;
+            border: 1px solid #6e2c2f;
+            border-radius: 6px;
+            color: #ff7b72;
+            margin-bottom: 16px;
+        }
+
+        #error.show {
+            display: block;
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome to GitHub Widgets</h1>
-    <p>This is a serverless application for generating dynamic GitHub contribution widgets.</p>
-    <a href="https://github.com/cyrus2281/github-widgets">View on GitHub</a>
+    <div class="container">
+        <div class="repo-card">
+            <svg class="repo-card-icon" viewBox="0 0 16 16" version="1.1" aria-hidden="true">
+                <path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 0 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 1 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5Zm10.5-1h-8a1 1 0 0 0-1 1v6.708A2.486 2.486 0 0 1 4.5 9h8ZM5 12.25a.25.25 0 0 1 .25-.25h3.5a.25.25 0 0 1 .25.25v3.25a.25.25 0 0 1-.4.2l-1.45-1.087a.249.249 0 0 0-.3 0L5.4 15.7a.25.25 0 0 1-.4-.2Z"></path>
+            </svg>
+            <div class="repo-card-content">
+                <a href="https://github.com/cyrus2281/github-widgets" class="repo-card-title" target="_blank" rel="noopener noreferrer">
+                    cyrus2281/github-widgets
+                </a>
+                <div class="repo-card-description" id="repo-description">
+                    Serverless application for generating dynamic GitHub contribution widgets
+                </div>
+                <div class="repo-card-stats">
+                    <div class="repo-card-stat">
+                        <svg viewBox="0 0 16 16" version="1.1" aria-hidden="true">
+                            <path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Zm0 2.445L6.615 5.5a.75.75 0 0 1-.564.41l-3.097.45 2.24 2.184a.75.75 0 0 1 .216.664l-.528 3.084 2.769-1.456a.75.75 0 0 1 .698 0l2.77 1.456-.53-3.084a.75.75 0 0 1 .216-.664l2.24-2.183-3.096-.45a.75.75 0 0 1-.564-.41L8 2.694Z"></path>
+                        </svg>
+                        <span id="repo-stars">-</span>
+                    </div>
+                    <div class="repo-card-stat">
+                        <svg viewBox="0 0 16 16" version="1.1" aria-hidden="true">
+                            <path d="M5 5.372v.878c0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75v-.878a2.25 2.25 0 1 1 1.5 0v.878a2.25 2.25 0 0 1-2.25 2.25h-1.5v2.128a2.251 2.251 0 1 1-1.5 0V8.5h-1.5A2.25 2.25 0 0 1 3.5 6.25v-.878a2.25 2.25 0 1 1 1.5 0ZM5 3.25a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Zm6.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm-3 8.75a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Z"></path>
+                        </svg>
+                        <span id="repo-forks">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="loading">Loading README...</div>
+        <div id="error"></div>
+        <div id="content" class="markdown-body"></div>
+    </div>
+
     <script>
-        // Redirect to GitHub repository
-        window.location.href = "https://github.com/cyrus2281/github-widgets";
+        const README_URL = 'https://raw.githubusercontent.com/cyrus2281/github-widgets/refs/heads/main/README.md';
+        const REPO_API_URL = 'https://api.github.com/repos/cyrus2281/github-widgets';
+        
+        async function loadRepoInfo() {
+            try {
+                const response = await fetch(REPO_API_URL);
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('repo-description').textContent = data.description || 'Serverless application for generating dynamic GitHub contribution widgets';
+                    document.getElementById('repo-stars').textContent = data.stargazers_count || '0';
+                    document.getElementById('repo-forks').textContent = data.forks_count || '0';
+                }
+            } catch (error) {
+                console.error('Error loading repo info:', error);
+            }
+        }
+
+        async function loadAndRenderMarkdown() {
+            const loadingEl = document.getElementById('loading');
+            const contentEl = document.getElementById('content');
+            const errorEl = document.getElementById('error');
+
+            try {
+                // Fetch the markdown file
+                const response = await fetch(README_URL);
+                
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch README: ${response.status} ${response.statusText}`);
+                }
+
+                const markdown = await response.text();
+                
+                // Configure marked options for GitHub-flavored markdown
+                marked.setOptions({
+                    gfm: true,
+                    breaks: true,
+                    headerIds: true,
+                    mangle: false
+                });
+
+                // Convert markdown to HTML
+                const html = marked.parse(markdown);
+                
+                // Render the HTML
+                contentEl.innerHTML = html;
+                
+                // Hide loading, show content
+                loadingEl.style.display = 'none';
+                contentEl.classList.add('loaded');
+
+            } catch (error) {
+                console.error('Error loading README:', error);
+                loadingEl.style.display = 'none';
+                errorEl.textContent = `Error: ${error.message}`;
+                errorEl.classList.add('show');
+            }
+        }
+
+        // Load repo info and README when page loads
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                loadRepoInfo();
+                loadAndRenderMarkdown();
+            });
+        } else {
+            loadRepoInfo();
+            loadAndRenderMarkdown();
+        }
     </script>
 </body>
 </html>
