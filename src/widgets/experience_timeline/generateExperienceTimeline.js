@@ -330,17 +330,3 @@ async function generateExperienceTimeline(csvString, opts = {}) {
 export {
   generateExperienceTimeline,
 }
-
-
-// Testing / Example
-(async () => {
-const sample = `company,start,end,title,logo,color
-Google,2025-10,,AI/ML Engineer,https://media.licdn.com/dms/image/v2/D4E0BAQGv3cqOuUMY7g/company-logo_200_200/B4EZmhegXHGcAM-/0/1759350753990/google_logo?e=1762387200&v=beta&t=-zaBKb9mi3dGWMN0VnY1a_uyxnnSKXMFaTQxLVkWQHE,#4285F4
-Spotify,2024-08,2025-06,Sr Software Developer,https://media.licdn.com/dms/image/v2/C560BAQFkDzx_7dqq3A/company-logo_200_200/company-logo_200_200/0/1631377935713?e=1762387200&v=beta&t=pykID6d3e7pWiaJXNRr1Ba_t-Z9sO68gPCu44cg8sPg,#FF0000
-Netflix,2024-04,2024-12,Software Engineer - Contract,https://media.licdn.com/dms/image/v2/D4E0BAQGMva5_E8pUjw/company-logo_200_200/company-logo_200_200/0/1736276678240/netflix_logo?e=1762387200&v=beta&t=OuJ_CRXny8ug-kr4LC0wlP_hlHwKcl4DPR2aezfXOno,#00FF00
-Amazon,2022-01,2024-08,Software Developer,https://media.licdn.com/dms/image/v2/C560BAQHTvZwCx4p2Qg/company-logo_200_200/company-logo_200_200/0/1630640869849/amazon_logo?e=1762387200&v=beta&t=usWXjoCYSFuCVHZsiWkLRzgXZMnFI_R1F2Xx5EqSpwA,#00F
-Meta, 2020-06,2021-10,Web Developer,https://media.licdn.com/dms/image/v2/D560BAQHBmbxCDP0JQQ/company-logo_200_200/B56ZlkdQSaI8AI-/0/1758327015620/meta_logo?e=1762387200&v=beta&t=JT78XixgnVFyn1bGFUMc2EvEVGaXHPBnPArsETxWFVk,#FF0
-`;
-const svg = await generateExperienceTimeline(sample);
-console.log(svg);
-})();
