@@ -84,6 +84,7 @@ export async function handler(event) {
     // Parse query parameters
     const queryParams = parseQueryParams(event.rawQuery);
     const { experienceCSV } = queryParams;
+    const includeDates = queryParams.includeDates !== 'false';
 
     // Validate experienceCSV parameter exists
     if (!experienceCSV) {
@@ -106,7 +107,7 @@ export async function handler(event) {
     }
 
     // Generate cache key based on CSV content
-    const cacheKey = generateCacheKey('experience-timeline', decodedCSV, '');
+    const cacheKey = generateCacheKey('experience-timeline', decodedCSV, `includeDates=${includeDates}`);
 
     // Check cache
     const cachedResponse = cache.get(cacheKey);
@@ -130,6 +131,7 @@ export async function handler(event) {
       width: 1200,
       heightPerLane: 80,
       embedLogos: true,
+      includeDates,
     });
 
     // Cache the response

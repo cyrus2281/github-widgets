@@ -159,6 +159,7 @@ Generate a professional experience timeline as an SVG image.
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | `experienceCSV` | string | Yes | URI-encoded CSV data with experience entries |
+| `includeDates` | boolean | Optional | A boolean (`true` or `false`) to control the visibility of the start and end date labels on the timeline nodes. Defaults to `true`. |
 
 **CSV Format:**
 
