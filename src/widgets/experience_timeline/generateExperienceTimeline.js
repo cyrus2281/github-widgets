@@ -249,9 +249,16 @@ async function generateExperienceTimeline(csvString, opts = {}) {
   const logoSize = 26;
   const lineHeight = 16;
 
+  const drawnLabelXCoords = new Set();
+  const labelProximityThreshold = 20; // Min horizontal pixels between labels
+
   for (const it of items) {
     const nx = xScale(it.start);
     const ny = laneToY(it.lane);
+
+    const onBaseline = ny === baselineY;
+    const labelY = onBaseline ? ny - nodeRadius - 4 : ny + nodeRadius + 4;
+    const dominantBaseline = onBaseline ? "auto" : "hanging";
 
     // node circle
     nodeGroup
@@ -262,6 +269,39 @@ async function generateExperienceTimeline(csvString, opts = {}) {
       .attr("fill", it.color)
       .attr("stroke", "#111")
       .attr("stroke-width", 1.2);
+
+    // date label above node
+    const isTooCloseToOtherLabel = [...drawnLabelXCoords].some((x) => Math.abs(x - nx) < labelProximityThreshold);
+    if (!isTooCloseToOtherLabel) {
+      nodeGroup
+        .append("text")
+        .attr("x", nx)
+        .attr("y", labelY)
+        .attr("text-anchor", "middle")
+        .attr("dominant-baseline", dominantBaseline)
+        .attr("font-size", 10)
+        .attr("fill", THEME.text)
+        .text(it.startRaw);
+      drawnLabelXCoords.add(nx);
+    }
+
+    // end date label above node
+    if (it.end) {
+      const ex = xScale(it.end);
+      const isEndTooClose = [...drawnLabelXCoords].some((x) => Math.abs(x - ex) < labelProximityThreshold);
+      if (!isEndTooClose) {
+        nodeGroup
+          .append("text")
+          .attr("x", ex)
+          .attr("y", labelY)
+          .attr("text-anchor", "middle")
+          .attr("dominant-baseline", dominantBaseline)
+          .attr("font-size", 10)
+          .attr("fill", THEME.text)
+          .text(it.endRaw);
+        drawnLabelXCoords.add(ex);
+      }
+    }
 
     // stacked label block placement
     const hasTitle = Boolean(it.title);

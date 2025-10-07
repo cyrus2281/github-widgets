@@ -36,7 +36,7 @@ A serverless application for generating dynamic GitHub contribution widgets as S
     - [Deploy to Netlify](#deploy-to-netlify)
     - [Deploy to Other Platforms](#deploy-to-other-platforms)
   - [Architecture](#architecture)
-  - [Caching Strategy](#caching-strategy)
+    - [Caching Strategy](#caching-strategy)
   - [Adding New Endpoints](#adding-new-endpoints)
   - [Contributing](#contributing)
   - [License](#license)
@@ -44,12 +44,12 @@ A serverless application for generating dynamic GitHub contribution widgets as S
 
 ## Features
 
-- 🎨 **Beautiful SVG Widgets** - Animated, responsive contribution timeseries charts
+- 🎨 **Beautiful SVG Widgets** - Animated, responsive widgets for GitHub ReadMe
 - ⚡ **Fast & Cached** - In-memory LRU cache with configurable TTL (default: 1 hour)
 - 🔒 **Secure** - Optional user locking via `LOCK_GITHUB_USER` environment variable
 - 🚀 **Serverless** - Runs on Netlify Functions (AWS Lambda)
-- 📊 **Flexible Date Ranges** - Query any date range up to 365 days
 - 🔄 **Extensible** - Easy to add new widget types and API versions
+- 🛠 **SVG Error Handling** - All errors returned as SVG images with appropriate HTTP status codes
 
 ## Quick Start
 
@@ -305,7 +305,7 @@ The application follows a modular, extensible architecture:
 - **Services** - Business logic (GitHub API, SVG generation)
 - **Utils** - Shared utilities (cache, validation, errors)
 
-## Caching Strategy
+### Caching Strategy
 
 - **In-Memory LRU Cache** - Fast, simple, resets on cold starts
 - **Cache Key Format**: `timeseries-history:{username}:{startDate}:{endDate}`
