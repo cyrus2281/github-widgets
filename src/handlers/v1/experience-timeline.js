@@ -107,6 +107,7 @@ export async function handler(event) {
     const marginLeft = parseInt(marginLeftStr, 10) || 30;
     const embedLogos = embedLogosStr === 'true';
     const animationTotalDuration = parseFloat(animationTotalDurationStr) || 5;
+    const baseFontSize = queryParams.baseFontSize ? parseInt(queryParams.baseFontSize, 10) : 12;
 
     // Validate experienceCSV parameter exists
     if (!experienceCSV) {
@@ -140,6 +141,7 @@ export async function handler(event) {
       includeStartDate,
       includeEndDate,
       animationTotalDuration,
+      baseFontSize,
     };
     const cacheKey = generateCacheKey('experience-timeline', decodedCSV, JSON.stringify(cacheKeyOptions));
 
@@ -174,6 +176,7 @@ export async function handler(event) {
       includeStartDate,
       includeEndDate,
       animationTotalDuration,
+      baseFontSize,
     });
 
     // Cache the response
