@@ -10,11 +10,15 @@ A serverless application for generating dynamic GitHub contribution widgets as S
 ### Experience Timeline
 ![experience-timeline-sample](https://raw.githubusercontent.com/cyrus2281/github-widgets/refs/heads/main/samples/experience-timeline-sample.svg)
 
+### Most Starred Repositories
+![most-starred-sample](https://raw.githubusercontent.com/cyrus2281/github-widgets/refs/heads/main/samples/most-starred-sample.svg)
+
 ## Contents
 - [GitHub Widgets](#github-widgets)
   - [Widgets](#widgets)
     - [GitHub Contribution Timeseries](#github-contribution-timeseries)
     - [Experience Timeline](#experience-timeline)
+    - [Most Starred Repositories](#most-starred-repositories)
   - [Contents](#contents)
   - [Features](#features)
   - [Themes](#themes)
@@ -31,6 +35,7 @@ A serverless application for generating dynamic GitHub contribution widgets as S
     - [Endpoints](#endpoints)
       - [GET `/api/v1/timeseries-history.svg`](#get-apiv1timeseries-historysvg)
       - [GET `/api/v1/experience-timeline.svg`](#get-apiv1experience-timelinesvg)
+      - [GET `/api/v1/most-starred.svg`](#get-apiv1most-starredsvg)
     - [Embedding in Markdown](#embedding-in-markdown)
     - [Embedding in HTML](#embedding-in-html)
   - [Environment Variables](#environment-variables)
@@ -161,6 +166,9 @@ curl "http://localhost:8888/api/v1/timeseries-history.svg?userName=cyrus2281"
 # Experience timeline - with CSV data
 CSV_DATA="company,start,end,title,logo,color%0AGoogle,2025-10,,AI/ML%20Engineer,,#4285F4"
 curl "http://localhost:8888/api/v1/experience-timeline.svg?experienceCSV=${CSV_DATA}"
+
+# Most starred repositories
+curl "http://localhost:8888/api/v1/most-starred.svg?userName=torvalds&top=5"
 ```
 
 ## API Documentation
@@ -301,6 +309,65 @@ All errors are returned as SVG images with appropriate HTTP status codes:
 
 - `400 Bad Request` - Invalid CSV format, missing required fields, or invalid dates
 - `404 Not Found` - Invalid endpoint
+- `500 Internal Server Error` - Server error during SVG generation
+
+---
+
+#### GET `/api/v1/most-starred.svg`
+
+![most-starred-sample](https://raw.githubusercontent.com/cyrus2281/github-widgets/refs/heads/main/samples/most-starred-sample.svg)
+
+Generate a widget displaying your most starred GitHub repositories with animated glowing borders.
+
+**Query Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `userName` | string | Conditional* | GitHub username to fetch repositories for |
+| `top` | number | Optional | Number of repositories to display (1-10). Defaults to `3`. |
+| `title` | string | Optional | Custom title for the widget. Defaults to `"Most Starred"`. |
+| `animationDuration` | number | Optional | Duration of card entrance animations in seconds (0.5-10). Defaults to `3.5`. |
+| `theme` | string | Optional | Color theme: `radical` (default), `ocean`, `sunset`, `forest`, `midnight`, `monochrome` |
+
+*Required unless `LOCK_GITHUB_USER` environment variable is set.
+
+**Features:**
+
+- 🌟 **Animated Glowing Borders** - Each repository card features a pulsing, rotating gradient border
+- 📊 **Star & Fork Counts** - Displays formatted star and fork counts with icons
+- 📝 **Repository Details** - Shows repository name, description (truncated to 100 chars)
+- 🎨 **Theme Support** - Full theme customization with all available color schemes
+- ⚡ **Smooth Animations** - Staggered card entrance animations for visual appeal
+
+**Examples:**
+
+```bash
+# Basic usage - top 3 repositories (default)
+/api/v1/most-starred.svg?userName=torvalds
+
+# Custom number of repositories
+/api/v1/most-starred.svg?userName=torvalds&top=5
+
+# Custom title and theme
+/api/v1/most-starred.svg?userName=torvalds&top=5&title=Top%20Projects&theme=ocean
+
+# Custom animation duration (faster animations)
+/api/v1/most-starred.svg?userName=torvalds&animationDuration=2
+
+# All parameters
+/api/v1/most-starred.svg?userName=torvalds&top=5&title=My%20Best%20Work&theme=midnight&animationDuration=4.5
+```
+
+**Response:**
+
+- **Content-Type**: `image/svg+xml`
+- **Cache-Control**: `public, max-age=3600`
+- **X-Cache**: `HIT` or `MISS` (indicates cache status)
+
+**Error Responses:**
+
+- `400 Bad Request` - Invalid username or top parameter out of range (1-10)
+- `404 Not Found` - User not found or no repositories available
 - `500 Internal Server Error` - Server error during SVG generation
 
 ### Embedding in Markdown
