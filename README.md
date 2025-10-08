@@ -17,6 +17,10 @@ A serverless application for generating dynamic GitHub contribution widgets as S
     - [Experience Timeline](#experience-timeline)
   - [Contents](#contents)
   - [Features](#features)
+  - [Themes](#themes)
+    - [Available Themes](#available-themes)
+    - [Usage](#usage)
+    - [Previews](#previews)
   - [Quick Start](#quick-start)
     - [Prerequisites](#prerequisites)
     - [Installation](#installation)
@@ -44,12 +48,65 @@ A serverless application for generating dynamic GitHub contribution widgets as S
 
 ## Features
 
-- 🎨 **Beautiful SVG Widgets** - Animated, responsive widgets for GitHub ReadMe
+- 🎨 **Beautiful SVG Widgets** - Animated, responsive, customizable widgets for GitHub ReadMe
+- 🌈 **Customizable Themes** - Choose from multiple color themes for widgets
 - ⚡ **Fast & Cached** - In-memory LRU cache with configurable TTL (default: 1 hour)
 - 🔒 **Secure** - Optional user locking via `LOCK_GITHUB_USER` environment variable
 - 🚀 **Serverless** - Runs on Netlify Functions (AWS Lambda)
 - 🔄 **Extensible** - Easy to add new widget types and API versions
 - 🛠 **SVG Error Handling** - All errors returned as SVG images with appropriate HTTP status codes
+
+## Themes
+
+All widgets support customizable color themes to match your style preferences. Choose from 6 pre-built themes or use the default.
+
+### Available Themes
+
+Use the `theme` query parameter to select a theme for any widget:
+
+| Theme | Description | Preview Colors |
+|-------|-------------|----------------|
+| **radical** (default) | Vibrant pink and purple with dark background | Pink title, multi-color accents |
+| **ocean** | Cool blue tones inspired by the deep sea | Cyan title, ocean blue palette |
+| **sunset** | Warm pink and orange hues | Coral pink title, sunset gradients |
+| **forest** | Natural green tones | Fresh green title, nature-inspired |
+| **midnight** | Deep purple and violet shades | Purple title, night sky colors |
+| **monochrome** | Classic black, white, and gray | Clean grayscale aesthetic |
+
+### Usage
+
+Add the `theme` parameter to any widget URL:
+
+```bash
+/api/v1/timeseries-history.svg?userName=octocat&theme=ocean
+```
+
+### Previews
+
+**Radical Theme (Default):**
+
+![Radical Theme](https://raw.githubusercontent.com/cyrus2281/github-widgets/refs/heads/main/samples/themes/radical.svg)
+
+**Ocean Theme:**
+
+![Ocean Theme](https://raw.githubusercontent.com/cyrus2281/github-widgets/refs/heads/main/samples/themes/ocean.svg)
+
+**Sunset Theme:**
+
+![Sunset Theme](https://raw.githubusercontent.com/cyrus2281/github-widgets/refs/heads/main/samples/themes/sunset.svg)
+
+**Forest Theme:**
+
+![Forest Theme](https://raw.githubusercontent.com/cyrus2281/github-widgets/refs/heads/main/samples/themes/forest.svg)
+
+**Midnight Theme:**
+
+![Midnight Theme](https://raw.githubusercontent.com/cyrus2281/github-widgets/refs/heads/main/samples/themes/midnight.svg)
+
+**Monochrome Theme:**
+
+![Monochrome Theme](https://raw.githubusercontent.com/cyrus2281/github-widgets/refs/heads/main/samples/themes/monochrome.svg)
+
 
 ## Quick Start
 
@@ -127,6 +184,7 @@ Generate a GitHub contribution timeseries chart as an SVG image.
 |-----------|------|----------|-------------|
 | `userName` | string | Conditional* | GitHub username to generate chart for |
 | `range` | string | Optional | Date range in format `YYYY-MM-DD:YYYY-MM-DD` (max 365 days) |
+| `theme` | string | Optional | Color theme: `radical` (default), `ocean`, `sunset`, `forest`, `midnight`, `monochrome` |
 
 *Required unless `LOCK_GITHUB_USER` environment variable is set.
 
@@ -138,6 +196,9 @@ Generate a GitHub contribution timeseries chart as an SVG image.
 
 # With date range
 /api/v1/timeseries-history.svg?userName=octocat&range=2024-01-01:2024-12-31
+
+# With custom theme
+/api/v1/timeseries-history.svg?userName=octocat&theme=ocean
 ```
 
 **Response:**
@@ -170,6 +231,7 @@ Generate a professional experience timeline as an SVG image.
 | `baseFontSize` | number | Optional | Base font size in pixels for relative scaling of all text. All font sizes scale proportionally from this value. Defaults to `14`. |
 | `embedLogos` | boolean | Optional | Whether to embed company logos in the timeline. Defaults to `true`. |
 | `animationTotalDuration` | number | Optional | Total duration of the animation in seconds. Defaults to `5`. |
+| `theme` | string | Optional | Color theme: `radical` (default), `ocean`, `sunset`, `forest`, `midnight`, `monochrome` |
 
 **CSV Format:**
 

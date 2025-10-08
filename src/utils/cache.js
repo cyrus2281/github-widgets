@@ -22,8 +22,8 @@ export function createCache(maxSize = 100, ttl = 3600000) {
  * @param {string} endDate - End date in ISO format
  * @returns {string} Cache key
  */
-export function generateCacheKey(username, startDate, endDate) {
-  return `timeseries-history:${username}:${startDate}:${endDate}`;
+export function generateCacheKey(widget, ...args) {
+  return `${widget}:${args.join(':')}`;
 }
 
 // Create singleton cache instance with environment variable configuration
