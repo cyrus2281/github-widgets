@@ -1,7 +1,6 @@
 export const THEMES = {
     "radical": {
-        bg: "#0b1020",
-        card: "#0f1724",
+        bg: "#0f1724",
     
         text: "#cbd5e1",
         subtext: "#94a3b8",
@@ -31,8 +30,7 @@ export const THEMES = {
         fadeShadow: "#ffffff11"
     },
     "ocean": {
-        bg: "#0a1929",
-        card: "#0d2238",
+        bg: "#0d2238",
         
         text: "#b3d9ff",
         subtext: "#7fa8cc",
@@ -62,8 +60,7 @@ export const THEMES = {
         fadeShadow: "#00bcd422"
     },
     "sunset": {
-        bg: "#1a0f1f",
-        card: "#2a1530",
+        bg: "#2a1530",
         
         text: "#ffd4e5",
         subtext: "#d4a5b8",
@@ -93,8 +90,7 @@ export const THEMES = {
         fadeShadow: "#ff6b6b22"
     },
     "forest": {
-        bg: "#0f1a0f",
-        card: "#1a2a1a",
+        bg: "#1a2a1a",
         
         text: "#c8e6c9",
         subtext: "#9ccc9c",
@@ -124,8 +120,7 @@ export const THEMES = {
         fadeShadow: "#4caf5022"
     },
     "midnight": {
-        bg: "#0d0221",
-        card: "#1a0b3d",
+        bg: "#1a0b3d",
         
         text: "#e0d4ff",
         subtext: "#b8a5d9",
@@ -155,8 +150,7 @@ export const THEMES = {
         fadeShadow: "#bb86fc22"
     },
     "monochrome": {
-        bg: "#0f0f0f",
-        card: "#1a1a1a",
+        bg: "#1a1a1a",
         
         text: "#e0e0e0",
         subtext: "#9e9e9e",
