@@ -12,7 +12,7 @@ export async function handler(event) {
   try {
     // Parse query parameters
     const queryParams = parseQueryParams(event.rawQuery);
-    const { userName, range } = queryParams;
+    const { userName, range, theme = 'radical' } = queryParams;
 
     // Check LOCK_GITHUB_USER environment variable
     const lockedUser = process.env.LOCK_GITHUB_USER;
@@ -84,6 +84,7 @@ export async function handler(event) {
     const svg = await generateActivitySVG(username, {
       range: range || undefined,
       githubToken,
+      theme,
     });
 
     // Cache the response
