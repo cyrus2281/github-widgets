@@ -10,10 +10,13 @@ import { JSDOM } from "jsdom";
  * - empty end means present
  *
  * Options:
- *  - width (default 1200)
- *  - heightPerLane (default 80)
- *  - margin (default { top: 100, right: 120, bottom: 30, left: 30 })
- *  - embedLogos (default true)
+ * - width (default 1200)
+ * - heightPerLane (default 80)
+ * - margin (default { top: 100, right: 120, bottom: 30, left: 30 })
+ * - embedLogos (default true)
+ * - includeStartDate (default true)
+ * - includeEndDate (default true)
+ * - animationTotalDuration (default 5) total animation time in seconds
  *
  * Returns: Promise<string> SVG markup
  */
@@ -23,7 +26,8 @@ async function generateExperienceTimeline(csvString, opts = {}) {
     heightPerLane = 80,
     margin = { top: 100, right: 30, bottom: 30, left: 30 },
     embedLogos = true,
-    includeDates = true,
+    includeStartDate = true,
+    includeEndDate = true,
     animationTotalDuration = 5
   } = opts;
 
@@ -272,36 +276,38 @@ async function generateExperienceTimeline(csvString, opts = {}) {
   const lineHeight = 16;
 
   // Date labels (drawn separately for unified animation)
-  if (includeDates) {
+  if (includeStartDate || includeEndDate) {
     const dateLabelGroup = svg.append("g").attr("class", "date-labels");
     const drawnLabelXCoords = new Set();
     const labelProximityThreshold = 20; // Min horizontal pixels between labels
 
     for (const it of items) {
-      const nx = xScale(it.start);
       const ny = laneToY(it.lane);
       const onBaseline = ny === baselineY;
       const labelY = onBaseline ? ny - nodeRadius - 4 : ny + nodeRadius + 4;
       const dominantBaseline = onBaseline ? "auto" : "hanging";
 
       // Start date
-      const isTooCloseToOtherLabel = [...drawnLabelXCoords].some((x) => Math.abs(x - nx) < labelProximityThreshold);
-      if (!isTooCloseToOtherLabel) {
-        dateLabelGroup
-          .append("text")
-          .attr("class", "date-label")
-          .attr("x", nx)
-          .attr("y", labelY)
-          .attr("dominant-baseline", dominantBaseline)
-          .attr("text-anchor", "middle")
-          .attr("font-size", 10)
-          .attr("fill", THEME.text)
-          .text(it.startRaw);
-        drawnLabelXCoords.add(nx);
+      if (includeStartDate) {
+        const nx = xScale(it.start);
+        const isTooCloseToOtherLabel = [...drawnLabelXCoords].some((x) => Math.abs(x - nx) < labelProximityThreshold);
+        if (!isTooCloseToOtherLabel) {
+          dateLabelGroup
+            .append("text")
+            .attr("class", "date-label")
+            .attr("x", nx)
+            .attr("y", labelY)
+            .attr("dominant-baseline", dominantBaseline)
+            .attr("text-anchor", "middle")
+            .attr("font-size", 10)
+            .attr("fill", THEME.text)
+            .text(it.startRaw);
+          drawnLabelXCoords.add(nx);
+        }
       }
 
       // End date
-      if (it.end) {
+      if (includeEndDate && it.end) {
         const ex = xScale(it.end);
         const isEndTooClose = [...drawnLabelXCoords].some((x) => Math.abs(x - ex) < labelProximityThreshold);
         if (!isEndTooClose) {
