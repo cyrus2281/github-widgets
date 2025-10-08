@@ -167,7 +167,7 @@ Generate a professional experience timeline as an SVG image.
 | `marginRight` | number | Optional | Right margin in pixels. Defaults to `30`. |
 | `marginBottom` | number | Optional | Bottom margin in pixels. Defaults to `30`. |
 | `marginLeft` | number | Optional | Left margin in pixels. Defaults to `30`. |
-| `baseFontSize` | number | Optional | Base font size in pixels for relative scaling of all text. All font sizes scale proportionally from this value. Defaults to `12`. |
+| `baseFontSize` | number | Optional | Base font size in pixels for relative scaling of all text. All font sizes scale proportionally from this value. Defaults to `14`. |
 | `embedLogos` | boolean | Optional | Whether to embed company logos in the timeline. Defaults to `true`. |
 | `animationTotalDuration` | number | Optional | Total duration of the animation in seconds. Defaults to `5`. |
 
@@ -213,6 +213,8 @@ CSV="company,start,end,title,logo,color%0AGoogle,2025-10,,AI/ML%20Engineer,,#428
 curl "http://localhost:8888/api/v1/experience-timeline.svg?experienceCSV=${CSV}&width=800&heightPerLane=60&animationTotalDuration=10"
 ```
 
+* Use width, margin, and font size parameters to fit your layout.
+
 **JavaScript Example:**
 
 ```javascript
@@ -223,6 +225,7 @@ Spotify,2024-08,2025-06,Sr Software Developer,,#1DB954`;
 const encodedCSV = encodeURIComponent(experienceData);
 const url = `https://your-site.netlify.app/api/v1/experience-timeline.svg?experienceCSV=${encodedCSV}`;
 ```
+
 
 **Response:**
 
