@@ -21,9 +21,10 @@ async function generateExperienceTimeline(csvString, opts = {}) {
   const {
     width = 1200,
     heightPerLane = 80,
-    margin = { top: 100, right: 120, bottom: 30, left: 30 },
+    margin = { top: 100, right: 30, bottom: 30, left: 30 },
     embedLogos = true,
     includeDates = true,
+    animationTotalDuration = 5
   } = opts;
 
   const THEME = {
@@ -120,6 +121,74 @@ async function generateExperienceTimeline(csvString, opts = {}) {
   // background
   svg.append("rect").attr("x", 0).attr("y", 0).attr("width", width).attr("height", height).attr("fill", THEME.bg);
 
+  const baselineDuration = animationTotalDuration * 0.15;
+  const datesDuration = animationTotalDuration * 0.1;
+  const jobsDuration = animationTotalDuration * 0.75;
+
+  const datesDelay = baselineDuration;
+  const jobsStartTime = datesDelay + datesDuration;
+  const durationPerJob = jobsDuration / Math.max(1, items.length);
+  const jobPartAnimDuration = durationPerJob * 0.5;
+
+  const style = `
+    :root {
+      --baseline-duration: ${baselineDuration}s;
+      --dates-duration: ${datesDuration}s;
+      --dates-delay: ${datesDelay}s;
+    }
+    .timeline-baseline {
+      stroke-dasharray: ${width};
+      stroke-dashoffset: ${width};
+      animation: draw-line var(--baseline-duration) ease-out forwards, fade-in-baseline var(--baseline-duration) ease-out forwards;
+      stroke-opacity: 0;
+    }
+    .date-label, .job-group > text, .job-group > image, .job-group > circle {
+      opacity: 0;
+    }
+    .date-label {
+      animation: fade-in-element var(--dates-duration) var(--dates-delay) ease-out forwards;
+    }
+    .job-group > text, .job-group > image, .job-group > circle {
+      animation: fade-in-element ${jobPartAnimDuration}s ease-out forwards;
+      animation-delay: inherit;
+    }
+    .job-bar {
+      width: 0;
+      animation:
+        trigger-width-growth ${jobPartAnimDuration}s forwards;
+      fill-opacity: 0.14;
+      stroke-opacity: 0.45;
+      animation-delay: inherit;
+    }
+    .job-connector {
+      stroke-dasharray: 200;
+      stroke-dashoffset: 200;
+      animation: draw-line ${jobPartAnimDuration}s ease-out forwards;
+      animation-delay: inherit;
+      stroke-opacity: 0.95;
+    }
+    .job-connector-in {
+      stroke-dasharray: 200;
+      stroke-dashoffset: 200;
+      animation: draw-line ${jobPartAnimDuration}s ease-out forwards;
+      animation-delay: inherit;
+      stroke-opacity: 0.95;
+    }
+    @keyframes draw-line {
+      to { stroke-dashoffset: 0; }
+    }
+    @keyframes fade-in-element {
+      to { opacity: 1; }
+    }
+    @keyframes fade-in-baseline {
+      to { stroke-opacity: 0.95; }
+    }
+    @keyframes trigger-width-growth {
+      to { width: var(--final-width); }
+    }
+  `;
+  svg.append("style").text(style);
+
   // title
   svg
     .append("text")
@@ -137,13 +206,13 @@ async function generateExperienceTimeline(csvString, opts = {}) {
   // draw baseline
   svg
     .append("line")
+    .attr("class", "timeline-baseline")
     .attr("x1", margin.left)
     .attr("x2", width - margin.right)
     .attr("y1", baselineY)
     .attr("y2", baselineY)
     .attr("stroke", THEME.icon)
-    .attr("stroke-width", 2)
-    .attr("stroke-opacity", 0.95);
+    .attr("stroke-width", 2);
 
   // helper: lane index to Y coordinate
   function laneToY(lane) {
@@ -196,90 +265,31 @@ async function generateExperienceTimeline(csvString, opts = {}) {
     items.forEach((it) => (it.logoData = null));
   }
 
-  // draw duration bars (behind)
-  const barGroup = svg.append("g").attr("class", "bars");
-  for (const it of items) {
-    const x1 = xScale(it.start);
-    const x2 = xScale(it.end || now);
-    const y = laneToY(it.lane);
-    const w = Math.max(6, x2 - x1);
-    barGroup
-      .append("rect")
-      .attr("x", Math.min(x1, x2))
-      .attr("y", y - 10)
-      .attr("width", w)
-      .attr("height", 18)
-      .attr("rx", 9)
-      .attr("fill", it.color)
-      .attr("fill-opacity", 0.14)
-      .attr("stroke", it.color)
-      .attr("stroke-opacity", 0.45)
-      .attr("stroke-width", 1.2);
-  }
-
-  // draw connectors (out and back)
-  const connectorGroup = svg.append("g").attr("class", "connectors");
-  for (const it of items) {
-    const startX = xScale(it.start);
-    const endX = xScale(it.end || now);
-    const nodeY = laneToY(it.lane);
-
-    if (nodeY === baselineY) {
-      connectorGroup
-        .append("line")
-        .attr("x1", startX)
-        .attr("x2", startX)
-        .attr("y1", baselineY - 6)
-        .attr("y2", baselineY + 6)
-        .attr("stroke", THEME.icon)
-        .attr("stroke-width", 1.2);
-    } else {
-      const outControlX = startX + Math.min(60, (endX - startX) * 0.25);
-      const pathOut = `M ${startX} ${baselineY} C ${outControlX} ${baselineY} ${outControlX} ${nodeY} ${startX} ${nodeY}`;
-      connectorGroup.append("path").attr("d", pathOut).attr("fill", "none").attr("stroke", THEME.icon).attr("stroke-width", 1.6).attr("stroke-opacity", 0.95);
-
-      const inControlX = endX - Math.min(60, (endX - startX) * 0.25);
-      const pathIn = `M ${endX} ${baselineY} C ${inControlX} ${baselineY} ${inControlX} ${nodeY} ${endX} ${nodeY}`;
-      connectorGroup.append("path").attr("d", pathIn).attr("fill", "none").attr("stroke", THEME.icon).attr("stroke-width", 1.6).attr("stroke-opacity", 0.95);
-    }
-  }
-
   // nodes and label blocks
-  const nodeGroup = svg.append("g").attr("class", "nodes");
+  const jobsGroup = svg.append("g").attr("class", "jobs");
   const nodeRadius = 9;
   const logoSize = 26;
   const lineHeight = 16;
 
-  let drawnLabelXCoords;
+  // Date labels (drawn separately for unified animation)
   if (includeDates) {
-    drawnLabelXCoords = new Set();
-  }
-  const labelProximityThreshold = 20; // Min horizontal pixels between labels
+    const dateLabelGroup = svg.append("g").attr("class", "date-labels");
+    const drawnLabelXCoords = new Set();
+    const labelProximityThreshold = 20; // Min horizontal pixels between labels
 
-  for (const it of items) {
-    const nx = xScale(it.start);
-    const ny = laneToY(it.lane);
-
-    // node circle
-    nodeGroup
-      .append("circle")
-      .attr("cx", nx)
-      .attr("cy", ny)
-      .attr("r", nodeRadius)
-      .attr("fill", it.color)
-      .attr("stroke", "#111")
-      .attr("stroke-width", 1.2);
-
-    if (includeDates) {
+    for (const it of items) {
+      const nx = xScale(it.start);
+      const ny = laneToY(it.lane);
       const onBaseline = ny === baselineY;
       const labelY = onBaseline ? ny - nodeRadius - 4 : ny + nodeRadius + 4;
       const dominantBaseline = onBaseline ? "auto" : "hanging";
 
-      // date label above/below node
+      // Start date
       const isTooCloseToOtherLabel = [...drawnLabelXCoords].some((x) => Math.abs(x - nx) < labelProximityThreshold);
       if (!isTooCloseToOtherLabel) {
-        nodeGroup
+        dateLabelGroup
           .append("text")
+          .attr("class", "date-label")
           .attr("x", nx)
           .attr("y", labelY)
           .attr("dominant-baseline", dominantBaseline)
@@ -290,13 +300,14 @@ async function generateExperienceTimeline(csvString, opts = {}) {
         drawnLabelXCoords.add(nx);
       }
 
-      // end date label above/below node
+      // End date
       if (it.end) {
         const ex = xScale(it.end);
         const isEndTooClose = [...drawnLabelXCoords].some((x) => Math.abs(x - ex) < labelProximityThreshold);
         if (!isEndTooClose) {
-          nodeGroup
+          dateLabelGroup
             .append("text")
+            .attr("class", "date-label")
             .attr("x", ex)
             .attr("y", labelY)
             .attr("dominant-baseline", dominantBaseline)
@@ -308,18 +319,108 @@ async function generateExperienceTimeline(csvString, opts = {}) {
         }
       }
     }
+  }
+
+  for (const [i, it] of items.entries()) {
+    const x1 = xScale(it.start);
+    const x2 = xScale(it.end || now);
+    const y = laneToY(it.lane);
+    const w = Math.max(6, x2 - x1);
+
+    const delay = jobsStartTime + i * durationPerJob;
+    const itemGroup = jobsGroup
+      .append("g")
+      .attr("class", "job-group")
+      .attr("style", `--final-width: ${w}px; animation-delay: ${delay}s; transition-delay: ${delay}s;`);
+
+    // duration bar
+    itemGroup
+      .append("rect")
+      .attr("class", "job-bar")
+      .attr("x", Math.min(x1, x2))
+      .attr("y", y - 10)
+      .attr("width", w)
+      .attr("height", 18)
+      .attr("rx", 9)
+      .attr("fill", it.color)
+      .attr("stroke", it.color)
+      .attr("stroke-width", 1.2);
+
+    // Draw connectors from baseline to node
+    if (y === baselineY) {
+      // Simple vertical line for baseline jobs
+      itemGroup
+        .append("line")
+        .attr("class", "job-connector")
+        .attr("x1", x1)
+        .attr("x2", x1)
+        .attr("y1", y - 6)
+        .attr("y2", y + 6)
+        .attr("stroke", THEME.icon)
+        .attr("stroke-width", 1.2);
+    } else {
+      // Curved path for jobs off-baseline
+      const outControlX = x1 + Math.min(60, (x2 - x1) * 0.25);
+      const pathOut = `M ${x1} ${baselineY} C ${outControlX} ${baselineY} ${outControlX} ${y} ${x1} ${y}`;
+      itemGroup
+        .append("path")
+        .attr("class", "job-connector")
+        .attr("d", pathOut)
+        .attr("fill", "none")
+        .attr("stroke", THEME.icon)
+        .attr("stroke-width", 1.6);
+        }
+        
+        // Draw closing connectors from node back to baseline
+        const endX = xScale(it.end || now);
+        if (it.end || y !== baselineY) {
+          const closingConnectorDelay = delay + jobPartAnimDuration;
+          if (y === baselineY) {
+            itemGroup
+              .append("line")
+              .attr("class", "job-connector-in")
+              .attr("x1", endX)
+              .attr("x2", endX)
+              .attr("y1", y - 6)
+              .attr("y2", y + 6)
+              .attr("stroke", THEME.icon)
+              .attr("stroke-width", 1.2)
+              .attr("style", `animation-delay: ${closingConnectorDelay}s;`);
+          } else {
+            const inControlX = endX - Math.min(60, (endX - x1) * 0.25);
+            const pathIn = `M ${endX} ${y} C ${inControlX} ${y} ${inControlX} ${baselineY} ${endX} ${baselineY}`;
+            itemGroup
+              .append("path")
+              .attr("class", "job-connector-in")
+              .attr("d", pathIn)
+              .attr("fill", "none")
+              .attr("stroke", THEME.icon)
+              .attr("stroke-width", 1.6)
+              .attr("style", `animation-delay: ${closingConnectorDelay}s;`);
+          }
+        }
+
+    // node circle
+    itemGroup
+      .append("circle")
+      .attr("cx", x1)
+      .attr("cy", y)
+      .attr("r", nodeRadius)
+      .attr("fill", it.color)
+      .attr("stroke", "#111")
+      .attr("stroke-width", 1.2);
 
     // stacked label block placement
     const hasTitle = Boolean(it.title);
-    const blockX = nx + nodeRadius + 12;
+    const blockX = x1 + nodeRadius + 12;
     let topY;
-    if (ny < baselineY) {
+    if (y < baselineY) {
       // node is above baseline - place block above node
       const blockHeight = (hasTitle ? 2 : 1) * lineHeight;
-      topY = ny - nodeRadius - 8 - blockHeight;
+      topY = y - nodeRadius - 8 - blockHeight;
     } else {
       // node is on baseline or below - place block below node
-      topY = ny + nodeRadius + 8;
+      topY = y + nodeRadius + 8;
     }
 
     // logo (absolute positioned so clip path can use exact coords)
@@ -336,7 +437,7 @@ async function generateExperienceTimeline(csvString, opts = {}) {
         .attr("cy", logoY + logoSize / 2)
         .attr("r", logoSize / 2);
 
-      nodeGroup
+      itemGroup
         .append("image")
         .attr("href", it.logoData)
         .attr("x", logoX)
@@ -350,7 +451,7 @@ async function generateExperienceTimeline(csvString, opts = {}) {
     // company and title stacked
     const textStartX = it.logoData ? blockX : blockX - (logoSize + 6); // if no logo, shift left
     const companyY = topY + lineHeight - 2;
-    nodeGroup
+    itemGroup
       .append("text")
       .attr("x", textStartX)
       .attr("y", companyY)
@@ -360,7 +461,7 @@ async function generateExperienceTimeline(csvString, opts = {}) {
       .text(it.company);
 
     if (hasTitle) {
-      nodeGroup
+      itemGroup
         .append("text")
         .attr("x", textStartX)
         .attr("y", companyY + lineHeight)
