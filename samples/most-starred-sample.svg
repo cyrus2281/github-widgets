@@ -1,0 +1,274 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="700" height="566" viewBox="0 0 700 566">
+  <defs>
+    <!-- Drop shadow filter -->
+    <filter id="dropShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="4"/>
+      <feOffset dx="0" dy="2" result="offsetblur"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.3"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <!-- Glowing gradient definition -->
+    <linearGradient id="glowGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff6b6b;stop-opacity:1">
+        <animate attributeName="stop-color" 
+          values="#ff6b6b;#7c5cff;#f8d847;#ff6b6b" 
+          dur="6s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="50%" style="stop-color:#7c5cff;stop-opacity:1">
+        <animate attributeName="stop-color" 
+          values="#7c5cff;#f8d847;#ff6b6b;#7c5cff" 
+          dur="6s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="100%" style="stop-color:#f8d847;stop-opacity:1">
+        <animate attributeName="stop-color" 
+          values="#f8d847;#ff6b6b;#7c5cff;#f8d847" 
+          dur="6s" repeatCount="indefinite"/>
+      </stop>
+    </linearGradient>
+    
+    <!-- Glow filter for border effect -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <style>
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes slideInCard {
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    
+    @keyframes glowPulse {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+    
+    @keyframes glowRotate {
+      from { stroke-dashoffset: 0; }
+      to { stroke-dashoffset: 1000; }
+    }
+    
+    .title {
+      animation: fadeIn 0.8s ease-out forwards;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+    }
+    
+    .subtitle { 
+      animation: fadeIn 0.8s ease-out forwards 0.2s;
+      opacity: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      font-size: 16px;
+      font-weight: 400;
+    }
+    
+    .card {
+      opacity: 0;
+    }
+    
+    
+    .card-0 { animation: slideInCard 0.6s ease-out forwards 0.70s; }
+    .card-1 { animation: slideInCard 0.6s ease-out forwards 1.40s; }
+    .card-2 { animation: slideInCard 0.6s ease-out forwards 2.10s; }
+    
+    .glow-border {
+      animation: glowPulse 3s ease-in-out infinite, glowRotate 8s linear infinite;
+    }
+    
+    .repo-name {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+    }
+    
+    .repo-desc {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+    }
+    
+    .stat-text {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+    }
+    
+    .stat-text-fork {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+    }
+  </style>
+  
+  <!-- Background -->
+  <rect x="0" y="0" width="700" height="566" fill="#0f1724" rx="16"/>
+  
+  <!-- Title -->
+  <text x="350" y="48" text-anchor="middle" fill="#fe428e" class="title">
+    Most Starred
+  </text>
+  
+  <!-- Subtitle -->
+  <text x="350" y="72" text-anchor="middle" fill="#94a3b8" class="subtitle">
+    @cyrus2281
+  </text>
+  
+  <!-- Repository Cards -->
+  
+  <!-- Card 0 -->
+  <g class="card card-0">
+    <!-- Card background with shadow -->
+    <rect x="48" y="96" width="604" height="130"
+          fill="#0f1724" rx="12"
+          stroke="#1e293b" stroke-width="1"
+          filter="url(#dropShadow)"/>
+    
+    <!-- Glowing border -->
+    <rect x="48" y="96" width="604" height="130"
+          fill="none" rx="12"
+          stroke="url(#glowGradient)" stroke-width="2"
+          stroke-dasharray="20 10"
+          filter="url(#glow)"
+          class="glow-border"/>
+    
+    <!-- Repository name -->
+    <text x="68" y="128" fill="#cbd5e1" class="repo-name">
+      cyrus2281/joystick-controller
+    </text>
+    
+    <!-- Description (multi-line) -->
+    <text x="68" y="152" fill="#94a3b8" class="repo-desc">
+      <tspan x="68" dy="0">A JavaScript virtual joystick controller for both desktop and mobile devices.</tspan>
+    </text>
+    
+    <!-- Star icon and count -->
+    <g transform="translate(68, 202)">
+      <svg x="0" y="-8" width="16" height="16" viewBox="0 0 16 16" fill="#ffd600">
+        <path d="M8 0l2.163 6.636h6.978l-5.652 4.106 2.163 6.636L8 13.272l-5.652 4.106 2.163-6.636L0 6.636h6.978z"/>
+      </svg>
+      <text x="22" y="0" fill="#cbd5e1" class="stat-text" alignment-baseline="middle">
+        35
+      </text>
+    </g>
+    
+    <!-- Fork icon and count -->
+    <g transform="translate(168, 202)">
+      <svg x="0" y="-7" width="14" height="14" viewBox="0 0 14 14" fill="#94a3b8">
+        <path d="M5 5.372v.878c0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75v-.878a2.25 2.25 0 1 1 1.5 0v.878a2.25 2.25 0 0 1-2.25 2.25h-1.5v2.128a2.251 2.251 0 1 1-1.5 0V8.5h-1.5A2.25 2.25 0 0 1 3.5 6.25v-.878a2.25 2.25 0 1 1 1.5 0ZM5 3.25a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Zm6.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm-3 8.75a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Z"/>
+      </svg>
+      <text x="22" y="0" fill="#94a3b8" class="stat-text-fork" alignment-baseline="middle">
+        3
+      </text>
+    </g>
+  </g>
+
+  <!-- Card 1 -->
+  <g class="card card-1">
+    <!-- Card background with shadow -->
+    <rect x="48" y="242" width="604" height="130"
+          fill="#0f1724" rx="12"
+          stroke="#1e293b" stroke-width="1"
+          filter="url(#dropShadow)"/>
+    
+    <!-- Glowing border -->
+    <rect x="48" y="242" width="604" height="130"
+          fill="none" rx="12"
+          stroke="url(#glowGradient)" stroke-width="2"
+          stroke-dasharray="20 10"
+          filter="url(#glow)"
+          class="glow-border"/>
+    
+    <!-- Repository name -->
+    <text x="68" y="274" fill="#cbd5e1" class="repo-name">
+      cyrus2281/MAC-SlideGenerator
+    </text>
+    
+    <!-- Description (multi-line) -->
+    <text x="68" y="298" fill="#94a3b8" class="repo-desc">
+      <tspan x="68" dy="0">Multi-Agent Collaboration: Voice-overed video slide generator</tspan>
+    </text>
+    
+    <!-- Star icon and count -->
+    <g transform="translate(68, 348)">
+      <svg x="0" y="-8" width="16" height="16" viewBox="0 0 16 16" fill="#ffd600">
+        <path d="M8 0l2.163 6.636h6.978l-5.652 4.106 2.163 6.636L8 13.272l-5.652 4.106 2.163-6.636L0 6.636h6.978z"/>
+      </svg>
+      <text x="22" y="0" fill="#cbd5e1" class="stat-text" alignment-baseline="middle">
+        10
+      </text>
+    </g>
+    
+    <!-- Fork icon and count -->
+    <g transform="translate(168, 348)">
+      <svg x="0" y="-7" width="14" height="14" viewBox="0 0 14 14" fill="#94a3b8">
+        <path d="M5 5.372v.878c0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75v-.878a2.25 2.25 0 1 1 1.5 0v.878a2.25 2.25 0 0 1-2.25 2.25h-1.5v2.128a2.251 2.251 0 1 1-1.5 0V8.5h-1.5A2.25 2.25 0 0 1 3.5 6.25v-.878a2.25 2.25 0 1 1 1.5 0ZM5 3.25a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Zm6.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm-3 8.75a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Z"/>
+      </svg>
+      <text x="22" y="0" fill="#94a3b8" class="stat-text-fork" alignment-baseline="middle">
+        2
+      </text>
+    </g>
+  </g>
+
+  <!-- Card 2 -->
+  <g class="card card-2">
+    <!-- Card background with shadow -->
+    <rect x="48" y="388" width="604" height="130"
+          fill="#0f1724" rx="12"
+          stroke="#1e293b" stroke-width="1"
+          filter="url(#dropShadow)"/>
+    
+    <!-- Glowing border -->
+    <rect x="48" y="388" width="604" height="130"
+          fill="none" rx="12"
+          stroke="url(#glowGradient)" stroke-width="2"
+          stroke-dasharray="20 10"
+          filter="url(#glow)"
+          class="glow-border"/>
+    
+    <!-- Repository name -->
+    <text x="68" y="420" fill="#cbd5e1" class="repo-name">
+      cyrus2281/Echo-Search
+    </text>
+    
+    <!-- Description (multi-line) -->
+    <text x="68" y="444" fill="#94a3b8" class="repo-desc">
+      <tspan x="68" dy="0">Echo Search is a feature-rich and powerful application that allows you to search</tspan><tspan x="68" dy="18">for a specific text or regular expression query in the content of files with...</tspan>
+    </text>
+    
+    <!-- Star icon and count -->
+    <g transform="translate(68, 494)">
+      <svg x="0" y="-8" width="16" height="16" viewBox="0 0 16 16" fill="#ffd600">
+        <path d="M8 0l2.163 6.636h6.978l-5.652 4.106 2.163 6.636L8 13.272l-5.652 4.106 2.163-6.636L0 6.636h6.978z"/>
+      </svg>
+      <text x="22" y="0" fill="#cbd5e1" class="stat-text" alignment-baseline="middle">
+        7
+      </text>
+    </g>
+    
+    <!-- Fork icon and count -->
+    <g transform="translate(168, 494)">
+      <svg x="0" y="-7" width="14" height="14" viewBox="0 0 14 14" fill="#94a3b8">
+        <path d="M5 5.372v.878c0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75v-.878a2.25 2.25 0 1 1 1.5 0v.878a2.25 2.25 0 0 1-2.25 2.25h-1.5v2.128a2.251 2.251 0 1 1-1.5 0V8.5h-1.5A2.25 2.25 0 0 1 3.5 6.25v-.878a2.25 2.25 0 1 1 1.5 0ZM5 3.25a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Zm6.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm-3 8.75a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Z"/>
+      </svg>
+      <text x="22" y="0" fill="#94a3b8" class="stat-text-fork" alignment-baseline="middle">
+        0
+      </text>
+    </g>
+  </g>
+</svg>
