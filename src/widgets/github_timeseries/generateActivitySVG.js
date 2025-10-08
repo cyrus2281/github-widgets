@@ -217,7 +217,7 @@ function generateActivitySVGFromData(user, dayArray, col, startDate, endDate, op
     </filter>
 
     <style>
-      .card-bg { fill: ${colors.card}; }
+      .card-bg { fill: ${colors.bg}; }
       .title-main { font: 700 18px system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; fill: ${colors.text}; opacity: 0; animation: fadeIn 0.9s ease-out forwards; }
       .title-login { font-weight: 700; fill: ${colors.accentA}; font-family: "SFMono-Regular", ui-monospace, "Roboto Mono", monospace; }
       .subtitle { font: 500 13px system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; fill: ${colors.subtext}; opacity: 0; animation: fadeIn 0.9s ease-out forwards 0.35s; }
