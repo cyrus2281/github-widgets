@@ -167,6 +167,7 @@ Generate a professional experience timeline as an SVG image.
 | `marginRight` | number | Optional | Right margin in pixels. Defaults to `30`. |
 | `marginBottom` | number | Optional | Bottom margin in pixels. Defaults to `30`. |
 | `marginLeft` | number | Optional | Left margin in pixels. Defaults to `30`. |
+| `baseFontSize` | number | Optional | Base font size in pixels for relative scaling of all text. All font sizes scale proportionally from this value. Defaults to `12`. |
 | `embedLogos` | boolean | Optional | Whether to embed company logos in the timeline. Defaults to `true`. |
 | `animationTotalDuration` | number | Optional | Total duration of the animation in seconds. Defaults to `5`. |
 

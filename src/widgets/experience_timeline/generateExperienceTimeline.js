@@ -17,6 +17,7 @@ import { JSDOM } from "jsdom";
  * - includeStartDate (default true)
  * - includeEndDate (default true)
  * - animationTotalDuration (default 5) total animation time in seconds
+ * - baseFontSize (default 12) base font size in pixels for relative scaling
  *
  * Returns: Promise<string> SVG markup
  */
@@ -28,7 +29,8 @@ async function generateExperienceTimeline(csvString, opts = {}) {
     embedLogos = true,
     includeStartDate = true,
     includeEndDate = true,
-    animationTotalDuration = 5
+    animationTotalDuration = 5,
+    baseFontSize = 12
   } = opts;
 
   const THEME = {
@@ -199,7 +201,7 @@ async function generateExperienceTimeline(csvString, opts = {}) {
     .attr("x", width / 2)
     .attr("y", margin.top / 2)
     .attr("text-anchor", "middle")
-    .attr("font-size", 28)
+    .attr("font-size", Math.round(baseFontSize * 2.33 * 10) / 10)
     .attr("fill", THEME.title)
     .attr("font-weight", "700")
     .text("Experience Timeline");
@@ -299,7 +301,7 @@ async function generateExperienceTimeline(csvString, opts = {}) {
             .attr("y", labelY)
             .attr("dominant-baseline", dominantBaseline)
             .attr("text-anchor", "middle")
-            .attr("font-size", 10)
+            .attr("font-size", Math.round(baseFontSize * 0.83 * 10) / 10)
             .attr("fill", THEME.text)
             .text(it.startRaw);
           drawnLabelXCoords.add(nx);
@@ -318,7 +320,7 @@ async function generateExperienceTimeline(csvString, opts = {}) {
             .attr("y", labelY)
             .attr("dominant-baseline", dominantBaseline)
             .attr("text-anchor", "middle")
-            .attr("font-size", 10)
+            .attr("font-size", Math.round(baseFontSize * 0.83 * 10) / 10)
             .attr("fill", THEME.text)
             .text(it.endRaw);
           drawnLabelXCoords.add(ex);
@@ -461,7 +463,7 @@ async function generateExperienceTimeline(csvString, opts = {}) {
       .append("text")
       .attr("x", textStartX)
       .attr("y", companyY)
-      .attr("font-size", 13)
+      .attr("font-size", Math.round(baseFontSize * 1.08 * 10) / 10)
       .attr("font-weight", 700)
       .attr("fill", THEME.title)
       .text(it.company);
@@ -471,7 +473,7 @@ async function generateExperienceTimeline(csvString, opts = {}) {
         .append("text")
         .attr("x", textStartX)
         .attr("y", companyY + lineHeight)
-        .attr("font-size", 12)
+        .attr("font-size", baseFontSize)
         .attr("fill", THEME.text)
         .text(it.title);
     }
