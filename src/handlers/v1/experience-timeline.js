@@ -83,8 +83,30 @@ export async function handler(event) {
   try {
     // Parse query parameters
     const queryParams = parseQueryParams(event.rawQuery);
-    const { experienceCSV } = queryParams;
-    const includeDates = queryParams.includeDates !== 'false';
+    const {
+      experienceCSV,
+      width: widthStr = '1200',
+      heightPerLane: heightPerLaneStr = '80',
+      marginTop: marginTopStr = '100',
+      marginRight: marginRightStr = '30',
+      marginBottom: marginBottomStr = '30',
+      marginLeft: marginLeftStr = '30',
+      embedLogos: embedLogosStr = 'true',
+      animationTotalDuration: animationTotalDurationStr = '5',
+    } = queryParams;
+
+    const includeStartDate = queryParams.includeStartDate !== 'false';
+    const includeEndDate = queryParams.includeEndDate !== 'false';
+
+    // Type conversion and validation
+    const width = parseInt(widthStr, 10) || 1200;
+    const heightPerLane = parseInt(heightPerLaneStr, 10) || 80;
+    const marginTop = parseInt(marginTopStr, 10) || 100;
+    const marginRight = parseInt(marginRightStr, 10) || 30;
+    const marginBottom = parseInt(marginBottomStr, 10) || 30;
+    const marginLeft = parseInt(marginLeftStr, 10) || 30;
+    const embedLogos = embedLogosStr === 'true';
+    const animationTotalDuration = parseFloat(animationTotalDurationStr) || 5;
 
     // Validate experienceCSV parameter exists
     if (!experienceCSV) {
@@ -106,8 +128,20 @@ export async function handler(event) {
       return createValidationErrorSVG('experienceCSV', error.message);
     }
 
-    // Generate cache key based on CSV content
-    const cacheKey = generateCacheKey('experience-timeline', decodedCSV, `includeDates=${includeDates}`);
+    // Generate cache key based on CSV content and all options
+    const cacheKeyOptions = {
+      width,
+      heightPerLane,
+      marginTop,
+      marginRight,
+      marginBottom,
+      marginLeft,
+      embedLogos,
+      includeStartDate,
+      includeEndDate,
+      animationTotalDuration,
+    };
+    const cacheKey = generateCacheKey('experience-timeline', decodedCSV, JSON.stringify(cacheKeyOptions));
 
     // Check cache
     const cachedResponse = cache.get(cacheKey);
@@ -128,10 +162,18 @@ export async function handler(event) {
 
     // Generate SVG
     const svg = await generateExperienceTimeline(decodedCSV, {
-      width: 1200,
-      heightPerLane: 80,
-      embedLogos: true,
-      includeDates,
+      width,
+      heightPerLane,
+      margin: {
+        top: marginTop,
+        right: marginRight,
+        bottom: marginBottom,
+        left: marginLeft,
+      },
+      embedLogos,
+      includeStartDate,
+      includeEndDate,
+      animationTotalDuration,
     });
 
     // Cache the response

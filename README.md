@@ -159,7 +159,16 @@ Generate a professional experience timeline as an SVG image.
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | `experienceCSV` | string | Yes | URI-encoded CSV data with experience entries |
-| `includeDates` | boolean | Optional | A boolean (`true` or `false`) to control the visibility of the start and end date labels on the timeline nodes. Defaults to `true`. |
+| `includeStartDate` | boolean | Optional | Whether to display start date labels on timeline nodes. Defaults to `true`. |
+| `includeEndDate` | boolean | Optional | Whether to display end date labels on timeline nodes. Defaults to `true`. |
+| `width` | number | Optional | Width of the SVG in pixels. Defaults to `1200`. |
+| `heightPerLane` | number | Optional | Height per timeline lane in pixels. Defaults to `80`. |
+| `marginTop` | number | Optional | Top margin in pixels. Defaults to `100`. |
+| `marginRight` | number | Optional | Right margin in pixels. Defaults to `30`. |
+| `marginBottom` | number | Optional | Bottom margin in pixels. Defaults to `30`. |
+| `marginLeft` | number | Optional | Left margin in pixels. Defaults to `30`. |
+| `embedLogos` | boolean | Optional | Whether to embed company logos in the timeline. Defaults to `true`. |
+| `animationTotalDuration` | number | Optional | Total duration of the animation in seconds. Defaults to `5`. |
 
 **CSV Format:**
 
@@ -197,6 +206,10 @@ curl "http://localhost:8888/api/v1/experience-timeline.svg?experienceCSV=${CSV}"
 
 # With multiple entries (URL encode the entire CSV)
 # Use online URL encoder or encodeURIComponent() in JavaScript
+
+# Customizing dimensions and animation
+CSV="company,start,end,title,logo,color%0AGoogle,2025-10,,AI/ML%20Engineer,,#4285F4"
+curl "http://localhost:8888/api/v1/experience-timeline.svg?experienceCSV=${CSV}&width=800&heightPerLane=60&animationTotalDuration=10"
 ```
 
 **JavaScript Example:**
