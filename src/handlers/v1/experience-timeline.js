@@ -107,7 +107,7 @@ export async function handler(event) {
     const marginLeft = parseInt(marginLeftStr, 10) || 30;
     const embedLogos = embedLogosStr === 'true';
     const animationTotalDuration = parseFloat(animationTotalDurationStr) || 5;
-    const baseFontSize = queryParams.baseFontSize ? parseInt(queryParams.baseFontSize, 10) : 12;
+    const baseFontSize = queryParams.baseFontSize ? parseInt(queryParams.baseFontSize, 10) : 14;
 
     // Validate experienceCSV parameter exists
     if (!experienceCSV) {

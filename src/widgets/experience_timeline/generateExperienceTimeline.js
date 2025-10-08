@@ -17,7 +17,7 @@ import { JSDOM } from "jsdom";
  * - includeStartDate (default true)
  * - includeEndDate (default true)
  * - animationTotalDuration (default 5) total animation time in seconds
- * - baseFontSize (default 12) base font size in pixels for relative scaling
+ * - baseFontSize (default 14) base font size in pixels for relative scaling
  *
  * Returns: Promise<string> SVG markup
  */
@@ -30,7 +30,7 @@ async function generateExperienceTimeline(csvString, opts = {}) {
     includeStartDate = true,
     includeEndDate = true,
     animationTotalDuration = 5,
-    baseFontSize = 12
+    baseFontSize = 14
   } = opts;
 
   const THEME = {
