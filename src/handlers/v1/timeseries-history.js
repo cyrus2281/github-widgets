@@ -53,9 +53,10 @@ export async function handler(event) {
 
     // Generate cache key
     const cacheKey = generateCacheKey(
-      username,
-      dateRange?.startDateStr || 'default',
-      dateRange?.endDateStr || 'default'
+      "timeseries-history",
+      userName,
+      range,
+      theme
     );
 
     // Check cache
@@ -84,8 +85,7 @@ export async function handler(event) {
     const svg = await generateActivitySVG(username, {
       range: range || undefined,
       githubToken,
-      theme,
-    });
+    }, theme);
 
     // Cache the response
     cache.set(cacheKey, svg);
