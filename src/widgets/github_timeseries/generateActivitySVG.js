@@ -4,6 +4,8 @@ GitHub Activity SVG Generator Module
 Requires GITHUB_TOKEN env var.
 */
 
+import { THEMES } from '../../utils/themes.js';
+
 const GITHUB_API = 'https://api.github.com/graphql';
 
 function parseDateSafe(s) {
@@ -131,19 +133,7 @@ function computePathLength(points) {
 }
 
 function generateActivitySVGFromData(user, dayArray, col, startDate, endDate, opts = {}) {
-  const colors = {
-    bg: '#0b1020',
-    card: '#0f1724',
-    grid: 'rgba(255,255,255,0.06)',
-    text: '#cbd5e1',
-    subtext: '#94a3b8',
-    accentA: '#ff6b6b',
-    accentB: '#7c5cff',
-    commits: '#ff6b6b',
-    prs: '#facc15',
-    reviews: '#22d3ee',
-    issues: '#7c5cff'
-  };
+  const colors = THEMES[opts.theme] || THEMES.radical;
 
   const width = opts.width || 900;
   const height = opts.height || 360;
@@ -290,7 +280,7 @@ function generateActivitySVGFromData(user, dayArray, col, startDate, endDate, op
   <g>
     ${points
       .filter((_, i) => i % Math.ceil(Math.max(1, n / 40)) === 0)
-      .map((p) => `<circle cx="${p.x.toFixed(2)}" cy="${p.y.toFixed(2)}" r="2.6" class="point" fill="${p.c > 0 ? 'url(#gradLine)' : '#ffffff11'}" />`)
+      .map((p) => `<circle cx="${p.x.toFixed(2)}" cy="${p.y.toFixed(2)}" r="2.6" class="point" fill="${p.c > 0 ? 'url(#gradLine)' : colors.fadeShadow}" />`)
       .join('')}
   </g>
 
@@ -312,7 +302,7 @@ function generateActivitySVGFromData(user, dayArray, col, startDate, endDate, op
   return svg;
 }
 
-async function generateActivitySVG(username, opts = {}) {
+async function generateActivitySVG(username, opts = {}, theme = 'radical') {
   const GITHUB_TOKEN = opts.githubToken || process.env.GITHUB_TOKEN;
   
   if (!GITHUB_TOKEN) {
@@ -345,7 +335,7 @@ async function generateActivitySVG(username, opts = {}) {
   const user = await fetchUserBasic(username, GITHUB_TOKEN);
   const col = await fetchContributions(username, startDate.toISOString(), endDate.toISOString(), GITHUB_TOKEN);
   const dayArray = buildDaysFromCalendar(col.contributionCalendar);
-  const svg = generateActivitySVGFromData(user, dayArray, col, startDate, endDate, opts);
+  const svg = generateActivitySVGFromData(user, dayArray, col, startDate, endDate, { ...opts, theme });
   return svg;
 }
 

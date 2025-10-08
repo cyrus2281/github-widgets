@@ -93,6 +93,7 @@ export async function handler(event) {
       marginLeft: marginLeftStr = '30',
       embedLogos: embedLogosStr = 'true',
       animationTotalDuration: animationTotalDurationStr = '5',
+      theme = 'radical',
     } = queryParams;
 
     const includeStartDate = queryParams.includeStartDate !== 'false';
@@ -142,6 +143,7 @@ export async function handler(event) {
       includeEndDate,
       animationTotalDuration,
       baseFontSize,
+      theme,
     };
     const cacheKey = generateCacheKey('experience-timeline', decodedCSV, JSON.stringify(cacheKeyOptions));
 
@@ -177,7 +179,7 @@ export async function handler(event) {
       includeEndDate,
       animationTotalDuration,
       baseFontSize,
-    });
+    }, theme);
 
     // Cache the response
     cache.set(cacheKey, svg);

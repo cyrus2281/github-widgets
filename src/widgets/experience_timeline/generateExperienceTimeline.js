@@ -1,6 +1,7 @@
 import * as d3 from "d3";
 import fs from "fs";
 import { JSDOM } from "jsdom";
+import { THEMES } from "../../utils/themes.js";
 
 /**
  * generateExperienceTimeline
@@ -21,7 +22,7 @@ import { JSDOM } from "jsdom";
  *
  * Returns: Promise<string> SVG markup
  */
-async function generateExperienceTimeline(csvString, opts = {}) {
+async function generateExperienceTimeline(csvString, opts = {}, theme = 'radical') {
   const {
     width = 1200,
     heightPerLane = 80,
@@ -33,14 +34,7 @@ async function generateExperienceTimeline(csvString, opts = {}) {
     baseFontSize = 14
   } = opts;
 
-  const THEME = {
-    bg: "#141321",
-    title: "#fe428e",
-    icon: "#f8d847",
-    text: "#a9fef7",
-    accent: "#fe428e",
-    axis: "#2b2436",
-  };
+  const THEME = THEMES[theme] || THEMES.radical;
 
   // lightweight DOM for d3
   const dom = new JSDOM("<!DOCTYPE html><svg xmlns='http://www.w3.org/2000/svg'><!-- Created By GitHub Widgets - Authored by cyrus2281 --><!-- Github: https://github.com/cyrus2281/github-widgets --></svg>");
@@ -217,7 +211,7 @@ async function generateExperienceTimeline(csvString, opts = {}) {
     .attr("x2", width - margin.right)
     .attr("y1", baselineY)
     .attr("y2", baselineY)
-    .attr("stroke", THEME.icon)
+    .attr("stroke", THEME.accentC)
     .attr("stroke-width", 2);
 
   // helper: lane index to Y coordinate
@@ -231,7 +225,7 @@ async function generateExperienceTimeline(csvString, opts = {}) {
 
   // color normalization
   function normalizeColor(c) {
-    if (!c) return THEME.accent;
+    if (!c) return THEME.title;
     return c;
   }
   for (const it of items) it.color = normalizeColor(it.colorRaw);
@@ -364,7 +358,7 @@ async function generateExperienceTimeline(csvString, opts = {}) {
         .attr("x2", x1)
         .attr("y1", y - 6)
         .attr("y2", y + 6)
-        .attr("stroke", THEME.icon)
+        .attr("stroke", THEME.accentC)
         .attr("stroke-width", 1.2);
     } else {
       // Curved path for jobs off-baseline
@@ -375,7 +369,7 @@ async function generateExperienceTimeline(csvString, opts = {}) {
         .attr("class", "job-connector")
         .attr("d", pathOut)
         .attr("fill", "none")
-        .attr("stroke", THEME.icon)
+        .attr("stroke", THEME.accentC)
         .attr("stroke-width", 1.6);
         }
         
@@ -391,7 +385,7 @@ async function generateExperienceTimeline(csvString, opts = {}) {
               .attr("x2", endX)
               .attr("y1", y - 6)
               .attr("y2", y + 6)
-              .attr("stroke", THEME.icon)
+              .attr("stroke", THEME.accentC)
               .attr("stroke-width", 1.2)
               .attr("style", `animation-delay: ${closingConnectorDelay}s;`);
           } else {
@@ -402,7 +396,7 @@ async function generateExperienceTimeline(csvString, opts = {}) {
               .attr("class", "job-connector-in")
               .attr("d", pathIn)
               .attr("fill", "none")
-              .attr("stroke", THEME.icon)
+              .attr("stroke", THEME.accentC)
               .attr("stroke-width", 1.6)
               .attr("style", `animation-delay: ${closingConnectorDelay}s;`);
           }
@@ -415,7 +409,7 @@ async function generateExperienceTimeline(csvString, opts = {}) {
       .attr("cy", y)
       .attr("r", nodeRadius)
       .attr("fill", it.color)
-      .attr("stroke", "#111")
+      .attr("stroke", THEME.nodeStroke)
       .attr("stroke-width", 1.2);
 
     // stacked label block placement
