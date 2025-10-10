@@ -233,15 +233,15 @@ export async function generateUserStatsSVG(username, opts = {}, theme = 'radical
     }
 
     // Calculate dynamic height based on visible stats
-    const nameHandleHeight = 95; // Space for name and handle at top (increased from 80 for better spacing)
-    const statHeight = 42; // Height per stat item (reduced from 55 for more compact layout)
-    const padding = 15; // Top, right, and bottom padding (reduced from 20 for more compact margins)
+    const nameHandleHeight = 95 - (options.showHandle ? 0 : 30);
+    const statHeight = 26; // Height per stat item
+    const padding = 15; // Top, right, and bottom padding
     const statsHeight = stats.length * statHeight;
     const height = nameHandleHeight + statsHeight + padding * 2;
     
     // Calculate responsive logo size based on available height
     const availableLogoHeight = height - (padding * 2);
-    const logoSize = Math.max(100, Math.min(200, availableLogoHeight * 0.6));
+    const logoSize = Math.max(100, Math.min(200, availableLogoHeight ));
     const logoRadius = logoSize / 2;
     
     // Animation timing
@@ -250,13 +250,13 @@ export async function generateUserStatsSVG(username, opts = {}, theme = 'radical
       return (animationDuration * 0.3 + (index * 0.1)).toFixed(2);
     };
     
-    // Calculate actual path length for proper animation
-    // GitHub logo path has approximately 600 units of length (tested for full animation)
     const logoPathLength = 600;
     
     // Generate SVG
     const svg = `
 <svg xmlns="http://www.w3.org/2000/svg" width="${options.width}" height="${height}" viewBox="0 0 ${options.width} ${height}">
+  <!-- Created By GitHub Widgets - Authored by cyrus2281 -->
+  <!-- Github: https://github.com/cyrus2281/github-widgets -->
   <defs>
     <!-- Drop shadow filter for card -->
     <filter id="cardShadow" x="-50%" y="-50%" width="200%" height="200%">
