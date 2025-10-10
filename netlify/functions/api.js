@@ -1,6 +1,7 @@
 import { handler as timeseriesHistoryHandler } from '../../src/handlers/v1/timeseries-history.js';
 import { handler as experienceTimelineHandler } from '../../src/handlers/v1/experience-timeline.js';
 import { handler as mostStarredHandler } from '../../src/handlers/v1/most-starred.js';
+import { handler as userStatsHandler } from '../../src/handlers/v1/user-stats.js';
 import { createNotFoundSVG } from '../../src/utils/errors.js';
 
 /**
@@ -73,6 +74,9 @@ async function routeV1(endpoint, event) {
     
     case 'most-starred.svg':
       return mostStarredHandler(event);
+    
+    case 'user-stats.svg':
+      return userStatsHandler(event);
     
     default:
       return createNotFoundSVG(`Endpoint ${endpoint}`);

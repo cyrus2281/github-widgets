@@ -1,0 +1,283 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="419" viewBox="0 0 600 419">
+  <defs>
+    <!-- Drop shadow filter for card -->
+    <filter id="cardShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="12"/>
+      <feOffset dx="0" dy="4" result="offsetblur"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.2"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <!-- Gradient for GitHub logo -->
+    <linearGradient id="githubGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff6b6b;stop-opacity:1">
+        <animate attributeName="stop-color"
+          values="#ff6b6b;#7c5cff;#f8d847;#4ecdc4;#ff6b6b"
+          dur="6s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="50%" style="stop-color:#f8d847;stop-opacity:1">
+        <animate attributeName="stop-color"
+          values="#f8d847;#4ecdc4;#ff9ff3;#7c5cff;#f8d847"
+          dur="6s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="100%" style="stop-color:#ff9ff3;stop-opacity:1">
+        <animate attributeName="stop-color"
+          values="#ff9ff3;#ff6b6b;#7c5cff;#f8d847;#ff9ff3"
+          dur="6s" repeatCount="indefinite"/>
+      </stop>
+    </linearGradient>
+    
+    <!-- Glow filter -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <style>
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    
+    @keyframes drawPath {
+      from {
+        stroke-dashoffset: 600;
+      }
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+    
+    .title {
+      animation: fadeIn 0.8s ease-out forwards;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+    }
+    
+    .name {
+      animation: fadeIn 0.8s ease-out forwards 0.2s;
+      opacity: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      font-size: 28px;
+      font-weight: 600;
+    }
+    
+    .handle {
+      animation: fadeIn 0.8s ease-out forwards 0.3s;
+      opacity: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      font-size: 20px;
+      font-weight: 400;
+    }
+    
+    .stat-item {
+      opacity: 0;
+    }
+    
+    
+    .stat-0 { animation: slideIn 0.5s ease-out forwards 0.60s; }
+    .stat-1 { animation: slideIn 0.5s ease-out forwards 0.70s; }
+    .stat-2 { animation: slideIn 0.5s ease-out forwards 0.80s; }
+    .stat-3 { animation: slideIn 0.5s ease-out forwards 0.90s; }
+    .stat-4 { animation: slideIn 0.5s ease-out forwards 1.00s; }
+    .stat-5 { animation: slideIn 0.5s ease-out forwards 1.10s; }
+    .stat-6 { animation: slideIn 0.5s ease-out forwards 1.20s; }
+    
+    .stat-label {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      font-size: 16px;
+      font-weight: 400;
+    }
+    
+    .stat-value {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+    }
+    
+    .github-logo path {
+      fill: none;
+      stroke: url(#githubGradient);
+      stroke-width: 0.5;
+      stroke-dasharray: 600;
+      stroke-dashoffset: 600;
+      animation: drawPath 3.5s ease-in-out forwards;
+      filter: url(#glow);
+    }
+    
+    @keyframes logoFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .github-logo path.filled {
+      fill: url(#githubGradient);
+      stroke: none;
+      animation: logoFadeIn 0.8s ease-out forwards 3.5s;
+      opacity: 0;
+      filter: url(#glow);
+    }
+  </style>
+  
+  <!-- Background with shadow -->
+  <rect x="0" y="0" width="600" height="419" fill="#0f1724" rx="16" filter="url(#cardShadow)"/>
+  
+  <!-- LEFT HALF: Name, Handle, and Stats -->
+  <g transform="translate(30, 20)">
+    <!-- User Name -->
+    <text x="0" y="30" fill="#fe428e" class="name">
+      Cyrus Mobini
+    </text>
+    
+    
+    <!-- User Handle -->
+    <text x="0" y="60" fill="#94a3b8" class="handle">
+      @cyrus2281
+    </text>
+    
+    
+    <!-- Stats Section -->
+    <g transform="translate(0, 95)">
+      
+      <!-- Stat 0: Total Stars -->
+      <g class="stat-item stat-0">
+        <!-- Icon -->
+        <svg x="0" y="0" width="20" height="20" viewBox="0 0 16 16" fill="#ff6b6b">
+          <path d="M8 1l2.163 4.382 4.837.703-3.5 3.411.826 4.816L8 12.033l-4.326 2.279.826-4.816-3.5-3.411 4.837-.703L8 1z"/>
+        </svg>
+        
+        <!-- Stat Label and Value on same line -->
+        <text x="30" y="14" fill="#cbd5e1" class="stat-label">
+          Total Stars:
+        </text>
+        <text x="180" y="14" fill="#fe428e" class="stat-value">
+          73
+        </text>
+      </g>
+
+      <!-- Stat 1: Total Commits -->
+      <g class="stat-item stat-1">
+        <!-- Icon -->
+        <svg x="0" y="42" width="20" height="20" viewBox="0 0 16 16" fill="#7c5cff">
+          <path d="M8 2a6 6 0 100 12A6 6 0 008 2zm0 1.5a4.5 4.5 0 110 9 4.5 4.5 0 010-9zM8 5a3 3 0 100 6 3 3 0 000-6z"/>
+        </svg>
+        
+        <!-- Stat Label and Value on same line -->
+        <text x="30" y="56" fill="#cbd5e1" class="stat-label">
+          Total Commits:
+        </text>
+        <text x="180" y="56" fill="#fe428e" class="stat-value">
+          2,678
+        </text>
+      </g>
+
+      <!-- Stat 2: Commits This Year -->
+      <g class="stat-item stat-2">
+        <!-- Icon -->
+        <svg x="0" y="84" width="20" height="20" viewBox="0 0 16 16" fill="#f8d847">
+          <path d="M4 1h8a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V3a2 2 0 012-2zm0 1a1 1 0 00-1 1v1h10V3a1 1 0 00-1-1H4zm9 3H3v8a1 1 0 001 1h8a1 1 0 001-1V5z"/>
+        </svg>
+        
+        <!-- Stat Label and Value on same line -->
+        <text x="30" y="98" fill="#cbd5e1" class="stat-label">
+          Commits This Year:
+        </text>
+        <text x="180" y="98" fill="#fe428e" class="stat-value">
+          894
+        </text>
+      </g>
+
+      <!-- Stat 3: Total PRs -->
+      <g class="stat-item stat-3">
+        <!-- Icon -->
+        <svg x="0" y="126" width="20" height="20" viewBox="0 0 16 16" fill="#4ecdc4">
+          <path d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/>
+        </svg>
+        
+        <!-- Stat Label and Value on same line -->
+        <text x="30" y="140" fill="#cbd5e1" class="stat-label">
+          Total PRs:
+        </text>
+        <text x="180" y="140" fill="#fe428e" class="stat-value">
+          244
+        </text>
+      </g>
+
+      <!-- Stat 4: Total Issues -->
+      <g class="stat-item stat-4">
+        <!-- Icon -->
+        <svg x="0" y="168" width="20" height="20" viewBox="0 0 16 16" fill="#ff9ff3">
+          <path d="M8 1.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13zM0 8a8 8 0 1116 0A8 8 0 010 8zm9 3a1 1 0 11-2 0 1 1 0 012 0zm-.25-6.25a.75.75 0 00-1.5 0v3.5a.75.75 0 001.5 0v-3.5z"/>
+        </svg>
+        
+        <!-- Stat Label and Value on same line -->
+        <text x="30" y="182" fill="#cbd5e1" class="stat-label">
+          Total Issues:
+        </text>
+        <text x="180" y="182" fill="#fe428e" class="stat-value">
+          22
+        </text>
+      </g>
+
+      <!-- Stat 5: Total Repositories -->
+      <g class="stat-item stat-5">
+        <!-- Icon -->
+        <svg x="0" y="210" width="20" height="20" viewBox="0 0 16 16" fill="#ff6b6b">
+          <path d="M2 2.5A2.5 2.5 0 014.5 0h8.75a.75.75 0 01.75.75v12.5a.75.75 0 01-.75.75h-2.5a.75.75 0 110-1.5h1.75v-2h-8a1 1 0 00-.714 1.7.75.75 0 01-1.072 1.05A2.495 2.495 0 012 11.5v-9zm10.5-1V9h-8c-.356 0-.694.074-1 .208V2.5a1 1 0 011-1h8zM5 12.25v3.25a.25.25 0 00.4.2l1.45-1.087a.25.25 0 01.3 0L8.6 15.7a.25.25 0 00.4-.2v-3.25a.25.25 0 00-.25-.25h-3.5a.25.25 0 00-.25.25z"/>
+        </svg>
+        
+        <!-- Stat Label and Value on same line -->
+        <text x="30" y="224" fill="#cbd5e1" class="stat-label">
+          Total Repositories:
+        </text>
+        <text x="180" y="224" fill="#fe428e" class="stat-value">
+          39
+        </text>
+      </g>
+
+      <!-- Stat 6: Contributed To -->
+      <g class="stat-item stat-6">
+        <!-- Icon -->
+        <svg x="0" y="252" width="20" height="20" viewBox="0 0 16 16" fill="#7c5cff">
+          <path d="M2 5.5a3.5 3.5 0 115.898 2.549 5.507 5.507 0 013.034 4.084.75.75 0 11-1.482.235 4.001 4.001 0 00-7.9 0 .75.75 0 01-1.482-.236A5.507 5.507 0 013.102 8.05 3.49 3.49 0 012 5.5zM11 4a.75.75 0 100 1.5 1.5 1.5 0 01.666 2.844.75.75 0 00-.416.672v.352a.75.75 0 00.574.73c1.2.289 2.162 1.2 2.522 2.372a.75.75 0 101.434-.44 5.01 5.01 0 00-2.56-3.012A3 3 0 0011 4z"/>
+        </svg>
+        
+        <!-- Stat Label and Value on same line -->
+        <text x="30" y="266" fill="#cbd5e1" class="stat-label">
+          Contributed To:
+        </text>
+        <text x="180" y="266" fill="#fe428e" class="stat-value">
+          19
+        </text>
+      </g>
+    </g>
+  </g>
+  
+  
+  <!-- RIGHT HALF: GitHub Logo (Centered) -->
+  <g class="github-logo" transform="translate(350, 109.5)">
+    <circle cx="100" cy="100" r="110.00000000000001" fill="url(#githubGradient)" opacity="0.15" filter="url(#glow)"/>
+    <g transform="translate(20, 20) scale(10)">
+      <!-- Animated stroke path that draws the logo -->
+      <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+      <!-- Filled path that fades in after drawing completes -->
+      <path class="filled" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+    </g>
+  </g>
+  
+</svg>

@@ -13,12 +13,17 @@ A serverless application for generating dynamic GitHub contribution widgets as S
 ### Most Starred Repositories
 ![most-starred-sample](https://raw.githubusercontent.com/cyrus2281/github-widgets/refs/heads/main/samples/most-starred-sample.svg)
 
+### User Stats
+![user-stats-sample](https://raw.githubusercontent.com/cyrus2281/github-widgets/refs/heads/main/samples/user-stats-sample.svg)
+
+
 ## Contents
 - [GitHub Widgets](#github-widgets)
   - [Widgets](#widgets)
     - [GitHub Contribution Timeseries](#github-contribution-timeseries)
     - [Experience Timeline](#experience-timeline)
     - [Most Starred Repositories](#most-starred-repositories)
+    - [User Stats](#user-stats)
   - [Contents](#contents)
   - [Features](#features)
   - [Themes](#themes)
@@ -36,6 +41,7 @@ A serverless application for generating dynamic GitHub contribution widgets as S
       - [GET `/api/v1/timeseries-history.svg`](#get-apiv1timeseries-historysvg)
       - [GET `/api/v1/experience-timeline.svg`](#get-apiv1experience-timelinesvg)
       - [GET `/api/v1/most-starred.svg`](#get-apiv1most-starredsvg)
+      - [GET `/api/v1/user-stats.svg`](#get-apiv1user-statssvg)
     - [Embedding in Markdown](#embedding-in-markdown)
     - [Embedding in HTML](#embedding-in-html)
   - [Environment Variables](#environment-variables)
@@ -368,6 +374,84 @@ Generate a widget displaying your most starred GitHub repositories with animated
 
 - `400 Bad Request` - Invalid username or top parameter out of range (1-10)
 - `404 Not Found` - User not found or no repositories available
+- `500 Internal Server Error` - Server error during SVG generation
+
+---
+
+#### GET `/api/v1/user-stats.svg`
+
+![user-stats-sample](https://raw.githubusercontent.com/cyrus2281/github-widgets/refs/heads/main/samples/user-stats-sample.svg)
+
+Generate a comprehensive GitHub user statistics widget displaying various metrics with an animated GitHub logo.
+
+**Query Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `userName` | string | Conditional* | GitHub username to fetch statistics for |
+| `showHandle` | boolean | Optional | Display user's GitHub handle (@username). Defaults to `true`. |
+| `showStars` | boolean | Optional | Display total stars across all repositories. Defaults to `true`. |
+| `showCommits` | boolean | Optional | Display total commits (all time). Defaults to `true`. |
+| `showCommitsThisYear` | boolean | Optional | Display commits for the current year. Defaults to `true`. |
+| `showPRs` | boolean | Optional | Display total pull requests. Defaults to `true`. |
+| `showIssues` | boolean | Optional | Display total issues. Defaults to `true`. |
+| `showRepos` | boolean | Optional | Display total repositories. Defaults to `true`. |
+| `showContributedTo` | boolean | Optional | Display number of repositories contributed to. Defaults to `true`. |
+| `showLogo` | boolean | Optional | Show/hide the GitHub logo. When hidden, widget width adjusts to 300px. Defaults to `true`. |
+| `width` | number | Optional | Width of the SVG in pixels (300-1000). Defaults to `600`. |
+| `animationDuration` | number | Optional | Duration of animations in seconds (0.5-10). Defaults to `2`. |
+| `theme` | string | Optional | Color theme: `radical` (default), `ocean`, `sunset`, `forest`, `midnight`, `monochrome` |
+
+*Required unless `LOCK_GITHUB_USER` environment variable is set.
+
+**Features:**
+
+- 📊 **Comprehensive Statistics** - Display up to 7 different user metrics
+- 👤 **User Information** - Always displays user's full name and optional GitHub handle
+- 🎨 **Animated GitHub Logo** - Rotating, pulsing logo with gradient effects
+- 🎭 **Toggleable Stats** - Show or hide individual statistics as needed
+- 🌈 **Theme Support** - Full theme customization with all available color schemes
+- ⚡ **Smooth Animations** - Staggered stat entrance animations for visual appeal
+- 📏 **Customizable Size** - Adjust width to fit your layout (300-1000px)
+
+**Examples:**
+
+```bash
+# Basic usage - all stats visible (default)
+/api/v1/user-stats.svg?userName=octocat
+
+# Show only specific stats
+/api/v1/user-stats.svg?userName=octocat&showCommits=false&showIssues=false
+
+# Custom width
+/api/v1/user-stats.svg?userName=octocat&width=600
+
+# With custom theme
+/api/v1/user-stats.svg?userName=octocat&theme=ocean
+
+# Minimal stats display
+/api/v1/user-stats.svg?userName=octocat&showHandle=false&showCommitsThisYear=false&showPRs=false&showIssues=false
+
+# Custom animation speed
+/api/v1/user-stats.svg?userName=octocat&animationDuration=4
+
+# Hide the GitHub logo (widget becomes narrower at 300px)
+/api/v1/user-stats.svg?userName=octocat&showLogo=false
+
+# All parameters combined
+/api/v1/user-stats.svg?userName=octocat&width=700&theme=midnight&animationDuration=3&showCommitsThisYear=false
+```
+
+**Response:**
+
+- **Content-Type**: `image/svg+xml`
+- **Cache-Control**: `public, max-age=3600`
+- **X-Cache**: `HIT` or `MISS` (indicates cache status)
+
+**Error Responses:**
+
+- `400 Bad Request` - Invalid username, width out of range (300-1000), or animationDuration out of range (0.5-10)
+- `404 Not Found` - User not found
 - `500 Internal Server Error` - Server error during SVG generation
 
 ### Embedding in Markdown
