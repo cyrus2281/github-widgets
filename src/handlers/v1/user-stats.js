@@ -1,18 +1,9 @@
 import { generateUserStatsSVG } from '../../widgets/user_stats/generateUserStatsSVG.js';
 import { cache, generateCacheKey } from '../../utils/cache.js';
-import { validateUsername, parseQueryParams } from '../../utils/validation.js';
+import { validateUsername, parseQueryParams, parseBoolean } from '../../utils/validation.js';
 import { handleError, createForbiddenSVG, createValidationErrorSVG } from '../../utils/errors.js';
 
-/**
- * Parse boolean parameter from query string
- * @param {string|undefined} value - Query parameter value
- * @param {boolean} defaultValue - Default value if parameter is not provided
- * @returns {boolean} Parsed boolean value
- */
-function parseBoolean(value, defaultValue = true) {
-  if (value === undefined) return defaultValue;
-  return value !== 'false';
-}
+
 
 /**
  * Handle user stats SVG generation requests

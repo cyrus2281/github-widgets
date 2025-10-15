@@ -155,6 +155,8 @@ export async function generateMostStarredSVG(username, opts = {}, theme = 'radic
     // Generate SVG
     const svg = `
 <svg xmlns="http://www.w3.org/2000/svg" width="${options.width}" height="${height}" viewBox="0 0 ${options.width} ${height}">
+  <!-- Created By GitHub Widgets - Authored by cyrus2281 -->
+  <!-- Github: https://github.com/cyrus2281/github-widgets -->
   <defs>
     <!-- Drop shadow filter -->
     <filter id="dropShadow" x="-50%" y="-50%" width="200%" height="200%">

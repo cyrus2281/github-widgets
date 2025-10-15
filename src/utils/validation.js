@@ -91,3 +91,14 @@ export function parseQueryParams(queryString) {
 
   return params;
 }
+
+/**
+ * Parse boolean parameter from query string
+ * @param {string|undefined} value - Query parameter value
+ * @param {boolean} defaultValue - Default value if parameter is not provided
+ * @returns {boolean} Parsed boolean value
+ */
+export function parseBoolean(value, defaultValue = true) {
+  if (value === undefined) return defaultValue;
+  return value !== 'false';
+}

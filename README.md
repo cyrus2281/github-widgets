@@ -16,6 +16,8 @@ A serverless application for generating dynamic GitHub contribution widgets as S
 ### User Stats
 ![user-stats-sample](https://raw.githubusercontent.com/cyrus2281/github-widgets/refs/heads/main/samples/user-stats-sample.svg)
 
+### Repository Card
+![repository-card-sample](https://raw.githubusercontent.com/cyrus2281/github-widgets/refs/heads/main/samples/repository-card-sample.svg)
 
 ## Contents
 - [GitHub Widgets](#github-widgets)
@@ -24,6 +26,7 @@ A serverless application for generating dynamic GitHub contribution widgets as S
     - [Experience Timeline](#experience-timeline)
     - [Most Starred Repositories](#most-starred-repositories)
     - [User Stats](#user-stats)
+    - [Repository Card](#repository-card)
   - [Contents](#contents)
   - [Features](#features)
   - [Themes](#themes)
@@ -42,6 +45,7 @@ A serverless application for generating dynamic GitHub contribution widgets as S
       - [GET `/api/v1/experience-timeline.svg`](#get-apiv1experience-timelinesvg)
       - [GET `/api/v1/most-starred.svg`](#get-apiv1most-starredsvg)
       - [GET `/api/v1/user-stats.svg`](#get-apiv1user-statssvg)
+      - [GET `/api/v1/repository-card.svg`](#get-apiv1repository-cardsvg)
     - [Embedding in Markdown](#embedding-in-markdown)
     - [Embedding in HTML](#embedding-in-html)
   - [Environment Variables](#environment-variables)
@@ -337,14 +341,6 @@ Generate a widget displaying your most starred GitHub repositories with animated
 
 *Required unless `LOCK_GITHUB_USER` environment variable is set.
 
-**Features:**
-
-- 🌟 **Animated Glowing Borders** - Each repository card features a pulsing, rotating gradient border
-- 📊 **Star & Fork Counts** - Displays formatted star and fork counts with icons
-- 📝 **Repository Details** - Shows repository name, description (truncated to 100 chars)
-- 🎨 **Theme Support** - Full theme customization with all available color schemes
-- ⚡ **Smooth Animations** - Staggered card entrance animations for visual appeal
-
 **Examples:**
 
 ```bash
@@ -404,16 +400,6 @@ Generate a comprehensive GitHub user statistics widget displaying various metric
 
 *Required unless `LOCK_GITHUB_USER` environment variable is set.
 
-**Features:**
-
-- 📊 **Comprehensive Statistics** - Display up to 7 different user metrics
-- 👤 **User Information** - Always displays user's full name and optional GitHub handle
-- 🎨 **Animated GitHub Logo** - Rotating, pulsing logo with gradient effects
-- 🎭 **Toggleable Stats** - Show or hide individual statistics as needed
-- 🌈 **Theme Support** - Full theme customization with all available color schemes
-- ⚡ **Smooth Animations** - Staggered stat entrance animations for visual appeal
-- 📏 **Customizable Size** - Adjust width to fit your layout (300-1000px)
-
 **Examples:**
 
 ```bash
@@ -452,6 +438,62 @@ Generate a comprehensive GitHub user statistics widget displaying various metric
 
 - `400 Bad Request` - Invalid username, width out of range (300-1000), or animationDuration out of range (0.5-10)
 - `404 Not Found` - User not found
+- `500 Internal Server Error` - Server error during SVG generation
+
+---
+
+#### GET `/api/v1/repository-card.svg`
+
+![repository-card-sample](https://raw.githubusercontent.com/cyrus2281/github-widgets/refs/heads/main/samples/repository-card-sample.svg)
+
+
+Generate a repository card widget displaying GitHub repository information similar to GitHub's pinned repositories.
+
+**Query Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `userName` | string | Conditional* | GitHub username (repository owner) |
+| `repoName` | string | Yes | Repository name |
+| `theme` | string | Optional | Color theme: `radical` (default), `ocean`, `sunset`, `forest`, `midnight`, `monochrome` |
+| `showUserName` | boolean | Optional | Display the username/owner. Defaults to `true`. |
+| `showLanguage` | boolean | Optional | Display the primary language. Defaults to `true`. |
+| `showStars` | boolean | Optional | Display star count. Defaults to `true`. |
+| `showForks` | boolean | Optional | Display fork count. Defaults to `true`. |
+| `width` | number | Optional | Width of the card in pixels (300-600). Defaults to `400`. |
+| `height` | number | Optional | Height of the card in pixels (100-200). Defaults to `120`. |
+
+*Required unless `LOCK_GITHUB_USER` environment variable is set.
+
+**Examples:**
+
+```bash
+# Basic usage
+/api/v1/repository-card.svg?userName=octocat&repoName=github-widgets
+
+# With custom theme
+/api/v1/repository-card.svg?userName=octocat&repoName=github-widgets&theme=ocean
+
+# Hide specific elements
+/api/v1/repository-card.svg?userName=octocat&repoName=github-widgets&showUserName=false&showForks=false
+
+# Custom dimensions
+/api/v1/repository-card.svg?userName=octocat&repoName=github-widgets&width=500&height=150
+
+# All parameters combined
+/api/v1/repository-card.svg?userName=octocat&repoName=github-widgets&theme=midnight&width=550&height=140&showLanguage=false
+```
+
+**Response:**
+
+- **Content-Type**: `image/svg+xml`
+- **Cache-Control**: `public, max-age=3600`
+- **X-Cache**: `HIT` or `MISS` (indicates cache status)
+
+**Error Responses:**
+
+- `400 Bad Request` - Invalid username, repository name, or parameters out of range
+- `404 Not Found` - Repository not found
 - `500 Internal Server Error` - Server error during SVG generation
 
 ### Embedding in Markdown
