@@ -68,18 +68,23 @@ async function routeV1(endpoint, event) {
   // Route to appropriate handler
   switch (endpoint) {
     case 'timeseries-history.svg':
+    case 'timeseries-history':
       return timeseriesHistoryHandler(event);
     
     case 'experience-timeline.svg':
+    case 'experience-timeline':
       return experienceTimelineHandler(event);
     
     case 'most-starred.svg':
+    case 'most-starred':
       return mostStarredHandler(event);
     
     case 'user-stats.svg':
+    case 'user-stats':
       return userStatsHandler(event);
     
     case 'repository-card.svg':
+    case 'repository-card':
       return repositoryCardHandler(event);
     
     default:
