@@ -8,8 +8,10 @@
     "node": ">=20.0.0"
   },
   "scripts": {
+    "start": "node server/index.js",
+    "dev": "node server/index.js",
     "netlify": "netlify",
-    "dev": "netlify dev",
+    "netlify:dev": "netlify dev",
     "build": "netlify build",
     "deploy": "netlify deploy --prod",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -24,7 +26,10 @@
   "author": "",
   "license": "Apache-2.0",
   "dependencies": {
+    "cors": "^2.8.5",
     "d3": "^7.9.0",
+    "dotenv": "^16.0.0",
+    "express": "^4.18.0",
     "jsdom": "^27.0.0",
     "lru-cache": "^10.4.3"
   },

@@ -1,6 +1,6 @@
 # GitHub Widgets
 
-A serverless application for generating dynamic GitHub contribution widgets as SVG images. Built with Netlify Functions and designed to be embedded anywhere.
+A flexible application for generating dynamic GitHub contribution widgets as SVG images. Supports both serverless deployment (Netlify Functions) and standalone server deployment (Express). Designed to be embedded anywhere.
 
 ## Widgets
 
@@ -52,8 +52,8 @@ A serverless application for generating dynamic GitHub contribution widgets as S
     - [Required](#required)
     - [Optional](#optional)
   - [Deployment](#deployment)
-    - [Deploy to Netlify](#deploy-to-netlify)
-    - [Deploy to Other Platforms](#deploy-to-other-platforms)
+    - [Deployment Option 1: Netlify Functions (Serverless)](#deployment-option-1-netlify-functions-serverless)
+    - [Deployment Option 2: Standalone Server (Express)](#deployment-option-2-standalone-server-express)
   - [Architecture](#architecture)
     - [Caching Strategy](#caching-strategy)
   - [Adding New Endpoints](#adding-new-endpoints)
@@ -67,7 +67,7 @@ A serverless application for generating dynamic GitHub contribution widgets as S
 - 🌈 **Customizable Themes** - Choose from multiple color themes for widgets
 - ⚡ **Fast & Cached** - In-memory LRU cache with configurable TTL (default: 1 hour)
 - 🔒 **Secure** - Optional user locking via `LOCK_GITHUB_USER` environment variable
-- 🚀 **Serverless** - Runs on Netlify Functions (AWS Lambda)
+- 🚀 **Flexible Deployment** - Deploy as serverless functions (Netlify) or standalone server (Express)
 - 🔄 **Extensible** - Easy to add new widget types and API versions
 - 🛠 **SVG Error Handling** - All errors returned as SVG images with appropriate HTTP status codes
 
@@ -129,7 +129,7 @@ Add the `theme` parameter to any widget URL:
 
 - Node.js 20.x or higher
 - GitHub Personal Access Token ([create one here](https://github.com/settings/tokens))
-- Netlify account (for deployment)
+- Netlify account (for serverless deployment) OR any server/hosting platform (for standalone deployment)
 
 ### Installation
 
@@ -156,16 +156,34 @@ GITHUB_TOKEN=ghp_your_token_here
 
 ### Local Development
 
-Run the development server:
+**Option 1: Netlify Functions (Serverless)**
+
+Run the Netlify development server:
 ```bash
 npm run dev
 ```
 
 The API will be available at `http://localhost:8888/api/v1/`
 
+**Option 2: Standalone Server (Express)**
+
+Run the standalone Express server:
+```bash
+npm start
+```
+
+For development with auto-reload:
+```bash
+npm run dev:server
+```
+
+The API will be available at `http://localhost:3000/api/v1/`
+
+Health check endpoint: `http://localhost:3000/health`
+
 ### Testing
 
-Test the endpoints:
+**For Netlify Functions (port 8888):**
 ```bash
 # Timeseries history - with username and date range
 curl "http://localhost:8888/api/v1/timeseries-history.svg?userName=cyrus2281&range=2025-01-01:2025-10-15"
@@ -181,12 +199,29 @@ curl "http://localhost:8888/api/v1/experience-timeline.svg?experienceCSV=${CSV_D
 curl "http://localhost:8888/api/v1/most-starred.svg?userName=torvalds&top=5"
 ```
 
+**For Standalone Server (port 3000):**
+```bash
+# Health check
+curl "http://localhost:3000/health"
+
+# Timeseries history
+curl "http://localhost:3000/api/v1/timeseries-history.svg?userName=cyrus2281"
+
+# Most starred repositories
+curl "http://localhost:3000/api/v1/most-starred.svg?userName=torvalds&top=5"
+```
+
 ## API Documentation
 
 ### Base URL
 
+**Netlify Functions (Serverless):**
 - **Production**: `https://your-site.netlify.app/api/v1/`
-- **Local**: `http://localhost:8888/api/v1/`
+- **Local Development**: `http://localhost:8888/api/v1/`
+
+**Standalone Server (Express):**
+- **Production**: `https://your-domain.com/api/v1/` (or `http://your-server-ip:3000/api/v1/`)
+- **Local Development**: `http://localhost:3000/api/v1/`
 
 ### Endpoints
 
@@ -498,14 +533,26 @@ Generate a repository card widget displaying GitHub repository information simil
 
 ### Embedding in Markdown
 
+**Netlify Deployment:**
 ```markdown
 ![GitHub Contributions](https://your-site.netlify.app/api/v1/timeseries-history.svg?userName=octocat)
 ```
 
+**Standalone Server Deployment:**
+```markdown
+![GitHub Contributions](https://your-domain.com/api/v1/timeseries-history.svg?userName=octocat)
+```
+
 ### Embedding in HTML
 
+**Netlify Deployment:**
 ```html
 <img src="https://your-site.netlify.app/api/v1/timeseries-history.svg?userName=octocat" alt="GitHub Contributions" />
+```
+
+**Standalone Server Deployment:**
+```html
+<img src="https://your-domain.com/api/v1/timeseries-history.svg?userName=octocat" alt="GitHub Contributions" />
 ```
 
 ## Environment Variables
@@ -531,9 +578,18 @@ Generate a repository card widget displaying GitHub repository information simil
   - Default: `3600000` (1 hour)
   - Adjust based on update frequency needs
 
+- **`PORT`** - Server port (Standalone Server only)
+  - Default: `3000`
+  - Only used when running the standalone Express server
+  - Example: `PORT=8080`
+
 ## Deployment
 
-### Deploy to Netlify
+This application supports two deployment options, each with distinct advantages:
+
+### Deployment Option 1: Netlify Functions (Serverless)
+
+**Setup:**
 
 1. **Via Netlify CLI:**
 
@@ -558,16 +614,60 @@ In Netlify dashboard or via CLI:
 ```bash
 netlify env:set GITHUB_TOKEN "ghp_your_token_here"
 netlify env:set LOCK_GITHUB_USER "your-username"  # Optional
+netlify env:set CACHE_MAX_SIZE "100"  # Optional
+netlify env:set CACHE_TTL_MS "3600000"  # Optional
 ```
 
-### Deploy to Other Platforms
+**Access your API:**
+```
+https://your-site.netlify.app/api/v1/timeseries-history.svg?userName=octocat
+```
 
-The application uses standard Netlify Functions format. To deploy elsewhere:
+---
 
-1. Adapt the function handler format for your platform
-2. Ensure Node.js 20.x runtime
-3. Set environment variables
-4. Configure routing to `/api/*` → function handler
+### Deployment Option 2: Standalone Server (Express)
+
+**Setup:**
+
+1. **Install dependencies:**
+
+```bash
+npm install
+```
+
+2. **Configure environment variables:**
+
+Create a `.env` file:
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` with your configuration:
+
+3. **Start the server:**
+
+**Production mode:**
+```bash
+npm start
+```
+
+**Development mode (with auto-reload):**
+```bash
+npm run dev:server
+```
+
+The server will start on port 3000 (or the PORT specified in `.env`).
+
+4. **Verify the server is running:**
+
+```bash
+# Health check
+curl http://localhost:3000/health
+
+# Test an endpoint
+curl "http://localhost:3000/api/v1/user-stats.svg?userName=octocat"
+```
 
 ## Architecture
 
