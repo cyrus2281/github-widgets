@@ -1,6 +1,6 @@
 # GitHub Widgets
 
-A flexible application for generating dynamic GitHub contribution widgets as SVG images. Supports both serverless deployment (Netlify Functions) and standalone server deployment (Express). Designed to be embedded anywhere.
+A flexible application for generating dynamic GitHub contribution widgets as SVG images. Supports serverless deployment (Netlify Functions), standalone server deployment (Express), and Docker containers. Designed to be embedded anywhere.
 
 ## Widgets
 
@@ -54,6 +54,7 @@ A flexible application for generating dynamic GitHub contribution widgets as SVG
   - [Deployment](#deployment)
     - [Deployment Option 1: Netlify Functions (Serverless)](#deployment-option-1-netlify-functions-serverless)
     - [Deployment Option 2: Standalone Server (Express)](#deployment-option-2-standalone-server-express)
+    - [Deployment Option 3: Docker Container](#deployment-option-3-docker-container)
   - [Architecture](#architecture)
     - [Caching Strategy](#caching-strategy)
   - [Adding New Endpoints](#adding-new-endpoints)
@@ -67,7 +68,7 @@ A flexible application for generating dynamic GitHub contribution widgets as SVG
 - 🌈 **Customizable Themes** - Choose from multiple color themes for widgets
 - ⚡ **Fast & Cached** - In-memory LRU cache with configurable TTL (default: 1 hour)
 - 🔒 **Secure** - Optional user locking via `LOCK_GITHUB_USER` environment variable
-- 🚀 **Flexible Deployment** - Deploy as serverless functions (Netlify) or standalone server (Express)
+- 🚀 **Flexible Deployment** - Deploy as serverless functions (Netlify), standalone server (Express), or Docker container
 - 🔄 **Extensible** - Easy to add new widget types and API versions
 - 🛠 **SVG Error Handling** - All errors returned as SVG images with appropriate HTTP status codes
 
@@ -127,9 +128,9 @@ Add the `theme` parameter to any widget URL:
 
 ### Prerequisites
 
-- Node.js 20.x or higher
+- Node.js 20.x or higher (for local development)
 - GitHub Personal Access Token ([create one here](https://github.com/settings/tokens))
-- Netlify account (for serverless deployment) OR any server/hosting platform (for standalone deployment)
+- Netlify account (for serverless deployment) OR any server/hosting platform (for standalone deployment) OR Docker (for container deployment)
 
 ### Installation
 
@@ -667,6 +668,194 @@ curl http://localhost:3000/health
 
 # Test an endpoint
 curl "http://localhost:3000/api/v1/user-stats.svg?userName=octocat"
+```
+
+---
+
+### Deployment Option 3: Docker Container
+
+**Prerequisites:**
+
+- Docker installed ([Get Docker](https://docs.docker.com/get-docker/))
+- GitHub Personal Access Token ([create one here](https://github.com/settings/tokens))
+
+**Quick Start:**
+
+Pull and run the pre-built image from [Docker Hub](https://hub.docker.com/r/cyrus2281/github-widgets):
+
+```bash
+docker pull cyrus2281/github-widgets:latest
+
+docker run -d \
+  --name github-widgets \
+  -p 3000:3000 \
+  -e GITHUB_TOKEN="ghp_your_token_here" \
+  cyrus2281/github-widgets:latest
+```
+
+**Access your API:**
+```
+http://localhost:3000/api/v1/timeseries-history.svg?userName=octocat
+```
+
+**Health Check:**
+```bash
+curl http://localhost:3000/health
+```
+
+---
+
+**Environment Variables:**
+
+Configure the container using environment variables:
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `GITHUB_TOKEN` | Yes | - | GitHub Personal Access Token with `read:user` scope |
+| `PORT` | No | `3000` | Port the server listens on inside the container |
+| `LOCK_GITHUB_USER` | No | - | Lock API to specific GitHub user (disables `userName` parameter) |
+| `CACHE_MAX_SIZE` | No | `100` | Maximum number of cached responses |
+| `CACHE_TTL_MS` | No | `3600000` | Cache time-to-live in milliseconds (1 hour) |
+
+---
+
+**Advanced Usage:**
+
+**1. Run with all configuration options:**
+
+```bash
+docker run -d \
+  --name github-widgets \
+  -p 8080:3000 \
+  -e GITHUB_TOKEN="ghp_your_token_here" \
+  -e LOCK_GITHUB_USER="your-username" \
+  -e CACHE_MAX_SIZE="200" \
+  -e CACHE_TTL_MS="7200000" \
+  --restart unless-stopped \
+  cyrus2281/github-widgets:latest
+```
+
+**2. Run with custom port mapping:**
+
+```bash
+# Map container port 3000 to host port 8080
+docker run -d \
+  --name github-widgets \
+  -p 8080:3000 \
+  -e GITHUB_TOKEN="ghp_your_token_here" \
+  cyrus2281/github-widgets:latest
+
+# Access at http://localhost:8080/api/v1/...
+```
+
+**3. View logs:**
+
+```bash
+docker logs github-widgets
+
+# Follow logs in real-time
+docker logs -f github-widgets
+```
+
+**4. Stop and remove container:**
+
+```bash
+docker stop github-widgets
+docker rm github-widgets
+```
+
+**Building from Source (Optional):**
+
+If you want to build the Docker image yourself:
+
+```bash
+# Clone the repository
+git clone https://github.com/cyrus2281/github-widgets.git
+cd github-widgets
+
+# Build the image
+docker build -t github-widgets:local .
+
+# Run your custom build
+docker run -d \
+  --name github-widgets \
+  -p 3000:3000 \
+  -e GITHUB_TOKEN="ghp_your_token_here" \
+  github-widgets:local
+```
+
+---
+
+**Production Deployment Tips:**
+
+**1. Use specific version tags:**
+```bash
+docker pull cyrus2281/github-widgets:v1.0.0
+```
+
+**2. Behind a reverse proxy (Nginx, Traefik, Caddy):**
+```nginx
+# Nginx example
+location /github-widgets/ {
+    proxy_pass http://localhost:3000/;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_cache_valid 200 1h;
+}
+```
+
+**3. Kubernetes Deployment:**
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: github-widgets
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: github-widgets
+  template:
+    metadata:
+      labels:
+        app: github-widgets
+    spec:
+      containers:
+      - name: github-widgets
+        image: cyrus2281/github-widgets:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: GITHUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: github-widgets-secret
+              key: github-token
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: github-widgets
+spec:
+  selector:
+    app: github-widgets
+  ports:
+  - port: 80
+    targetPort: 3000
+  type: LoadBalancer
 ```
 
 ## Architecture
