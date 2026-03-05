@@ -712,7 +712,13 @@ case 'new-endpoint.svg':
   return newEndpointHandler(event);
 ```
 
-3. Reuse existing utilities (cache, validation, errors)
+3. Add route in `server/routes.js`:
+
+```javascript
+router.get(['/v1/new-endpoint.svg', '/v1/new-endpoint'], wrapHandler(newEndpointHandler));
+```
+
+4. Reuse existing utilities (cache, validation, errors)
 
 ## Contributing
 

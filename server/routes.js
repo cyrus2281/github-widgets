@@ -21,11 +21,11 @@ import { createNotFoundSVG } from '../src/utils/errors.js';
 const router = express.Router();
 
 // V1 API Routes - All endpoints return SVG images
-router.get('/v1/user-stats.svg', wrapHandler(userStatsHandler));
-router.get('/v1/repository-card.svg', wrapHandler(repositoryCardHandler));
-router.get('/v1/most-starred.svg', wrapHandler(mostStarredHandler));
-router.get('/v1/timeseries-history.svg', wrapHandler(timeseriesHistoryHandler));
-router.get('/v1/experience-timeline.svg', wrapHandler(experienceTimelineHandler));
+router.get(['/v1/user-stats.svg', '/v1/user-stats'], wrapHandler(userStatsHandler));
+router.get(['/v1/repository-card.svg', '/v1/repository-card'], wrapHandler(repositoryCardHandler));
+router.get(['/v1/most-starred.svg', '/v1/most-starred'], wrapHandler(mostStarredHandler));
+router.get(['/v1/timeseries-history.svg', '/v1/timeseries-history'], wrapHandler(timeseriesHistoryHandler));
+router.get(['/v1/experience-timeline.svg', '/v1/experience-timeline'], wrapHandler(experienceTimelineHandler));
 
 // OPTIONS support for CORS preflight requests
 router.options('*', (req, res) => {
