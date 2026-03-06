@@ -19,6 +19,7 @@ import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import routes from './routes.js';
+import packageJson from '../package.json' assert { type: 'json' };
 
 // Load environment variables from .env file
 dotenv.config();
@@ -30,6 +31,7 @@ const __dirname = dirname(__filename);
 // Initialize Express app
 const app = express();
 const PORT = parseInt(process.env.PORT || '3000');
+const VERSION = packageJson.version || 'unknown';
 
 // ============================================================================
 // Middleware Configuration
@@ -132,7 +134,7 @@ app.use((err, req, res, next) => {
 const server = app.listen(PORT, () => {
   console.log('='.repeat(60));
   console.log('🚀 GitHub Widgets Server Started');
-  console.log(`📅 Version: ${require('../package.json').version}`);
+  console.log(`📅 Version: ${VERSION}`);
   console.log('='.repeat(60));
   console.log(`📡 Server running on: http://localhost:${PORT}`);
   console.log(`🏥 Health check: http://localhost:${PORT}/health`);
