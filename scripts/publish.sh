@@ -128,25 +128,15 @@ if [ "$BUILD_TOOL" = "podman" ]; then
     # Podman build process
     print_info "Using Podman manifest build process..."
     
-    # Create manifest
-    print_info "Creating manifest list..."
-    podman manifest create $DOCKER_IMAGE:latest --amend
-    
     # Build AMD64
     print_info "Building for linux/amd64..."
-    podman build --platform linux/amd64 --build-arg VERSION=$NEW_VERSION -t $DOCKER_IMAGE:amd64 .
+    podman build --platform linux/amd64 --build-arg VERSION=$NEW_VERSION -t temp-amd64 .
     print_success "AMD64 build complete"
     
     # Build ARM64
     print_info "Building for linux/arm64..."
-    podman build --platform linux/arm64 --build-arg VERSION=$NEW_VERSION -t $DOCKER_IMAGE:arm64 .
+    podman build --platform linux/arm64 --build-arg VERSION=$NEW_VERSION -t temp-arm64 .
     print_success "ARM64 build complete"
-    
-    # Add to manifest
-    print_info "Adding images to manifest..."
-    podman manifest add $DOCKER_IMAGE:latest $DOCKER_IMAGE:amd64
-    podman manifest add $DOCKER_IMAGE:latest $DOCKER_IMAGE:arm64
-    print_success "Manifest created successfully"
     
 else
     # Docker buildx process
@@ -182,13 +172,35 @@ echo ""
 
 if [ "$BUILD_TOOL" = "podman" ]; then
     # Push with Podman
-    print_info "Pushing latest tag..."
-    podman manifest push $DOCKER_IMAGE:latest docker://docker.io/$DOCKER_IMAGE:latest
+    # Clean up any existing manifests
+    print_info "Cleaning up existing manifests..."
+    podman manifest rm $DOCKER_IMAGE:latest 2>/dev/null || true
+    podman manifest rm $DOCKER_IMAGE:$NEW_VERSION 2>/dev/null || true
+    
+    # Create manifest list from local images
+    print_info "Creating manifest list for latest..."
+    podman manifest create $DOCKER_IMAGE:latest
+    podman manifest add $DOCKER_IMAGE:latest temp-amd64
+    podman manifest add $DOCKER_IMAGE:latest temp-arm64
+    
+    # Push manifest with latest tag
+    print_info "Pushing $DOCKER_IMAGE:latest..."
+    podman manifest push $DOCKER_IMAGE:latest docker://docker.io/$DOCKER_IMAGE:latest --all
     print_success "Pushed $DOCKER_IMAGE:latest"
     
-    print_info "Pushing version tag $NEW_VERSION..."
-    podman manifest push $DOCKER_IMAGE:latest docker://docker.io/$DOCKER_IMAGE:$NEW_VERSION
+    # Create and push version-tagged manifest
+    print_info "Creating manifest list for $NEW_VERSION..."
+    podman manifest create $DOCKER_IMAGE:$NEW_VERSION
+    podman manifest add $DOCKER_IMAGE:$NEW_VERSION temp-amd64
+    podman manifest add $DOCKER_IMAGE:$NEW_VERSION temp-arm64
+    
+    print_info "Pushing $DOCKER_IMAGE:$NEW_VERSION..."
+    podman manifest push $DOCKER_IMAGE:$NEW_VERSION docker://docker.io/$DOCKER_IMAGE:$NEW_VERSION --all
     print_success "Pushed $DOCKER_IMAGE:$NEW_VERSION"
+    
+    # Clean up temporary images
+    print_info "Cleaning up temporary images..."
+    podman rmi temp-amd64 temp-arm64 2>/dev/null || true
     
 else
     # Push with Docker
