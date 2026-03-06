@@ -29,7 +29,7 @@ const __dirname = dirname(__filename);
 
 // Initialize Express app
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = parseInt(process.env.PORT || '3000');
 
 // ============================================================================
 // Middleware Configuration
@@ -48,8 +48,11 @@ app.use(express.json());
 
 // Request logging middleware
 app.use((req, res, next) => {
-  const timestamp = new Date().toISOString();
-  console.log(`[${timestamp}] ${req.method} ${req.url}`);
+  // Skip logging for health check endpoint
+  if (req.url !== '/health') {
+    const timestamp = new Date().toISOString();
+    console.log(`[${timestamp}] ${req.method} ${req.url}`);
+  }
   next();
 });
 
