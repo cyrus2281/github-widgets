@@ -34,10 +34,13 @@ RUN npm ci --only=production --ignore-scripts && \
 # ============================================================================
 FROM node:25-alpine AS production
 
+# Accept version as build argument
+ARG VERSION=latest
+
 # Add metadata labels
 LABEL maintainer="Cyrus Mobini"
 LABEL description="Production-ready GitHub Widgets SVG API server"
-LABEL version="1.0.0"
+LABEL version="${VERSION}"
 LABEL org.opencontainers.image.source="https://github.com/cyrus2281/github-widgets"
 LABEL org.opencontainers.image.description="Standalone Express server for GitHub Widgets"
 LABEL org.opencontainers.image.licenses="Apache-2.0"

@@ -14,7 +14,10 @@
     "netlify:dev": "netlify dev",
     "build": "netlify build",
     "deploy": "netlify deploy --prod",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "release:patch": "./scripts/publish.sh patch",
+    "release:minor": "./scripts/publish.sh minor",
+    "release:major": "./scripts/publish.sh major"
   },
   "keywords": [
     "github",
