@@ -132,6 +132,7 @@ app.use((err, req, res, next) => {
 const server = app.listen(PORT, () => {
   console.log('='.repeat(60));
   console.log('🚀 GitHub Widgets Server Started');
+  console.log(`📅 Version: ${require('../package.json').version}`);
   console.log('='.repeat(60));
   console.log(`📡 Server running on: http://localhost:${PORT}`);
   console.log(`🏥 Health check: http://localhost:${PORT}/health`);
@@ -148,6 +149,13 @@ const server = app.listen(PORT, () => {
   if (process.env.LOCK_GITHUB_USER) {
     console.log(`🔒 Locked to user: ${process.env.LOCK_GITHUB_USER}`);
   }
+  if (process.env.CACHE_MAX_SIZE) {
+    console.log(`🗄️  Cache Max Size: ${process.env.CACHE_MAX_SIZE}`);
+  }
+  if (process.env.CACHE_TTL_MS) {
+    console.log(`⏱️  Cache TTL: ${process.env.CACHE_TTL_MS} ms`);
+  }
+
   console.log('='.repeat(60));
   console.log('Press Ctrl+C to stop the server');
   console.log('='.repeat(60));
