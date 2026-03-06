@@ -764,9 +764,19 @@ docker stop github-widgets
 docker rm github-widgets
 ```
 
-**Building from Source (Optional):**
+**Multi-Platform Support:**
 
-If you want to build the Docker image yourself:
+The Docker image supports multiple architectures:
+- **linux/amd64** - Intel/AMD 64-bit systems
+- **linux/arm64** - ARM 64-bit systems (Apple Silicon, ARM servers)
+
+Docker automatically pulls the correct architecture for your system. No special configuration needed!
+
+**Building from Source:**
+
+For instructions on building multi-platform Docker images, see [`BUILD.md`](BUILD.md).
+
+Quick build for local use:
 
 ```bash
 # Clone the repository
