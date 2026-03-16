@@ -1113,7 +1113,6 @@
 
             saveState();
             updateOutput();
-            debouncedPreview();
         }
 
         // ── Preview ──
@@ -1205,10 +1204,6 @@
             }
         }
 
-        const debouncedPreview = debounce(() => {
-            if (state.generated) loadPreview();
-        }, 500);
-
         // ── Copy ──
         function copyToClipboard() {
             const text = $('outputCode').textContent;
@@ -1279,7 +1274,6 @@
             state.serverUrl = e.target.value;
             saveState();
             updateOutput();
-            debouncedPreview();
         }
 
         function resetPreviewPlaceholder() {
