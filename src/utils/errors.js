@@ -1,3 +1,5 @@
+import { stampSvg } from './svgTimestamp.js';
+
 /**
  * Create an error SVG response
  * @param {string} message - Error message to display
@@ -41,7 +43,7 @@ export function createErrorSVG(message, statusCode = 500) {
       'Content-Type': 'image/svg+xml',
       'Cache-Control': 'no-cache, no-store, must-revalidate',
     },
-    body: svg,
+    body: stampSvg(svg),
   };
 }
 

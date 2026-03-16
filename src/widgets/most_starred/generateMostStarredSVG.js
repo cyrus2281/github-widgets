@@ -5,6 +5,7 @@ Requires GITHUB_TOKEN env var.
 */
 
 import { THEMES } from '../../utils/themes.js';
+import { stampSvg } from '../../utils/svgTimestamp.js';
 
 const GITHUB_API = 'https://api.github.com/graphql';
 
@@ -347,15 +348,15 @@ export async function generateMostStarredSVG(username, opts = {}, theme = 'radic
   }).join('\n')}
 </svg>`.trim();
 
-    return svg;
+    return stampSvg(svg);
     
   } catch (error) {
     // Generate error SVG
     const errorHeight = 200;
-    return `
+    return stampSvg(`
 <svg xmlns="http://www.w3.org/2000/svg" width="${options.width}" height="${errorHeight}" viewBox="0 0 ${options.width} ${errorHeight}">
   <rect x="0" y="0" width="${options.width}" height="${errorHeight}" fill="${colors.bg}" rx="16"/>
-  <text x="${options.width / 2}" y="80" text-anchor="middle" fill="${colors.error}" 
+  <text x="${options.width / 2}" y="80" text-anchor="middle" fill="${colors.error}"
         font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
         font-size="18" font-weight="600">
     Error loading repositories
@@ -365,6 +366,6 @@ export async function generateMostStarredSVG(username, opts = {}, theme = 'radic
         font-size="14">
     ${escapeXML(error.message)}
   </text>
-</svg>`.trim();
+</svg>`.trim());
   }
 }

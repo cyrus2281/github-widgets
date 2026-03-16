@@ -5,6 +5,7 @@ Requires GITHUB_TOKEN env var.
 */
 
 import { THEMES } from '../../utils/themes.js';
+import { stampSvg } from '../../utils/svgTimestamp.js';
 
 const GITHUB_API = 'https://api.github.com/graphql';
 
@@ -142,10 +143,10 @@ function generateActivitySVGFromData(user, dayArray, col, startDate, endDate, op
   const innerH = height - padding.top - padding.bottom;
 
   if (!dayArray || dayArray.length === 0) {
-    return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
+    return stampSvg(`<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
       <rect x="0" y="0" width="${width}" height="${height}" fill="${colors.bg}" rx="16" />
       <text x="${width / 2}" y="${height / 2}" text-anchor="middle" fill="${colors.text}">No data</text>
-    </svg>`;
+    </svg>`);
   }
 
   const counts = dayArray.map((d) => d.count);
@@ -299,7 +300,7 @@ function generateActivitySVGFromData(user, dayArray, col, startDate, endDate, op
   <!-- Github: https://github.com/cyrus2281/github-widgets -->
 </svg>`.trim();
 
-  return svg;
+  return stampSvg(svg);
 }
 
 async function generateActivitySVG(username, opts = {}, theme = 'radical') {

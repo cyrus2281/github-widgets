@@ -2,6 +2,7 @@ import * as d3 from "d3";
 import fs from "fs";
 import { JSDOM } from "jsdom";
 import { THEMES } from "../../utils/themes.js";
+import { stampSvg } from "../../utils/svgTimestamp.js";
 
 /**
  * generateExperienceTimeline
@@ -473,7 +474,7 @@ async function generateExperienceTimeline(csvString, opts = {}, theme = 'radical
     }
   }
 
-  return svg.node().outerHTML;
+  return stampSvg(svg.node().outerHTML);
 }
 
 export {
