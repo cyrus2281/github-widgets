@@ -14,6 +14,7 @@ import { handler as repositoryCardHandler } from '../src/handlers/v1/repository-
 import { handler as mostStarredHandler } from '../src/handlers/v1/most-starred.js';
 import { handler as timeseriesHistoryHandler } from '../src/handlers/v1/timeseries-history.js';
 import { handler as experienceTimelineHandler } from '../src/handlers/v1/experience-timeline.js';
+import { handler as contributionStreakHandler } from '../src/handlers/v1/contribution-streak.js';
 
 // Import error utility for 404 responses
 import { createNotFoundSVG } from '../src/utils/errors.js';
@@ -26,6 +27,7 @@ router.get(['/v1/repository-card.svg', '/v1/repository-card'], wrapHandler(repos
 router.get(['/v1/most-starred.svg', '/v1/most-starred'], wrapHandler(mostStarredHandler));
 router.get(['/v1/timeseries-history.svg', '/v1/timeseries-history'], wrapHandler(timeseriesHistoryHandler));
 router.get(['/v1/experience-timeline.svg', '/v1/experience-timeline'], wrapHandler(experienceTimelineHandler));
+router.get(['/v1/contribution-streak.svg', '/v1/contribution-streak'], wrapHandler(contributionStreakHandler));
 
 // OPTIONS support for CORS preflight requests
 router.options('*', (req, res) => {

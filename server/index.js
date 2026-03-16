@@ -101,11 +101,13 @@ app.use((req, res) => {
     message: `Cannot ${req.method} ${req.url}`,
     availableEndpoints: [
       '/health',
+      '/playground.html',
       '/api/v1/user-stats.svg',
       '/api/v1/repository-card.svg',
       '/api/v1/most-starred.svg',
       '/api/v1/timeseries-history.svg',
-      '/api/v1/experience-timeline.svg'
+      '/api/v1/experience-timeline.svg',
+      '/api/v1/contribution-streak.svg'
     ]
   });
 });
@@ -147,6 +149,7 @@ const server = app.listen(PORT, () => {
   console.log(`  • GET /api/v1/most-starred.svg`);
   console.log(`  • GET /api/v1/timeseries-history.svg`);
   console.log(`  • GET /api/v1/experience-timeline.svg`);
+  console.log(`  • GET /api/v1/contribution-streak.svg`);
   console.log('='.repeat(60));
   console.log(`🔑 GitHub Token: ${process.env.GITHUB_TOKEN ? '✓ Configured' : '✗ Missing'}`);
   if (process.env.LOCK_GITHUB_USER) {

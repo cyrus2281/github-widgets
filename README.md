@@ -19,6 +19,9 @@ A flexible application for generating dynamic GitHub contribution widgets as SVG
 ### Repository Card
 ![repository-card-sample](https://raw.githubusercontent.com/cyrus2281/github-widgets/refs/heads/main/samples/repository-card-sample.svg)
 
+### Contribution Streak
+![contribution-streak-sample](https://raw.githubusercontent.com/cyrus2281/github-widgets/refs/heads/main/samples/contribution-streak-sample.svg)
+
 
 > [!TIP]
 > Try the widgets live in the [Playground](https://github-widgets.netlify.app/playground.html) - customize parameters and see real-time previews!
@@ -31,6 +34,7 @@ A flexible application for generating dynamic GitHub contribution widgets as SVG
     - [Most Starred Repositories](#most-starred-repositories)
     - [User Stats](#user-stats)
     - [Repository Card](#repository-card)
+    - [Contribution Streak](#contribution-streak)
   - [Contents](#contents)
   - [Features](#features)
   - [Themes](#themes)
@@ -50,6 +54,7 @@ A flexible application for generating dynamic GitHub contribution widgets as SVG
       - [GET `/api/v1/most-starred.svg`](#get-apiv1most-starredsvg)
       - [GET `/api/v1/user-stats.svg`](#get-apiv1user-statssvg)
       - [GET `/api/v1/repository-card.svg`](#get-apiv1repository-cardsvg)
+      - [GET `/api/v1/contribution-streak.svg`](#get-apiv1contribution-streaksvg)
     - [Embedding in Markdown](#embedding-in-markdown)
     - [Embedding in HTML](#embedding-in-html)
   - [Environment Variables](#environment-variables)
@@ -549,6 +554,52 @@ Generate a repository card widget displaying GitHub repository information simil
 
 - `400 Bad Request` - Invalid username, repository name, or parameters out of range
 - `404 Not Found` - Repository not found
+- `500 Internal Server Error` - Server error during SVG generation
+
+---
+
+#### GET `/api/v1/contribution-streak.svg`
+
+![contribution-streak-sample](https://raw.githubusercontent.com/cyrus2281/github-widgets/refs/heads/main/samples/contribution-streak-sample.svg)
+
+Generate a contribution streak widget displaying total contributions, current streak with animated ring, and longest streak.
+
+**Query Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `userName` | string | Conditional* | GitHub username to fetch contribution data for |
+| `theme` | string | Optional | Color theme. Default `radical` |
+| `animationDuration` | number | Optional | Duration of animations in seconds (0.5-10). Defaults to `2`. |
+
+*Required unless `LOCK_GITHUB_USER` environment variable is set.
+
+**Examples:**
+
+```bash
+# Basic usage
+/api/v1/contribution-streak.svg?userName=octocat
+
+# With custom theme
+/api/v1/contribution-streak.svg?userName=octocat&theme=ocean
+
+# Custom animation speed
+/api/v1/contribution-streak.svg?userName=octocat&animationDuration=4
+
+# All parameters combined
+/api/v1/contribution-streak.svg?userName=octocat&theme=midnight&animationDuration=3
+```
+
+**Response:**
+
+- **Content-Type**: `image/svg+xml`
+- **Cache-Control**: `public, max-age=3600`
+- **X-Cache**: `HIT` or `MISS` (indicates cache status)
+
+**Error Responses:**
+
+- `400 Bad Request` - Invalid username or animationDuration out of range (0.5-10)
+- `404 Not Found` - User not found or no contribution data available
 - `500 Internal Server Error` - Server error during SVG generation
 
 ### Embedding in Markdown

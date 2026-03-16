@@ -73,6 +73,16 @@
         { "key": "showLogo", "type": "boolean", "label": "Show Logo", "default": true, "description": "Display GitHub logo" }
       ]
     },
+    "contribution-streak": {
+      "name": "Contribution Streak",
+      "endpoint": "/api/v1/contribution-streak.svg",
+      "description": "GitHub contribution streak with total contributions, current streak, and longest streak",
+      "alt": "Contribution Streak",
+      "params": [
+        { "key": "userName", "type": "string", "label": "Username", "required": true, "placeholder": "octocat", "description": "GitHub username" },
+        { "key": "animationDuration", "type": "number", "label": "Animation Duration (s)", "default": 2, "min": 0.5, "max": 10, "step": 0.5, "placeholder": "2", "description": "Animation duration (0.5-10s)" }
+      ]
+    },
     "repository-card": {
       "name": "Repository Card",
       "endpoint": "/api/v1/repository-card.svg",

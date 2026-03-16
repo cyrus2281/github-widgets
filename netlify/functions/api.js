@@ -3,6 +3,7 @@ import { handler as experienceTimelineHandler } from '../../src/handlers/v1/expe
 import { handler as mostStarredHandler } from '../../src/handlers/v1/most-starred.js';
 import { handler as userStatsHandler } from '../../src/handlers/v1/user-stats.js';
 import { handler as repositoryCardHandler } from '../../src/handlers/v1/repository-card.js';
+import { handler as contributionStreakHandler } from '../../src/handlers/v1/contribution-streak.js';
 import { createNotFoundSVG } from '../../src/utils/errors.js';
 
 /**
@@ -86,7 +87,11 @@ async function routeV1(endpoint, event) {
     case 'repository-card.svg':
     case 'repository-card':
       return repositoryCardHandler(event);
-    
+
+    case 'contribution-streak.svg':
+    case 'contribution-streak':
+      return contributionStreakHandler(event);
+
     default:
       return createNotFoundSVG(`Endpoint ${endpoint}`);
   }
