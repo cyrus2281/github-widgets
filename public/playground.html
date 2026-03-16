@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Widgets Playground</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #1c2333;
+            --bg-input: #0d1117;
+            --text-primary: #e6edf3;
+            --text-secondary: #7d8590;
+            --text-muted: #484f58;
+            --accent: #fe428e;
+            --accent-hover: #ff6ba8;
+            --accent-glow: rgba(254, 66, 142, 0.15);
+            --border: #30363d;
+            --border-muted: #21262d;
+            --success: #3fb950;
+            --error: #f85149;
+            --warning: #d29922;
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --top-bar-height: 60px;
+            --transition-fast: 150ms ease;
+            --transition-normal: 250ms ease;
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+        }
+
+        html, body { height: 100%; }
+
+        body {
+            font-family: var(--font);
+            font-size: 14px;
+            line-height: 1.5;
+            color: var(--text-primary);
+            background: var(--bg-primary);
+            overflow: hidden;
+        }
+
+        /* ── Top Bar ── */
+        .top-bar {
+            position: sticky; top: 0; z-index: 100;
+            display: flex; align-items: center; gap: 12px;
+            height: var(--top-bar-height);
+            padding: 0 20px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+        .top-bar-brand {
+            font-weight: 700; font-size: 15px;
+            color: var(--accent);
+            white-space: nowrap;
+            margin-right: 8px;
+            display: flex; align-items: center; gap: 6px;
+            text-decoration: none;
+            transition: opacity var(--transition-fast);
+        }
+        .top-bar-brand:hover { opacity: 0.8; }
+        .top-bar-brand svg { width: 20px; height: 20px; fill: var(--accent); }
+        .top-bar-group {
+            display: flex; align-items: center; gap: 6px;
+        }
+        .top-bar-group label {
+            font-size: 11px; font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase; letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+        .top-bar-group input,
+        .top-bar-group select {
+            height: 34px; padding: 0 10px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-family: var(--font);
+            font-size: 13px;
+            transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+        }
+        .top-bar-group input:focus,
+        .top-bar-group select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+        .top-bar-group select { cursor: pointer; padding-right: 24px; }
+        #serverUrl { width: 220px; }
+        .top-bar-spacer { flex: 1; }
+        .top-bar-kbd {
+            font-size: 11px; color: var(--text-muted);
+            display: flex; align-items: center; gap: 4px;
+        }
+        .top-bar-kbd kbd {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            padding: 1px 5px;
+            font-family: var(--font-mono);
+            font-size: 10px;
+        }
+
+        /* ── Main Layout ── */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            height: calc(100vh - var(--top-bar-height));
+        }
+
+        /* ── Control Panel (Left) ── */
+        .control-panel {
+            display: flex; flex-direction: column;
+            border-right: 1px solid var(--border);
+            background: var(--bg-secondary);
+            overflow: hidden;
+        }
+        .control-panel-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 16px 20px 12px;
+            border-bottom: 1px solid var(--border-muted);
+        }
+        .control-panel-header h2 {
+            font-size: 14px; font-weight: 600; color: var(--text-primary);
+        }
+        .control-panel-description {
+            padding: 0 20px 12px;
+            font-size: 12px; color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-muted);
+        }
+        .parameter-fields {
+            flex: 1; overflow-y: auto;
+            padding: 16px 20px;
+            display: flex; flex-direction: column; gap: 14px;
+        }
+        .parameter-fields::-webkit-scrollbar { width: 6px; }
+        .parameter-fields::-webkit-scrollbar-track { background: transparent; }
+        .parameter-fields::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+        /* ── Form Fields ── */
+        .field-group { display: flex; flex-direction: column; gap: 4px; }
+        .field-label {
+            display: flex; align-items: center; gap: 4px;
+            font-size: 12px; font-weight: 500; color: var(--text-secondary);
+        }
+        .field-label .required { color: var(--error); }
+        .field-hint {
+            font-size: 11px; color: var(--text-muted); margin-top: 2px;
+        }
+        .field-input {
+            width: 100%; height: 36px; padding: 0 10px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-family: var(--font);
+            font-size: 13px;
+            transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+        }
+        .field-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+        .field-input.invalid { border-color: var(--error); }
+        .field-input::placeholder { color: var(--text-muted); }
+
+        /* Toggle Switch */
+        .toggle-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 6px 0;
+        }
+        .toggle-row .field-label { margin: 0; }
+        .toggle {
+            position: relative; width: 40px; height: 22px;
+            cursor: pointer;
+        }
+        .toggle input { display: none; }
+        .toggle-slider {
+            position: absolute; inset: 0;
+            background: var(--border);
+            border-radius: 11px;
+            transition: background var(--transition-fast);
+        }
+        .toggle-slider::before {
+            content: '';
+            position: absolute; top: 3px; left: 3px;
+            width: 16px; height: 16px;
+            background: var(--text-secondary);
+            border-radius: 50%;
+            transition: transform var(--transition-fast), background var(--transition-fast);
+        }
+        .toggle input:checked + .toggle-slider { background: var(--accent); }
+        .toggle input:checked + .toggle-slider::before {
+            transform: translateX(18px);
+            background: #fff;
+        }
+
+        /* ── Section Divider ── */
+        .section-divider {
+            font-size: 11px; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            padding: 8px 0 4px;
+            border-bottom: 1px solid var(--border-muted);
+            margin-top: 4px;
+        }
+
+        /* ── CSV Editor ── */
+        .csv-editor-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .csv-editor-header h3 {
+            font-size: 12px; font-weight: 600; color: var(--text-secondary);
+        }
+        .csv-editor-actions { display: flex; gap: 6px; }
+        .csv-entry {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            animation: fadeSlideIn 0.2s ease;
+        }
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .csv-entry-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 8px 12px;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border-muted);
+            cursor: pointer; user-select: none;
+        }
+        .csv-entry-header:hover { background: var(--bg-secondary); }
+        .csv-entry-number {
+            font-size: 12px; font-weight: 600; color: var(--accent);
+        }
+        .csv-entry-title {
+            font-size: 12px; color: var(--text-secondary); margin-left: 8px;
+        }
+        .csv-entry-remove {
+            background: none; border: none; color: var(--text-muted);
+            cursor: pointer; font-size: 18px; line-height: 1;
+            padding: 2px 6px; border-radius: 4px;
+            transition: color var(--transition-fast), background var(--transition-fast);
+        }
+        .csv-entry-remove:hover { color: var(--error); background: rgba(248, 81, 73, 0.1); }
+        .csv-entry-fields { padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+        .csv-entry-fields.collapsed { display: none; }
+        .csv-entry-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .csv-entry-row.full { grid-template-columns: 1fr; }
+        .csv-field-group { display: flex; flex-direction: column; gap: 2px; }
+        .csv-field-group label {
+            font-size: 11px; color: var(--text-muted); font-weight: 500;
+        }
+        .csv-field-group label .required { color: var(--error); }
+        .csv-field-group input {
+            height: 30px; padding: 0 8px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-muted);
+            border-radius: 4px;
+            color: var(--text-primary);
+            font-family: var(--font); font-size: 12px;
+            transition: border-color var(--transition-fast);
+        }
+        .csv-field-group input:focus {
+            outline: none; border-color: var(--accent);
+        }
+        .color-field { display: flex; gap: 6px; align-items: center; }
+        .color-field input[type="color"] {
+            width: 30px; height: 30px; padding: 2px;
+            border: 1px solid var(--border-muted);
+            border-radius: 4px; cursor: pointer;
+            background: var(--bg-secondary);
+        }
+        .color-field input[type="text"] { flex: 1; }
+
+        /* ── Buttons ── */
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+            padding: 0 14px; height: 34px;
+            border: none; border-radius: var(--radius-sm);
+            font-family: var(--font); font-size: 12px; font-weight: 600;
+            cursor: pointer; white-space: nowrap;
+            transition: all var(--transition-fast);
+        }
+        .btn-primary {
+            background: var(--accent); color: #fff;
+        }
+        .btn-primary:hover { background: var(--accent-hover); }
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+        .btn-secondary:hover { border-color: var(--text-secondary); color: var(--text-primary); }
+        .btn-sm { height: 28px; padding: 0 10px; font-size: 11px; }
+        .btn-icon {
+            width: 34px; height: 34px; padding: 0;
+            background: transparent; border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary); cursor: pointer;
+            display: inline-flex; align-items: center; justify-content: center;
+            transition: all var(--transition-fast);
+        }
+        .btn-icon:hover { border-color: var(--accent); color: var(--accent); }
+        .btn-icon svg { width: 16px; height: 16px; fill: currentColor; }
+
+        /* ── Control Panel Footer ── */
+        .control-panel-footer {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border);
+            background: var(--bg-secondary);
+            display: flex; flex-direction: column; gap: 12px;
+        }
+        .footer-actions { display: flex; gap: 8px; }
+        .footer-actions .btn-primary { flex: 1; }
+        .output-section { display: flex; flex-direction: column; gap: 6px; }
+        .output-label {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 11px; font-weight: 600; color: var(--text-secondary);
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .format-badge {
+            font-size: 10px; font-weight: 700;
+            padding: 1px 6px; border-radius: 3px;
+            background: var(--accent); color: #fff;
+            text-transform: uppercase;
+        }
+        .output-display {
+            position: relative;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 10px 12px;
+            cursor: pointer;
+            transition: border-color var(--transition-fast);
+            min-height: 40px;
+            display: flex; align-items: center;
+        }
+        .output-display:hover { border-color: var(--accent); }
+        .output-display code {
+            font-family: var(--font-mono);
+            font-size: 11px; color: var(--text-primary);
+            word-break: break-all; line-height: 1.4;
+            display: block; width: 100%;
+            max-height: 60px; overflow-y: auto;
+        }
+        .output-display .copy-icon {
+            position: absolute; top: 8px; right: 8px;
+            color: var(--text-muted);
+            transition: color var(--transition-fast);
+        }
+        .output-display:hover .copy-icon { color: var(--accent); }
+        .output-display .copy-icon svg { width: 14px; height: 14px; fill: currentColor; }
+
+        /* ── Copy Toast ── */
+        .copy-toast {
+            position: fixed; bottom: 24px; left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: var(--success); color: #fff;
+            padding: 8px 16px; border-radius: var(--radius-sm);
+            font-size: 13px; font-weight: 600;
+            opacity: 0; pointer-events: none;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        .copy-toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* ── Preview Panel (Right) ── */
+        .preview-panel {
+            display: flex; flex-direction: column;
+            background: var(--bg-primary);
+            overflow: hidden;
+        }
+        .preview-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border-muted);
+            background: var(--bg-secondary);
+        }
+        .preview-header h2 { font-size: 14px; font-weight: 600; }
+        .preview-header-actions { display: flex; gap: 6px; }
+        .preview-container {
+            flex: 1; overflow-y: auto;
+            display: flex; align-items: center; justify-content: center;
+            padding: 24px;
+        }
+        .preview-container::-webkit-scrollbar { width: 6px; }
+        .preview-container::-webkit-scrollbar-track { background: transparent; }
+        .preview-container::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+        .preview-single {
+            display: flex; flex-direction: column; align-items: center;
+            gap: 16px; width: 100%;
+        }
+        .preview-single img {
+            max-width: 100%; height: auto;
+            border-radius: var(--radius-md);
+            background: var(--bg-secondary);
+        }
+        .preview-placeholder {
+            text-align: center; color: var(--text-muted);
+            padding: 40px;
+        }
+        .preview-placeholder svg {
+            width: 48px; height: 48px; fill: var(--text-muted);
+            margin-bottom: 12px; opacity: 0.5;
+        }
+        .preview-placeholder p { font-size: 14px; margin-top: 8px; }
+        .preview-placeholder .hint { font-size: 12px; margin-top: 4px; }
+
+        .preview-error {
+            text-align: center; color: var(--error);
+            padding: 24px;
+            background: rgba(248, 81, 73, 0.06);
+            border: 1px solid rgba(248, 81, 73, 0.2);
+            border-radius: var(--radius-md);
+        }
+        .preview-error p { font-size: 13px; }
+
+        .preview-loading {
+            display: flex; align-items: center; justify-content: center;
+            padding: 40px;
+        }
+        .spinner {
+            width: 32px; height: 32px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── Theme Grid (Show All) ── */
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+            gap: 20px;
+            width: 100%;
+            align-content: start;
+        }
+        .theme-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            cursor: pointer;
+            transition: border-color var(--transition-normal), transform var(--transition-normal);
+        }
+        .theme-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+        .theme-card-header {
+            padding: 10px 16px;
+            display: flex; align-items: center; gap: 8px;
+            border-bottom: 1px solid var(--border-muted);
+        }
+        .theme-card-dot {
+            width: 10px; height: 10px; border-radius: 50%;
+        }
+        .theme-card-name {
+            font-size: 13px; font-weight: 600; color: var(--text-primary);
+        }
+        .theme-card-body {
+            padding: 16px;
+            display: flex; align-items: center; justify-content: center;
+            min-height: 100px;
+        }
+        .theme-card-body img {
+            max-width: 100%; height: auto;
+        }
+        .theme-card-loading {
+            display: flex; align-items: center; justify-content: center;
+            min-height: 80px;
+        }
+        .theme-card-error {
+            font-size: 12px; color: var(--error);
+            text-align: center; padding: 16px;
+        }
+
+        /* ── Loading overlay for page init ── */
+        .page-loading {
+            position: fixed; inset: 0;
+            display: flex; align-items: center; justify-content: center;
+            background: var(--bg-primary);
+            z-index: 9999;
+            transition: opacity 0.3s ease;
+        }
+        .page-loading.hidden { opacity: 0; pointer-events: none; }
+        .page-loading-content {
+            text-align: center; color: var(--text-secondary);
+        }
+        .page-loading-content .spinner { margin: 0 auto 12px; }
+
+        /* ── Responsive ── */
+        @media (max-width: 900px) {
+            .top-bar {
+                height: auto; min-height: var(--top-bar-height);
+                padding: 10px 16px; flex-wrap: wrap;
+            }
+            .top-bar-brand { width: 100%; margin-bottom: 4px; }
+            .top-bar-spacer { display: none; }
+            .top-bar-kbd { display: none; }
+            #serverUrl { width: 160px; }
+            .main-layout {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+            .control-panel { border-right: none; border-bottom: 1px solid var(--border); }
+            .parameter-fields { max-height: 50vh; }
+            .preview-container { min-height: 300px; }
+            body { overflow: auto; }
+            .preview-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-loading" id="pageLoading">
+        <div class="page-loading-content">
+            <div class="spinner"></div>
+            <p>Loading playground...</p>
+        </div>
+    </div>
+
+    <header class="top-bar">
+        <a class="top-bar-brand" href="https://github.com/cyrus2281/github-widgets" target="_blank" rel="noopener noreferrer" title="View on GitHub">
+            <svg viewBox="0 0 16 16"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg>
+            Widgets Playground
+        </a>
+        <div class="top-bar-group">
+            <label for="serverUrl">Server</label>
+            <input type="text" id="serverUrl" placeholder="http://localhost:3000">
+        </div>
+        <div class="top-bar-group">
+            <label for="widgetSelector">Widget</label>
+            <select id="widgetSelector"></select>
+        </div>
+        <div class="top-bar-group">
+            <label for="formatSelector">Format</label>
+            <select id="formatSelector">
+                <option value="url">URL</option>
+                <option value="html" selected>HTML</option>
+                <option value="markdown">Markdown</option>
+            </select>
+        </div>
+        <div class="top-bar-group">
+            <label for="themeSelector">Theme</label>
+            <select id="themeSelector"></select>
+        </div>
+        <div class="top-bar-spacer"></div>
+        <div class="top-bar-kbd">
+            <kbd>Ctrl</kbd>+<kbd>Enter</kbd> to preview
+        </div>
+    </header>
+
+    <main class="main-layout">
+        <aside class="control-panel">
+            <div class="control-panel-header">
+                <h2 id="widgetTitle">Parameters</h2>
+                <button class="btn btn-secondary btn-sm" id="resetBtn">Reset</button>
+            </div>
+            <div class="control-panel-description" id="widgetDescription"></div>
+            <div class="parameter-fields" id="parameterFields"></div>
+            <div class="control-panel-footer">
+                <div class="footer-actions">
+                    <button class="btn btn-primary" id="generateBtn">
+                        <svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor"><path d="M1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0ZM8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0Zm.75 4.75v2.5h2.5a.75.75 0 0 1 0 1.5h-2.5v2.5a.75.75 0 0 1-1.5 0v-2.5h-2.5a.75.75 0 0 1 0-1.5h2.5v-2.5a.75.75 0 0 1 1.5 0Z"/></svg>
+                        Generate Preview
+                    </button>
+                    <button class="btn-icon" id="refreshBtn" title="Refresh preview">
+                        <svg viewBox="0 0 16 16"><path d="M8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5ZM1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834Z"/></svg>
+                    </button>
+                </div>
+                <div class="output-section">
+                    <div class="output-label">
+                        Generated Output
+                        <span class="format-badge" id="formatBadge">URL</span>
+                    </div>
+                    <div class="output-display" id="outputDisplay" title="Click to copy">
+                        <code id="outputCode">Configure parameters and generate a preview</code>
+                        <span class="copy-icon">
+                            <svg viewBox="0 0 16 16"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25ZM5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"/></svg>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <section class="preview-panel">
+            <div class="preview-header">
+                <h2>Preview</h2>
+                <div class="preview-header-actions">
+                    <button class="btn btn-secondary btn-sm" id="openInNewTab" title="Open in new tab">
+                        <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"/></svg>
+                        Open
+                    </button>
+                </div>
+            </div>
+            <div class="preview-container" id="previewContainer">
+                <div class="preview-single" id="previewSingle">
+                    <div class="preview-placeholder" id="previewPlaceholder">
+                        <svg viewBox="0 0 16 16"><path d="M16 3.75v8.5a1.75 1.75 0 0 1-1.75 1.75h-12.5A1.75 1.75 0 0 1 0 12.25v-8.5A1.75 1.75 0 0 1 1.75 2h12.5c.966 0 1.75.784 1.75 1.75Zm-1.75-.25H1.75a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h12.5a.25.25 0 0 0 .25-.25v-8.5a.25.25 0 0 0-.25-.25ZM4.5 6.25a.75.75 0 0 1 .75-.75h5.5a.75.75 0 0 1 0 1.5h-5.5a.75.75 0 0 1-.75-.75Zm.75 2.25h3.5a.75.75 0 0 1 0 1.5h-3.5a.75.75 0 0 1 0-1.5Z" fill="currentColor"/></svg>
+                        <p>Configure parameters and click <strong>Generate Preview</strong></p>
+                        <p class="hint">Or press <kbd>Ctrl</kbd>+<kbd>Enter</kbd></p>
+                    </div>
+                </div>
+                <div class="preview-grid" id="previewGrid" style="display:none;"></div>
+            </div>
+        </section>
+    </main>
+
+    <div class="copy-toast" id="copyToast">Copied to clipboard!</div>
+
+    <script>
+    (function() {
+        'use strict';
+
+        const STORAGE_KEY = 'github-widgets-playground';
+
+        // ── Loaded from widgets-config.json ──
+        let CONFIG = null;
+
+        // ── Application State ──
+        const state = {
+            currentWidget: 'timeseries-history',
+            serverUrl: '',
+            theme: 'radical',
+            format: 'html',
+            showAllThemes: false,
+            paramValues: {},       // { widgetSlug: { paramKey: value } }
+            csvEntries: {},        // { widgetSlug: [ entries ] } (only for experience-timeline)
+            generated: false,
+        };
+
+        // ── Utilities ──
+        function debounce(fn, delay) {
+            let timer;
+            return function(...args) {
+                clearTimeout(timer);
+                timer = setTimeout(() => fn.apply(this, args), delay);
+            };
+        }
+
+        function $(id) { return document.getElementById(id); }
+
+        function getServerUrl() {
+            return (state.serverUrl || '').trim() || $('serverUrl').placeholder;
+        }
+
+        // ── LocalStorage ──
+        function saveState() {
+            try {
+                const data = {
+                    currentWidget: state.currentWidget,
+                    serverUrl: state.serverUrl,
+                    theme: state.theme,
+                    format: state.format,
+                    showAllThemes: state.showAllThemes,
+                    paramValues: state.paramValues,
+                    csvEntries: state.csvEntries,
+                };
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            } catch (e) { /* quota exceeded or private browsing */ }
+        }
+
+        function loadState() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (!raw) return;
+                const data = JSON.parse(raw);
+                if (data.currentWidget) state.currentWidget = data.currentWidget;
+                if (data.serverUrl !== undefined) state.serverUrl = data.serverUrl;
+                if (data.theme) state.theme = data.theme;
+                if (data.format) state.format = data.format;
+                if (data.showAllThemes !== undefined) state.showAllThemes = data.showAllThemes;
+                if (data.paramValues) state.paramValues = data.paramValues;
+                if (data.csvEntries) state.csvEntries = data.csvEntries;
+            } catch (e) { /* corrupted data, ignore */ }
+        }
+
+        // ── Config Loading ──
+        async function loadConfig() {
+            const resp = await fetch('./widgets-config.json');
+            if (!resp.ok) throw new Error('Failed to load widgets-config.json');
+            CONFIG = await resp.json();
+        }
+
+        // ── Populate Dropdowns ──
+        function populateDropdowns() {
+            // Widget selector
+            const ws = $('widgetSelector');
+            ws.innerHTML = '';
+            for (const [slug, widget] of Object.entries(CONFIG.widgets)) {
+                const opt = document.createElement('option');
+                opt.value = slug;
+                opt.textContent = widget.name;
+                ws.appendChild(opt);
+            }
+            ws.value = state.currentWidget;
+
+            // Theme selector
+            const ts = $('themeSelector');
+            ts.innerHTML = '';
+            for (const theme of CONFIG.themes) {
+                const opt = document.createElement('option');
+                opt.value = theme.key;
+                opt.textContent = theme.name;
+                ts.appendChild(opt);
+            }
+            const showAllOpt = document.createElement('option');
+            showAllOpt.value = 'show-all';
+            showAllOpt.textContent = 'Show All';
+            ts.appendChild(showAllOpt);
+            ts.value = state.showAllThemes ? 'show-all' : state.theme;
+
+            // Format selector
+            $('formatSelector').value = state.format;
+
+            // Server URL
+            $('serverUrl').value = state.serverUrl;
+        }
+
+        // ── Get current widget param values (from state or defaults) ──
+        function getParamValues(widgetSlug) {
+            const widget = CONFIG.widgets[widgetSlug];
+            if (!widget) return {};
+            const stored = state.paramValues[widgetSlug] || {};
+            const values = {};
+            for (const p of widget.params) {
+                if (p.type === 'csv-editor') continue;
+                if (stored[p.key] !== undefined) {
+                    values[p.key] = stored[p.key];
+                } else if (p.default !== undefined) {
+                    values[p.key] = p.default;
+                } else {
+                    values[p.key] = '';
+                }
+            }
+            return values;
+        }
+
+        function getCsvEntries(widgetSlug) {
+            if (state.csvEntries[widgetSlug]) return state.csvEntries[widgetSlug];
+            return [{ company: '', start: '', end: '', title: '', logo: '', color: '#4285F4' }];
+        }
+
+        // ── Render Parameter Fields ──
+        function renderParameterFields() {
+            const widget = CONFIG.widgets[state.currentWidget];
+            $('widgetTitle').textContent = widget.name;
+            $('widgetDescription').textContent = widget.description;
+
+            const container = $('parameterFields');
+            container.innerHTML = '';
+
+            const values = getParamValues(state.currentWidget);
+
+            let hasToggles = false;
+
+            for (const param of widget.params) {
+                if (param.type === 'csv-editor') {
+                    renderCSVEditor(container);
+                    continue;
+                }
+
+                if (param.type === 'boolean') {
+                    if (!hasToggles) {
+                        const divider = document.createElement('div');
+                        divider.className = 'section-divider';
+                        divider.textContent = 'Display Options';
+                        container.appendChild(divider);
+                        hasToggles = true;
+                    }
+                    const row = document.createElement('div');
+                    row.className = 'toggle-row';
+
+                    const label = document.createElement('div');
+                    label.className = 'field-label';
+                    label.innerHTML = param.label;
+                    if (param.description) {
+                        label.title = param.description;
+                    }
+
+                    const toggle = document.createElement('label');
+                    toggle.className = 'toggle';
+                    const input = document.createElement('input');
+                    input.type = 'checkbox';
+                    input.dataset.key = param.key;
+                    input.checked = values[param.key] !== undefined ? values[param.key] : (param.default !== false);
+                    input.addEventListener('change', onParamChange);
+                    const slider = document.createElement('span');
+                    slider.className = 'toggle-slider';
+                    toggle.appendChild(input);
+                    toggle.appendChild(slider);
+
+                    row.appendChild(label);
+                    row.appendChild(toggle);
+                    container.appendChild(row);
+                    continue;
+                }
+
+                // String or Number
+                const group = document.createElement('div');
+                group.className = 'field-group';
+
+                const label = document.createElement('label');
+                label.className = 'field-label';
+                label.innerHTML = param.label + (param.required ? ' <span class="required">*</span>' : '');
+
+                const input = document.createElement('input');
+                input.className = 'field-input';
+                input.type = param.type === 'number' ? 'number' : 'text';
+                input.dataset.key = param.key;
+                if (param.placeholder) input.placeholder = param.placeholder;
+                if (param.min !== undefined) input.min = param.min;
+                if (param.max !== undefined) input.max = param.max;
+                if (param.step !== undefined) input.step = param.step;
+
+                const val = values[param.key];
+                if (val !== undefined && val !== '') input.value = val;
+
+                input.addEventListener('input', onParamChange);
+
+                group.appendChild(label);
+                group.appendChild(input);
+
+                if (param.description && (param.min !== undefined || param.max !== undefined)) {
+                    const hint = document.createElement('div');
+                    hint.className = 'field-hint';
+                    hint.textContent = param.description;
+                    group.appendChild(hint);
+                }
+
+                container.appendChild(group);
+            }
+        }
+
+        // ── CSV Editor ──
+        function renderCSVEditor(container) {
+            const entries = getCsvEntries(state.currentWidget);
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'field-group';
+
+            const header = document.createElement('div');
+            header.className = 'csv-editor-header';
+            header.innerHTML = `<h3>Experience Entries</h3>
+                <div class="csv-editor-actions">
+                    <button class="btn btn-secondary btn-sm" id="csvLoadExample">Load Example</button>
+                    <button class="btn btn-primary btn-sm" id="csvAddEntry">+ Add</button>
+                </div>`;
+            wrapper.appendChild(header);
+
+            const entriesContainer = document.createElement('div');
+            entriesContainer.id = 'csvEntries';
+            entriesContainer.style.display = 'flex';
+            entriesContainer.style.flexDirection = 'column';
+            entriesContainer.style.gap = '8px';
+
+            entries.forEach((entry, idx) => {
+                entriesContainer.appendChild(createCSVEntryCard(entry, idx, entries.length));
+            });
+
+            wrapper.appendChild(entriesContainer);
+            container.appendChild(wrapper);
+
+            // Add entry button
+            wrapper.querySelector('#csvAddEntry').addEventListener('click', () => {
+                const current = getCsvEntries(state.currentWidget);
+                current.push({ company: '', start: '', end: '', title: '', logo: '', color: '#4285F4' });
+                state.csvEntries[state.currentWidget] = current;
+                saveState();
+                renderParameterFields();
+                updateOutput();
+            });
+
+            // Load example
+            wrapper.querySelector('#csvLoadExample').addEventListener('click', () => {
+                state.csvEntries[state.currentWidget] = JSON.parse(JSON.stringify(CONFIG.csvExampleEntries));
+                saveState();
+                renderParameterFields();
+                updateOutput();
+            });
+        }
+
+        function createCSVEntryCard(entry, index, total) {
+            const card = document.createElement('div');
+            card.className = 'csv-entry';
+
+            const displayName = entry.company || 'New Entry';
+
+            card.innerHTML = `
+                <div class="csv-entry-header" data-index="${index}">
+                    <div>
+                        <span class="csv-entry-number">#${index + 1}</span>
+                        <span class="csv-entry-title">${displayName}</span>
+                    </div>
+                    <button class="csv-entry-remove" data-index="${index}" title="Remove entry">&times;</button>
+                </div>
+                <div class="csv-entry-fields" id="csvFields-${index}">
+                    <div class="csv-entry-row full">
+                        <div class="csv-field-group">
+                            <label>Company <span class="required">*</span></label>
+                            <input type="text" data-csv-field="company" data-csv-index="${index}" value="${escapeAttr(entry.company)}" placeholder="Company name">
+                        </div>
+                    </div>
+                    <div class="csv-entry-row">
+                        <div class="csv-field-group">
+                            <label>Start Date <span class="required">*</span></label>
+                            <input type="text" data-csv-field="start" data-csv-index="${index}" value="${escapeAttr(entry.start)}" placeholder="YYYY-MM-DD">
+                        </div>
+                        <div class="csv-field-group">
+                            <label>End Date</label>
+                            <input type="text" data-csv-field="end" data-csv-index="${index}" value="${escapeAttr(entry.end)}" placeholder="Empty = present">
+                        </div>
+                    </div>
+                    <div class="csv-entry-row full">
+                        <div class="csv-field-group">
+                            <label>Title</label>
+                            <input type="text" data-csv-field="title" data-csv-index="${index}" value="${escapeAttr(entry.title)}" placeholder="Job title">
+                        </div>
+                    </div>
+                    <div class="csv-entry-row full">
+                        <div class="csv-field-group">
+                            <label>Logo URL</label>
+                            <input type="url" data-csv-field="logo" data-csv-index="${index}" value="${escapeAttr(entry.logo)}" placeholder="https://...">
+                        </div>
+                    </div>
+                    <div class="csv-entry-row full">
+                        <div class="csv-field-group">
+                            <label>Color</label>
+                            <div class="color-field">
+                                <input type="color" data-csv-field="color-picker" data-csv-index="${index}" value="${entry.color || '#4285F4'}">
+                                <input type="text" data-csv-field="color" data-csv-index="${index}" value="${escapeAttr(entry.color || '#4285F4')}" placeholder="#4285F4">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Toggle collapse
+            card.querySelector('.csv-entry-header').addEventListener('click', (e) => {
+                if (e.target.closest('.csv-entry-remove')) return;
+                const fields = card.querySelector('.csv-entry-fields');
+                fields.classList.toggle('collapsed');
+            });
+
+            // Remove entry
+            card.querySelector('.csv-entry-remove').addEventListener('click', () => {
+                const entries = getCsvEntries(state.currentWidget);
+                if (entries.length <= 1) return; // Keep at least one
+                entries.splice(index, 1);
+                state.csvEntries[state.currentWidget] = entries;
+                saveState();
+                renderParameterFields();
+                updateOutput();
+            });
+
+            // Field change listeners
+            card.querySelectorAll('input').forEach(input => {
+                input.addEventListener('input', (e) => {
+                    const field = e.target.dataset.csvField;
+                    const idx = parseInt(e.target.dataset.csvIndex);
+                    const entries = getCsvEntries(state.currentWidget);
+
+                    if (field === 'color-picker') {
+                        entries[idx].color = e.target.value;
+                        // Sync text field
+                        const textField = card.querySelector(`input[data-csv-field="color"][data-csv-index="${idx}"]`);
+                        if (textField) textField.value = e.target.value;
+                    } else if (field === 'color') {
+                        entries[idx].color = e.target.value;
+                        // Sync color picker
+                        const picker = card.querySelector(`input[data-csv-field="color-picker"][data-csv-index="${idx}"]`);
+                        if (picker && /^#[0-9a-fA-F]{6}$/.test(e.target.value)) {
+                            picker.value = e.target.value;
+                        }
+                    } else if (field) {
+                        entries[idx][field] = e.target.value;
+                    }
+
+                    state.csvEntries[state.currentWidget] = entries;
+                    // Update the header title
+                    const titleEl = card.querySelector('.csv-entry-title');
+                    if (titleEl) titleEl.textContent = entries[idx].company || 'New Entry';
+                    saveState();
+                    updateOutput();
+                });
+            });
+
+            return card;
+        }
+
+        function escapeAttr(str) {
+            return (str || '').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        function buildCSVString() {
+            const entries = getCsvEntries(state.currentWidget);
+            const validEntries = entries.filter(e => e.company && e.start);
+            if (validEntries.length === 0) return '';
+
+            let csv = 'company,start,end,title,logo,color';
+            for (const e of validEntries) {
+                csv += '\n' + [e.company, e.start, e.end || '', e.title || '', e.logo || '', e.color || ''].join(',');
+            }
+            return csv;
+        }
+
+        // ── URL Building ──
+        function buildUrl(themeOverride) {
+            const widget = CONFIG.widgets[state.currentWidget];
+            if (!widget) return '';
+
+            const base = getServerUrl() + widget.endpoint;
+            const params = new URLSearchParams();
+            const values = getParamValues(state.currentWidget);
+
+            for (const p of widget.params) {
+                if (p.type === 'csv-editor') {
+                    const csv = buildCSVString();
+                    if (csv) params.set('experienceCSV', csv);
+                    continue;
+                }
+
+                const val = values[p.key];
+
+                if (p.type === 'boolean') {
+                    // Only include if different from default
+                    const defaultVal = p.default !== undefined ? p.default : true;
+                    if (val !== defaultVal) {
+                        params.set(p.key, String(val));
+                    }
+                    continue;
+                }
+
+                if (p.type === 'number') {
+                    if (val !== '' && val !== undefined && val !== null) {
+                        const numVal = Number(val);
+                        if (!isNaN(numVal) && (p.default === undefined || numVal !== p.default)) {
+                            params.set(p.key, String(numVal));
+                        }
+                    }
+                    continue;
+                }
+
+                // string
+                if (val && String(val).trim()) {
+                    params.set(p.key, String(val).trim());
+                }
+            }
+
+            // Theme
+            const theme = themeOverride || (state.showAllThemes ? null : state.theme);
+            if (theme && theme !== 'radical') {
+                params.set('theme', theme);
+            }
+
+            const qs = params.toString();
+            return base + (qs ? '?' + qs : '');
+        }
+
+        function formatOutput(url) {
+            const widget = CONFIG.widgets[state.currentWidget];
+            const alt = widget ? widget.alt : 'Widget';
+            switch (state.format) {
+                case 'html': return `<img src="${url}" alt="${alt}" />`;
+                case 'markdown': return `![${alt}](${url})`;
+                default: return url;
+            }
+        }
+
+        function updateOutput() {
+            const url = buildUrl();
+            const output = formatOutput(url);
+            $('outputCode').textContent = output;
+            $('formatBadge').textContent = state.format.toUpperCase();
+        }
+
+        // ── Parameter Change Handler ──
+        function onParamChange(e) {
+            const key = e.target.dataset.key;
+            if (!key) return;
+
+            if (!state.paramValues[state.currentWidget]) {
+                state.paramValues[state.currentWidget] = {};
+            }
+
+            if (e.target.type === 'checkbox') {
+                state.paramValues[state.currentWidget][key] = e.target.checked;
+            } else if (e.target.type === 'number') {
+                state.paramValues[state.currentWidget][key] = e.target.value === '' ? '' : Number(e.target.value);
+            } else {
+                state.paramValues[state.currentWidget][key] = e.target.value;
+            }
+
+            saveState();
+            updateOutput();
+            debouncedPreview();
+        }
+
+        // ── Preview ──
+        function loadPreview() {
+            state.generated = true;
+            const container = $('previewContainer');
+
+            if (state.showAllThemes) {
+                $('previewSingle').style.display = 'none';
+                $('previewContainer').style.alignItems = 'flex-start';
+                const grid = $('previewGrid');
+                grid.style.display = 'grid';
+                grid.innerHTML = '';
+
+                for (const theme of CONFIG.themes) {
+                    const card = document.createElement('div');
+                    card.className = 'theme-card';
+                    card.innerHTML = `
+                        <div class="theme-card-header">
+                            <div class="theme-card-dot" style="background:${theme.accent}"></div>
+                            <span class="theme-card-name">${theme.name}</span>
+                        </div>
+                        <div class="theme-card-body">
+                            <div class="theme-card-loading"><div class="spinner"></div></div>
+                        </div>
+                    `;
+
+                    const body = card.querySelector('.theme-card-body');
+                    const rawUrl = buildUrl(theme.key);
+                    const url = rawUrl + (rawUrl.includes('?') ? '&' : '?') + '_t=' + Date.now();
+                    const img = new Image();
+                    img.style.maxWidth = '100%';
+                    img.style.height = 'auto';
+
+                    img.onload = () => {
+                        body.innerHTML = '';
+                        body.appendChild(img);
+                    };
+                    img.onerror = () => {
+                        body.innerHTML = '<div class="theme-card-error">Failed to load preview</div>';
+                    };
+                    img.src = url;
+
+                    // Click card to select theme
+                    card.addEventListener('click', () => {
+                        state.theme = theme.key;
+                        state.showAllThemes = false;
+                        $('themeSelector').value = theme.key;
+                        saveState();
+                        updateOutput();
+                        loadPreview();
+                    });
+
+                    grid.appendChild(card);
+                }
+            } else {
+                $('previewGrid').style.display = 'none';
+                $('previewContainer').style.alignItems = 'center';
+                const single = $('previewSingle');
+                single.style.display = 'flex';
+
+                const rawUrl = buildUrl();
+                const url = rawUrl + (rawUrl.includes('?') ? '&' : '?') + '_t=' + Date.now();
+
+                single.innerHTML = `
+                    <div class="preview-loading"><div class="spinner"></div></div>
+                `;
+
+                const img = new Image();
+                img.style.maxWidth = '100%';
+                img.style.height = 'auto';
+                img.style.borderRadius = 'var(--radius-md)';
+
+                img.onload = () => {
+                    single.innerHTML = '';
+                    single.appendChild(img);
+                };
+                img.onerror = () => {
+                    single.innerHTML = `
+                        <div class="preview-error">
+                            <p>Failed to load preview</p>
+                            <p style="margin-top:8px;font-size:12px;color:var(--text-secondary)">
+                                Make sure your server is running at <strong>${getServerUrl()}</strong>
+                            </p>
+                        </div>
+                    `;
+                };
+                img.src = url;
+            }
+        }
+
+        const debouncedPreview = debounce(() => {
+            if (state.generated) loadPreview();
+        }, 500);
+
+        // ── Copy ──
+        function copyToClipboard() {
+            const text = $('outputCode').textContent;
+            if (!text) return;
+            navigator.clipboard.writeText(text).then(() => {
+                const toast = $('copyToast');
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 2000);
+            });
+        }
+
+        // ── Reset ──
+        function resetToDefaults() {
+            state.paramValues[state.currentWidget] = {};
+            if (state.currentWidget === 'experience-timeline') {
+                state.csvEntries[state.currentWidget] = [{ company: '', start: '', end: '', title: '', logo: '', color: '#4285F4' }];
+            }
+            saveState();
+            renderParameterFields();
+            updateOutput();
+            // Clear preview
+            state.generated = false;
+            $('previewSingle').style.display = 'flex';
+            $('previewGrid').style.display = 'none';
+            $('previewSingle').innerHTML = `
+                <div class="preview-placeholder">
+                    <svg viewBox="0 0 16 16"><path d="M16 3.75v8.5a1.75 1.75 0 0 1-1.75 1.75h-12.5A1.75 1.75 0 0 1 0 12.25v-8.5A1.75 1.75 0 0 1 1.75 2h12.5c.966 0 1.75.784 1.75 1.75Zm-1.75-.25H1.75a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h12.5a.25.25 0 0 0 .25-.25v-8.5a.25.25 0 0 0-.25-.25ZM4.5 6.25a.75.75 0 0 1 .75-.75h5.5a.75.75 0 0 1 0 1.5h-5.5a.75.75 0 0 1-.75-.75Zm.75 2.25h3.5a.75.75 0 0 1 0 1.5h-3.5a.75.75 0 0 1 0-1.5Z" fill="currentColor"/></svg>
+                    <p>Configure parameters and click <strong>Generate Preview</strong></p>
+                    <p class="hint">Or press <kbd>Ctrl</kbd>+<kbd>Enter</kbd></p>
+                </div>`;
+        }
+
+        // ── Open in New Tab ──
+        function openInNewTab() {
+            const url = buildUrl();
+            if (url) window.open(url, '_blank');
+        }
+
+        // ── Event Handlers ──
+        function onWidgetChange(e) {
+            state.currentWidget = e.target.value;
+            state.generated = false;
+            saveState();
+            renderParameterFields();
+            updateOutput();
+            resetPreviewPlaceholder();
+        }
+
+        function onThemeChange(e) {
+            if (e.target.value === 'show-all') {
+                state.showAllThemes = true;
+            } else {
+                state.showAllThemes = false;
+                state.theme = e.target.value;
+            }
+            saveState();
+            updateOutput();
+            if (state.generated) loadPreview();
+        }
+
+        function onFormatChange(e) {
+            state.format = e.target.value;
+            saveState();
+            updateOutput();
+        }
+
+        function onServerUrlChange(e) {
+            state.serverUrl = e.target.value;
+            saveState();
+            updateOutput();
+            debouncedPreview();
+        }
+
+        function resetPreviewPlaceholder() {
+            $('previewSingle').style.display = 'flex';
+            $('previewGrid').style.display = 'none';
+            $('previewSingle').innerHTML = `
+                <div class="preview-placeholder">
+                    <svg viewBox="0 0 16 16"><path d="M16 3.75v8.5a1.75 1.75 0 0 1-1.75 1.75h-12.5A1.75 1.75 0 0 1 0 12.25v-8.5A1.75 1.75 0 0 1 1.75 2h12.5c.966 0 1.75.784 1.75 1.75Zm-1.75-.25H1.75a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h12.5a.25.25 0 0 0 .25-.25v-8.5a.25.25 0 0 0-.25-.25ZM4.5 6.25a.75.75 0 0 1 .75-.75h5.5a.75.75 0 0 1 0 1.5h-5.5a.75.75 0 0 1-.75-.75Zm.75 2.25h3.5a.75.75 0 0 1 0 1.5h-3.5a.75.75 0 0 1 0-1.5Z" fill="currentColor"/></svg>
+                    <p>Configure parameters and click <strong>Generate Preview</strong></p>
+                    <p class="hint">Or press <kbd>Ctrl</kbd>+<kbd>Enter</kbd></p>
+                </div>`;
+        }
+
+        // ── Init ──
+        async function init() {
+            try {
+                await loadConfig();
+            } catch (e) {
+                $('pageLoading').innerHTML = `<div class="page-loading-content" style="color:var(--error)"><p>Failed to load configuration.</p><p style="font-size:12px;color:var(--text-secondary);margin-top:8px;">${e.message}</p></div>`;
+                return;
+            }
+
+            loadState();
+            // Validate currentWidget exists in config
+            if (!CONFIG.widgets[state.currentWidget]) {
+                state.currentWidget = Object.keys(CONFIG.widgets)[0];
+            }
+
+            populateDropdowns();
+            renderParameterFields();
+            updateOutput();
+
+            // Event listeners
+            $('widgetSelector').addEventListener('change', onWidgetChange);
+            $('themeSelector').addEventListener('change', onThemeChange);
+            $('formatSelector').addEventListener('change', onFormatChange);
+            $('serverUrl').addEventListener('input', onServerUrlChange);
+            $('generateBtn').addEventListener('click', loadPreview);
+            $('refreshBtn').addEventListener('click', loadPreview);
+            $('resetBtn').addEventListener('click', resetToDefaults);
+            $('outputDisplay').addEventListener('click', copyToClipboard);
+            $('openInNewTab').addEventListener('click', openInNewTab);
+
+            // Keyboard shortcut
+            document.addEventListener('keydown', (e) => {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                    e.preventDefault();
+                    loadPreview();
+                }
+            });
+
+            // Hide loading
+            const loading = $('pageLoading');
+            loading.classList.add('hidden');
+            setTimeout(() => loading.remove(), 300);
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    })();
+    </script>
+</body>
+</html>

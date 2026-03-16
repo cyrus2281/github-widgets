@@ -1,11 +1,19 @@
 {
   "name": "github-widgets",
   "version": "1.2.0",
-  "description": "A serverless app for GitHub widgets",
-  "main": "index.js",
+  "description": "A flexible application for generating dynamic GitHub contribution widgets as SVG images. Supports serverless deployment (Netlify Functions), standalone server (Express), and Docker containers.",
+  "main": "server/index.js",
   "type": "module",
   "engines": {
     "node": ">=20.0.0"
+  },
+  "homepage": "https://github.com/cyrus2281/github-widgets",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cyrus2281/github-widgets.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cyrus2281/github-widgets/issues"
   },
   "scripts": {
     "start": "node server/index.js",
@@ -23,10 +31,16 @@
     "github",
     "widgets",
     "svg",
+    "contributions",
+    "readme",
+    "profile",
+    "stats",
     "netlify",
-    "serverless"
+    "serverless",
+    "express",
+    "docker"
   ],
-  "author": "",
+  "author": "cyrus2281",
   "license": "Apache-2.0",
   "dependencies": {
     "cors": "^2.8.5",

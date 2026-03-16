@@ -916,7 +916,8 @@ Contributions are welcome! Please:
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Submit a pull request
+4. If adding or updating a widget endpoint, update `public/widgets-config.json` with the new endpoint details (name, path, query parameters, defaults, and descriptions). This file powers the interactive playground at `/playground.html`.
+5. Submit a pull request
 
 ## License
 

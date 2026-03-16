@@ -139,6 +139,7 @@ const server = app.listen(PORT, () => {
   console.log(`📡 Server running on: http://localhost:${PORT}`);
   console.log(`🏥 Health check: http://localhost:${PORT}/health`);
   console.log(`📊 API endpoints: http://localhost:${PORT}/api/v1/`);
+  console.log(`🛝 Playground: http://localhost:${PORT}/playground.html`);
   console.log('='.repeat(60));
   console.log('Available endpoints:');
   console.log(`  • GET /api/v1/user-stats.svg`);
