@@ -545,7 +545,7 @@
         </a>
         <div class="top-bar-group">
             <label for="serverUrl">Server</label>
-            <input type="text" id="serverUrl" placeholder="http://localhost:3000">
+            <input type="text" id="serverUrl">
         </div>
         <div class="top-bar-group">
             <label for="widgetSelector">Widget</label>
@@ -660,7 +660,7 @@
         function $(id) { return document.getElementById(id); }
 
         function getServerUrl() {
-            return (state.serverUrl || '').trim() || $('serverUrl').placeholder;
+            return (state.serverUrl || '').trim() || window.location.origin;
         }
 
         // ── LocalStorage ──
@@ -733,6 +733,7 @@
             $('formatSelector').value = state.format;
 
             // Server URL
+            $('serverUrl').placeholder = window.location.origin;
             $('serverUrl').value = state.serverUrl;
         }
 
