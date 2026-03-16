@@ -178,5 +178,95 @@ export const THEMES = {
         
         shadow: "#000",
         fadeShadow: "#ffffff11"
+    },
+    "transparent-white": {
+        bg: "transparent",
+
+        text: "#e6edf3",
+        subtext: "#9198a1",
+        title: "#ffffff",
+
+        grid: "rgba(255,255,255,0.08)",
+
+        accentA: "#58a6ff",
+        accentB: "#79c0ff",
+        accentC: "#d2a8ff",
+        accentD: "#56d4dd",
+        accentE: "#7ee787",
+
+        nodeStroke: "#30363d",
+
+        success: "#3fb950",
+        warning: "#d29922",
+        error: "#f85149",
+        info: "#58a6ff",
+
+        border: "rgba(255,255,255,0.15)",
+        hover: "rgba(255,255,255,0.1)",
+        link: "#58a6ff",
+        linkHover: "#79c0ff",
+
+        shadow: "transparent",
+        fadeShadow: "rgba(255,255,255,0.05)"
+    },
+    "transparent-black": {
+        bg: "transparent",
+
+        text: "#1f2328",
+        subtext: "#656d76",
+        title: "#000000",
+
+        grid: "rgba(0,0,0,0.08)",
+
+        accentA: "#0969da",
+        accentB: "#0550ae",
+        accentC: "#8250df",
+        accentD: "#0e8a6e",
+        accentE: "#1a7f37",
+
+        nodeStroke: "#d0d7de",
+
+        success: "#1a7f37",
+        warning: "#9a6700",
+        error: "#cf222e",
+        info: "#0969da",
+
+        border: "rgba(0,0,0,0.15)",
+        hover: "rgba(0,0,0,0.1)",
+        link: "#0969da",
+        linkHover: "#0550ae",
+
+        shadow: "transparent",
+        fadeShadow: "rgba(0,0,0,0.05)"
+    },
+    "transparent-radical": {
+        bg: "transparent",
+
+        text: "#cbd5e1",
+        subtext: "#94a3b8",
+        title: "#fe428e",
+
+        grid: "rgba(255,255,255,0.06)",
+
+        accentA: "#ff6b6b",
+        accentB: "#7c5cff",
+        accentC: "#f8d847",
+        accentD: "#4ecdc4",
+        accentE: "#ff9ff3",
+
+        nodeStroke: "#111",
+
+        success: "#00e676",
+        warning: "#ffd600",
+        error: "#ff5252",
+        info: "#40c4ff",
+
+        border: "#1e293b",
+        hover: "#1e293b",
+        link: "#fe428e",
+        linkHover: "#ff6ba8",
+
+        shadow: "transparent",
+        fadeShadow: "#ffffff11"
     }
 }

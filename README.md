@@ -19,6 +19,10 @@ A flexible application for generating dynamic GitHub contribution widgets as SVG
 ### Repository Card
 ![repository-card-sample](https://raw.githubusercontent.com/cyrus2281/github-widgets/refs/heads/main/samples/repository-card-sample.svg)
 
+
+> [!TIP]
+> Try the widgets live in the [Playground](https://github-widgets.netlify.app/playground.html) - customize parameters and see real-time previews!
+
 ## Contents
 - [GitHub Widgets](#github-widgets)
   - [Widgets](#widgets)
@@ -74,7 +78,7 @@ A flexible application for generating dynamic GitHub contribution widgets as SVG
 
 ## Themes
 
-All widgets support customizable color themes to match your style preferences. Choose from 6 pre-built themes or use the default.
+All widgets support customizable color themes to match your style preferences.
 
 ### Available Themes
 
@@ -88,6 +92,9 @@ Use the `theme` query parameter to select a theme for any widget:
 | **forest** | Natural green tones | Fresh green title, nature-inspired |
 | **midnight** | Deep purple and violet shades | Purple title, night sky colors |
 | **monochrome** | Classic black, white, and gray | Clean grayscale aesthetic |
+| **transparent-white** | No background, light text for dark pages | White title, blue accents |
+| **transparent-black** | No background, dark text for light pages | Black title, deep blue accents |
+| **transparent-radical** | No background, radical theme colors | Pink title, multi-color accents |
 
 ### Usage
 
@@ -122,6 +129,18 @@ Add the `theme` parameter to any widget URL:
 **Monochrome Theme:**
 
 ![Monochrome Theme](https://raw.githubusercontent.com/cyrus2281/github-widgets/refs/heads/main/samples/themes/monochrome.svg)
+
+**Transparent White Theme:**
+
+![Transparent White Theme](https://raw.githubusercontent.com/cyrus2281/github-widgets/refs/heads/main/samples/themes/transparent-white.svg)
+
+**Transparent Black Theme:**
+
+![Transparent Black Theme](https://raw.githubusercontent.com/cyrus2281/github-widgets/refs/heads/main/samples/themes/transparent-black.svg)
+
+**Transparent Radical Theme:**
+
+![Transparent Radical Theme](https://raw.githubusercontent.com/cyrus2281/github-widgets/refs/heads/main/samples/themes/transparent-radical.svg)
 
 
 ## Quick Start
@@ -238,7 +257,7 @@ Generate a GitHub contribution timeseries chart as an SVG image.
 |-----------|------|----------|-------------|
 | `userName` | string | Conditional* | GitHub username to generate chart for |
 | `range` | string | Optional | Date range in format `YYYY-MM-DD:YYYY-MM-DD` (max 365 days) |
-| `theme` | string | Optional | Color theme: `radical` (default), `ocean`, `sunset`, `forest`, `midnight`, `monochrome` |
+| `theme` | string | Optional | Color theme. Default `radical` |
 
 *Required unless `LOCK_GITHUB_USER` environment variable is set.
 
@@ -285,7 +304,7 @@ Generate a professional experience timeline as an SVG image.
 | `baseFontSize` | number | Optional | Base font size in pixels for relative scaling of all text. All font sizes scale proportionally from this value. Defaults to `14`. |
 | `embedLogos` | boolean | Optional | Whether to embed company logos in the timeline. Defaults to `true`. |
 | `animationTotalDuration` | number | Optional | Total duration of the animation in seconds. Defaults to `5`. |
-| `theme` | string | Optional | Color theme: `radical` (default), `ocean`, `sunset`, `forest`, `midnight`, `monochrome` |
+| `theme` | string | Optional | Color theme. Default `radical` |
 
 **CSV Format:**
 
@@ -373,7 +392,7 @@ Generate a widget displaying your most starred GitHub repositories with animated
 | `top` | number | Optional | Number of repositories to display (1-10). Defaults to `3`. |
 | `title` | string | Optional | Custom title for the widget. Defaults to `"Most Starred"`. |
 | `animationDuration` | number | Optional | Duration of card entrance animations in seconds (0.5-10). Defaults to `3.5`. |
-| `theme` | string | Optional | Color theme: `radical` (default), `ocean`, `sunset`, `forest`, `midnight`, `monochrome` |
+| `theme` | string | Optional | Color theme. Default `radical` |
 
 *Required unless `LOCK_GITHUB_USER` environment variable is set.
 
@@ -432,7 +451,7 @@ Generate a comprehensive GitHub user statistics widget displaying various metric
 | `showLogo` | boolean | Optional | Show/hide the GitHub logo. When hidden, widget width adjusts to 300px. Defaults to `true`. |
 | `width` | number | Optional | Width of the SVG in pixels (300-1000). Defaults to `600`. |
 | `animationDuration` | number | Optional | Duration of animations in seconds (0.5-10). Defaults to `2`. |
-| `theme` | string | Optional | Color theme: `radical` (default), `ocean`, `sunset`, `forest`, `midnight`, `monochrome` |
+| `theme` | string | Optional | Color theme. Default `radical` |
 
 *Required unless `LOCK_GITHUB_USER` environment variable is set.
 
@@ -491,7 +510,7 @@ Generate a repository card widget displaying GitHub repository information simil
 |-----------|------|----------|-------------|
 | `userName` | string | Conditional* | GitHub username (repository owner) |
 | `repoName` | string | Yes | Repository name |
-| `theme` | string | Optional | Color theme: `radical` (default), `ocean`, `sunset`, `forest`, `midnight`, `monochrome` |
+| `theme` | string | Optional | Color theme. Default `radical` |
 | `showUserName` | boolean | Optional | Display the username/owner. Defaults to `true`. |
 | `showLanguage` | boolean | Optional | Display the primary language. Defaults to `true`. |
 | `showStars` | boolean | Optional | Display star count. Defaults to `true`. |

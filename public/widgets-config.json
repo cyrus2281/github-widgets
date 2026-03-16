@@ -5,7 +5,10 @@
     { "key": "sunset", "name": "Sunset", "accent": "#ff6b9d" },
     { "key": "forest", "name": "Forest", "accent": "#66bb6a" },
     { "key": "midnight", "name": "Midnight", "accent": "#bb86fc" },
-    { "key": "monochrome", "name": "Monochrome", "accent": "#ffffff" }
+    { "key": "monochrome", "name": "Monochrome", "accent": "#ffffff" },
+    { "key": "transparent-white", "name": "Transparent White", "accent": "#58a6ff" },
+    { "key": "transparent-black", "name": "Transparent Black", "accent": "#0969da" },
+    { "key": "transparent-radical", "name": "Transparent Radical", "accent": "#fe428e" }
   ],
   "widgets": {
     "timeseries-history": {
