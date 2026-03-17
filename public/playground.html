@@ -965,7 +965,9 @@
 
             // Load example
             wrapper.querySelector('#csvLoadExample').addEventListener('click', () => {
-                state.csvEntries[state.currentWidget] = JSON.parse(JSON.stringify(CONFIG.csvExampleEntries));
+                const widget = CONFIG.widgets[state.currentWidget];
+                const exampleData = widget.example && widget.example.experienceCSV;
+                state.csvEntries[state.currentWidget] = exampleData ? JSON.parse(JSON.stringify(exampleData)) : [{ company: '', start: '', end: '', title: '', logo: '', color: '#4285F4' }];
                 saveState();
                 renderParameterFields();
                 updateOutput();

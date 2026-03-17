@@ -41,7 +41,14 @@
         { "key": "includeStartDate", "type": "boolean", "label": "Include Start Date", "default": true, "description": "Show start date labels" },
         { "key": "includeEndDate", "type": "boolean", "label": "Include End Date", "default": true, "description": "Show end date labels" },
         { "key": "animationTotalDuration", "type": "number", "label": "Animation Duration (s)", "default": 5, "placeholder": "5", "description": "Total animation duration in seconds" }
-      ]
+      ],
+      "example": {
+        "experienceCSV": [
+          { "company": "Google", "start": "2025-10", "end": "", "title": "AI/ML Engineer", "logo": "", "color": "#4285F4" },
+          { "company": "Spotify", "start": "2024-08", "end": "2025-06", "title": "Sr Software Developer", "logo": "", "color": "#1DB954" },
+          { "company": "Netflix", "start": "2024-04", "end": "2024-12", "title": "Software Engineer", "logo": "", "color": "#E50914" }
+        ]
+      }
     },
     "most-starred": {
       "name": "Most Starred",
@@ -105,10 +112,5 @@
         { "key": "height", "type": "number", "label": "Height", "default": 120, "min": 100, "max": 200, "placeholder": "120", "description": "Card height (100-200px)" }
       ]
     }
-  },
-  "csvExampleEntries": [
-    { "company": "Google", "start": "2025-10", "end": "", "title": "AI/ML Engineer", "logo": "", "color": "#4285F4" },
-    { "company": "Spotify", "start": "2024-08", "end": "2025-06", "title": "Sr Software Developer", "logo": "", "color": "#1DB954" },
-    { "company": "Netflix", "start": "2024-04", "end": "2024-12", "title": "Software Engineer", "logo": "", "color": "#E50914" }
-  ]
+  }
 }
