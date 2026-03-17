@@ -492,6 +492,65 @@
             text-align: center; padding: 16px;
         }
 
+        /* ── All Widgets Gallery ── */
+        .all-widgets-panel {
+            display: flex; flex-direction: column; gap: 16px;
+            padding: 20px;
+        }
+        .all-widgets-panel p {
+            font-size: 13px; color: var(--text-secondary); line-height: 1.6;
+        }
+        .all-widgets-panel .aw-select-group {
+            display: flex; flex-direction: column; gap: 4px;
+        }
+        .all-widgets-panel .aw-select-group label {
+            font-size: 12px; font-weight: 500; color: var(--text-secondary);
+        }
+        .all-widgets-panel .aw-select-group select {
+            padding: 8px 12px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 13px;
+            font-family: var(--font);
+        }
+        .all-widgets-panel .aw-select-group select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        .widget-gallery-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            cursor: pointer;
+            transition: border-color var(--transition-normal), transform var(--transition-normal);
+        }
+        .widget-gallery-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+        .widget-gallery-card-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-muted);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .widget-gallery-card-header h3 {
+            font-size: 14px; font-weight: 600; color: var(--text-primary);
+        }
+        .widget-gallery-card-header .wgc-desc {
+            font-size: 11px; color: var(--text-muted);
+        }
+        .widget-gallery-card-body {
+            padding: 16px;
+            display: flex; align-items: center; justify-content: center;
+            min-height: 80px;
+        }
+        .widget-gallery-card-body img {
+            max-width: 100%; height: auto;
+        }
+
         /* ── Loading overlay for page init ── */
         .page-loading {
             position: fixed; inset: 0;
@@ -604,6 +663,10 @@
             <div class="preview-header">
                 <h2>Preview</h2>
                 <div class="preview-header-actions">
+                    <button class="btn btn-secondary btn-sm" id="galleryRefreshBtn" title="Refresh to replay animations" style="display:none;">
+                        <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor"><path d="M8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5ZM1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834Z"/></svg>
+                        Refresh
+                    </button>
                     <button class="btn btn-secondary btn-sm" id="openInNewTab" title="Open in new tab">
                         <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor"><path d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z"/></svg>
                         Open
@@ -641,6 +704,7 @@
             theme: 'radical',
             format: 'html',
             showAllThemes: false,
+            showAllWidgets: true,
             paramValues: {},       // { widgetSlug: { paramKey: value } }
             csvEntries: {},        // { widgetSlug: [ entries ] } (only for experience-timeline)
             generated: false,
@@ -670,6 +734,7 @@
                     theme: state.theme,
                     format: state.format,
                     showAllThemes: state.showAllThemes,
+                    showAllWidgets: state.showAllWidgets,
                     paramValues: state.paramValues,
                     csvEntries: state.csvEntries,
                 };
@@ -687,6 +752,7 @@
                 if (data.theme) state.theme = data.theme;
                 if (data.format) state.format = data.format;
                 if (data.showAllThemes !== undefined) state.showAllThemes = data.showAllThemes;
+                if (data.showAllWidgets !== undefined) state.showAllWidgets = data.showAllWidgets;
                 if (data.paramValues) state.paramValues = data.paramValues;
                 if (data.csvEntries) state.csvEntries = data.csvEntries;
             } catch (e) { /* corrupted data, ignore */ }
@@ -704,13 +770,17 @@
             // Widget selector
             const ws = $('widgetSelector');
             ws.innerHTML = '';
+            const allOpt = document.createElement('option');
+            allOpt.value = 'show-all-widgets';
+            allOpt.textContent = 'All Widgets';
+            ws.appendChild(allOpt);
             for (const [slug, widget] of Object.entries(CONFIG.widgets)) {
                 const opt = document.createElement('option');
                 opt.value = slug;
                 opt.textContent = widget.name;
                 ws.appendChild(opt);
             }
-            ws.value = state.currentWidget;
+            ws.value = state.showAllWidgets ? 'show-all-widgets' : state.currentWidget;
 
             // Theme selector
             const ts = $('themeSelector');
@@ -761,6 +831,10 @@
 
         // ── Render Parameter Fields ──
         function renderParameterFields() {
+            if (state.showAllWidgets) {
+                renderAllWidgetsPanel();
+                return;
+            }
             const widget = CONFIG.widgets[state.currentWidget];
             $('widgetTitle').textContent = widget.name;
             $('widgetDescription').textContent = widget.description;
@@ -1141,18 +1215,24 @@
                     const body = card.querySelector('.theme-card-body');
                     const rawUrl = buildUrl(theme.key);
                     const url = rawUrl + (rawUrl.includes('?') ? '&' : '?') + '_t=' + Date.now();
-                    const img = new Image();
-                    img.style.maxWidth = '100%';
-                    img.style.height = 'auto';
 
-                    img.onload = () => {
-                        body.innerHTML = '';
-                        body.appendChild(img);
-                    };
-                    img.onerror = () => {
-                        body.innerHTML = '<div class="theme-card-error">Failed to load preview</div>';
-                    };
-                    img.src = url;
+                    fetch(url)
+                        .then(r => { if (!r.ok) throw new Error('Failed'); return r.blob(); })
+                        .then(blob => {
+                            const objectUrl = URL.createObjectURL(blob);
+                            const img = new Image();
+                            img.style.maxWidth = '100%';
+                            img.style.height = 'auto';
+                            img.onload = () => {
+                                body.innerHTML = '';
+                                body.appendChild(img);
+                                URL.revokeObjectURL(objectUrl);
+                            };
+                            img.src = objectUrl;
+                        })
+                        .catch(() => {
+                            body.innerHTML = '<div class="theme-card-error">Failed to load preview</div>';
+                        });
 
                     // Click card to select theme
                     card.addEventListener('click', () => {
@@ -1179,27 +1259,149 @@
                     <div class="preview-loading"><div class="spinner"></div></div>
                 `;
 
-                const img = new Image();
-                img.style.maxWidth = '100%';
-                img.style.height = 'auto';
-                img.style.borderRadius = 'var(--radius-md)';
-
-                img.onload = () => {
-                    single.innerHTML = '';
-                    single.appendChild(img);
-                };
-                img.onerror = () => {
-                    single.innerHTML = `
-                        <div class="preview-error">
-                            <p>Failed to load preview</p>
-                            <p style="margin-top:8px;font-size:12px;color:var(--text-secondary)">
-                                Make sure your server is running at <strong>${getServerUrl()}</strong>
-                            </p>
-                        </div>
-                    `;
-                };
-                img.src = url;
+                // Use fetch + object URL to guarantee SVG animations restart
+                fetch(url)
+                    .then(r => {
+                        if (!r.ok) throw new Error('Failed');
+                        return r.blob();
+                    })
+                    .then(blob => {
+                        const objectUrl = URL.createObjectURL(blob);
+                        const img = new Image();
+                        img.style.maxWidth = '100%';
+                        img.style.height = 'auto';
+                        img.style.borderRadius = 'var(--radius-md)';
+                        img.onload = () => {
+                            single.innerHTML = '';
+                            single.appendChild(img);
+                            URL.revokeObjectURL(objectUrl);
+                        };
+                        img.src = objectUrl;
+                    })
+                    .catch(() => {
+                        single.innerHTML = `
+                            <div class="preview-error">
+                                <p>Failed to load preview</p>
+                                <p style="margin-top:8px;font-size:12px;color:var(--text-secondary)">
+                                    Make sure your server is running at <strong>${getServerUrl()}</strong>
+                                </p>
+                            </div>
+                        `;
+                    });
             }
+        }
+
+        // ── All Widgets View ──
+        function setAllWidgetsMode(allWidgets) {
+            const footer = document.querySelector('.control-panel-footer');
+            if (footer) footer.style.display = allWidgets ? 'none' : '';
+            $('resetBtn').style.display = allWidgets ? 'none' : '';
+            $('openInNewTab').style.display = allWidgets ? 'none' : '';
+            $('galleryRefreshBtn').style.display = allWidgets ? '' : 'none';
+            $('formatSelector').parentElement.style.display = allWidgets ? 'none' : '';
+            $('themeSelector').parentElement.style.display = allWidgets ? 'none' : '';
+        }
+
+        function renderAllWidgetsPanel() {
+            $('widgetTitle').textContent = 'All Widgets';
+            $('widgetDescription').textContent = 'Browse all available widgets. Click a card to customize it.';
+
+            setAllWidgetsMode(true);
+
+            const container = $('parameterFields');
+            container.innerHTML = '';
+
+            const panel = document.createElement('div');
+            panel.className = 'all-widgets-panel';
+
+            panel.innerHTML = `
+                <p>Select a widget from the gallery on the right to configure its parameters, or use the dropdown below to jump to a specific widget.</p>
+                <div class="aw-select-group">
+                    <label for="awWidgetPicker">Jump to widget</label>
+                    <select id="awWidgetPicker">
+                        <option value="" disabled selected>Choose a widget...</option>
+                    </select>
+                </div>
+            `;
+
+            container.appendChild(panel);
+
+            const picker = panel.querySelector('#awWidgetPicker');
+            for (const [slug, widget] of Object.entries(CONFIG.widgets)) {
+                const opt = document.createElement('option');
+                opt.value = slug;
+                opt.textContent = widget.name;
+                picker.appendChild(opt);
+            }
+
+            picker.addEventListener('change', (e) => {
+                switchToWidget(e.target.value);
+            });
+        }
+
+        function loadAllWidgetsGallery() {
+            $('previewSingle').style.display = 'none';
+            $('previewContainer').style.alignItems = 'flex-start';
+            const grid = $('previewGrid');
+            grid.style.display = 'grid';
+            grid.innerHTML = '';
+
+            for (const [slug, widget] of Object.entries(CONFIG.widgets)) {
+                const card = document.createElement('div');
+                card.className = 'widget-gallery-card';
+                card.innerHTML = `
+                    <div class="widget-gallery-card-header">
+                        <h3>${widget.name}</h3>
+                        <span class="wgc-desc">${widget.description}</span>
+                    </div>
+                    <div class="widget-gallery-card-body">
+                        <div class="theme-card-loading"><div class="spinner"></div></div>
+                    </div>
+                `;
+
+                const body = card.querySelector('.widget-gallery-card-body');
+                const sampleUrl = widget.sample;
+
+                if (sampleUrl) {
+                    fetch(sampleUrl)
+                        .then(r => { if (!r.ok) throw new Error('Failed'); return r.blob(); })
+                        .then(blob => {
+                            const objectUrl = URL.createObjectURL(blob);
+                            const img = new Image();
+                            img.style.maxWidth = '100%';
+                            img.style.height = 'auto';
+                            img.onload = () => {
+                                body.innerHTML = '';
+                                body.appendChild(img);
+                                URL.revokeObjectURL(objectUrl);
+                            };
+                            img.src = objectUrl;
+                        })
+                        .catch(() => {
+                            body.innerHTML = '<div class="theme-card-error">Failed to load sample</div>';
+                        });
+                } else {
+                    body.innerHTML = '<div style="color:var(--text-muted);font-size:12px;">No sample available</div>';
+                }
+
+                card.addEventListener('click', () => {
+                    switchToWidget(slug);
+                });
+
+                grid.appendChild(card);
+            }
+        }
+
+        function switchToWidget(slug) {
+            state.showAllWidgets = false;
+            state.currentWidget = slug;
+            state.generated = false;
+            $('widgetSelector').value = slug;
+            setAllWidgetsMode(false);
+            saveState();
+            renderParameterFields();
+            updateOutput();
+            resetPreviewPlaceholder();
         }
 
         // ── Copy ──
@@ -1242,12 +1444,22 @@
 
         // ── Event Handlers ──
         function onWidgetChange(e) {
-            state.currentWidget = e.target.value;
-            state.generated = false;
-            saveState();
-            renderParameterFields();
-            updateOutput();
-            resetPreviewPlaceholder();
+            if (e.target.value === 'show-all-widgets') {
+                state.showAllWidgets = true;
+                state.generated = false;
+                saveState();
+                renderAllWidgetsPanel();
+                loadAllWidgetsGallery();
+            } else {
+                state.showAllWidgets = false;
+                state.currentWidget = e.target.value;
+                state.generated = false;
+                setAllWidgetsMode(false);
+                saveState();
+                renderParameterFields();
+                updateOutput();
+                resetPreviewPlaceholder();
+            }
         }
 
         function onThemeChange(e) {
@@ -1301,25 +1513,38 @@
             }
 
             populateDropdowns();
-            renderParameterFields();
-            updateOutput();
+            if (state.showAllWidgets) {
+                renderAllWidgetsPanel();
+                loadAllWidgetsGallery();
+            } else {
+                renderParameterFields();
+                updateOutput();
+            }
 
             // Event listeners
             $('widgetSelector').addEventListener('change', onWidgetChange);
             $('themeSelector').addEventListener('change', onThemeChange);
             $('formatSelector').addEventListener('change', onFormatChange);
             $('serverUrl').addEventListener('input', onServerUrlChange);
-            $('generateBtn').addEventListener('click', loadPreview);
-            $('refreshBtn').addEventListener('click', loadPreview);
+            $('generateBtn').addEventListener('click', () => {
+                if (state.showAllWidgets) loadAllWidgetsGallery();
+                else loadPreview();
+            });
+            $('refreshBtn').addEventListener('click', () => {
+                if (state.showAllWidgets) loadAllWidgetsGallery();
+                else loadPreview();
+            });
             $('resetBtn').addEventListener('click', resetToDefaults);
             $('outputDisplay').addEventListener('click', copyToClipboard);
             $('openInNewTab').addEventListener('click', openInNewTab);
+            $('galleryRefreshBtn').addEventListener('click', loadAllWidgetsGallery);
 
             // Keyboard shortcut
             document.addEventListener('keydown', (e) => {
                 if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
                     e.preventDefault();
-                    loadPreview();
+                    if (state.showAllWidgets) loadAllWidgetsGallery();
+                    else loadPreview();
                 }
             });
 
