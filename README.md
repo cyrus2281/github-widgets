@@ -22,6 +22,9 @@ A flexible application for generating dynamic GitHub contribution widgets as SVG
 ### Contribution Streak
 ![contribution-streak-sample](https://raw.githubusercontent.com/cyrus2281/github-widgets/refs/heads/main/samples/contribution-streak-sample.svg)
 
+### Skill Table
+![skill-table-sample](https://raw.githubusercontent.com/cyrus2281/github-widgets/refs/heads/main/samples/skill-table-sample.svg)
+
 
 > [!TIP]
 > Try the widgets live in the [Playground](https://github-widgets.netlify.app/playground.html) - customize parameters and see real-time previews!
@@ -35,6 +38,7 @@ A flexible application for generating dynamic GitHub contribution widgets as SVG
     - [User Stats](#user-stats)
     - [Repository Card](#repository-card)
     - [Contribution Streak](#contribution-streak)
+    - [Skill Table](#skill-table)
   - [Contents](#contents)
   - [Features](#features)
   - [Themes](#themes)
@@ -55,6 +59,7 @@ A flexible application for generating dynamic GitHub contribution widgets as SVG
       - [GET `/api/v1/user-stats.svg`](#get-apiv1user-statssvg)
       - [GET `/api/v1/repository-card.svg`](#get-apiv1repository-cardsvg)
       - [GET `/api/v1/contribution-streak.svg`](#get-apiv1contribution-streaksvg)
+      - [GET `/api/v1/skill-table.svg`](#get-apiv1skill-tablesvg)
     - [Embedding in Markdown](#embedding-in-markdown)
     - [Embedding in HTML](#embedding-in-html)
   - [Environment Variables](#environment-variables)
@@ -600,6 +605,70 @@ Generate a contribution streak widget displaying total contributions, current st
 
 - `400 Bad Request` - Invalid username or animationDuration out of range (0.5-10)
 - `404 Not Found` - User not found or no contribution data available
+- `500 Internal Server Error` - Server error during SVG generation
+
+---
+
+#### GET `/api/v1/skill-table.svg`
+
+![skill-table-sample](https://raw.githubusercontent.com/cyrus2281/github-widgets/refs/heads/main/samples/skill-table-sample.svg)
+
+Generate a visual skill table with technology icons as an SVG image. Icons are sourced from [Simple Icons](https://simpleicons.org/) or custom URLs and are embedded directly in the SVG for compatibility with GitHub READMEs.
+
+**Query Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `skills` | string | Yes | Pipe-separated skill entries (see format below) |
+| `columns` | number | Optional | Number of columns (1-10). Defaults to `4`. |
+| `title` | string | Optional | Title displayed above the table |
+| `subtitle` | string | Optional | Subtitle below the title |
+| `showTitles` | boolean | Optional | Show skill names under icons. Defaults to `true`. |
+| `iconSize` | number | Optional | Icon size in pixels (16-128). Defaults to `48`. |
+| `useOriginalColors` | boolean | Optional | Use brand's original logo colors. When `false`, uses theme text color. Defaults to `true`. |
+| `iconColor` | string | Optional | Override all icon colors with this hex value (e.g. `ffffff`). |
+| `gap` | number | Optional | Spacing between cells in pixels (0-64). Defaults to `16`. |
+| `animationDuration` | number | Optional | Animation duration in seconds (0.5-10). Defaults to `1`. |
+| `theme` | string | Optional | Color theme. Default `radical` |
+
+**Skills Format:**
+
+Entries are separated by `|` (pipe). Each entry is one of:
+
+| Format | Description | Example |
+|--------|-------------|---------|
+| `slug` | Simple Icons slug, uses brand name as title | `python` |
+| `Title:slug` | Simple Icons slug with custom display title | `C++:cplusplus` |
+| `Title:URL` | Custom icon URL with display title | `Java:https://example.com/java.svg` |
+| `--Name--` | Section header spanning all columns | `--Programming Languages--` |
+
+Find icon slugs at [simpleicons.org](https://simpleicons.org/).
+
+**Examples:**
+
+```bash
+# Basic usage
+/api/v1/skill-table.svg?skills=python|javascript|react|docker
+
+# With section headers and title
+/api/v1/skill-table.svg?skills=--Languages--|python|javascript|C%2B%2B:cplusplus|--Tools--|docker|git&title=My%20Skills&columns=3
+
+# With custom icons and theme
+/api/v1/skill-table.svg?skills=python|Java:https://example.com/java.svg|react&theme=ocean
+
+# Themed icons (uniform color)
+/api/v1/skill-table.svg?skills=python|javascript|react&useOriginalColors=false
+```
+
+**Response:**
+
+- **Content-Type**: `image/svg+xml`
+- **Cache-Control**: `public, max-age=3600`
+- **X-Cache**: `HIT` or `MISS` (indicates cache status)
+
+**Error Responses:**
+
+- `400 Bad Request` - Missing skills parameter, no valid entries, or input too long
 - `500 Internal Server Error` - Server error during SVG generation
 
 ### Embedding in Markdown

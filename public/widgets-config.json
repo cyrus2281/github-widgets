@@ -95,6 +95,43 @@
         { "key": "animationDuration", "type": "number", "label": "Animation Duration (s)", "default": 2, "min": 0.5, "max": 10, "step": 0.5, "placeholder": "2", "description": "Animation duration (0.5-10s)" }
       ]
     },
+    "skill-table": {
+      "name": "Skill Table",
+      "endpoint": "/api/v1/skill-table.svg",
+      "description": "A visual table of skills with icons from Simple Icons or custom URLs",
+      "alt": "Skill Table",
+      "sample": "https://raw.githubusercontent.com/cyrus2281/github-widgets/refs/heads/main/samples/skill-table-sample.svg",
+      "params": [
+        { "key": "skills", "type": "skills-editor", "label": "Skills", "required": true, "description": "Pipe-separated skill entries" },
+        { "key": "columns", "type": "number", "label": "Columns", "default": 4, "min": 1, "max": 10, "placeholder": "4", "description": "Number of columns (1-10)" },
+        { "key": "title", "type": "string", "label": "Title", "required": false, "placeholder": "My Skills", "description": "Optional title above the table" },
+        { "key": "subtitle", "type": "string", "label": "Subtitle", "required": false, "placeholder": "Technologies I work with", "description": "Optional subtitle" },
+        { "key": "showTitles", "type": "boolean", "label": "Show Skill Names", "default": true, "description": "Display skill names under icons" },
+        { "key": "iconSize", "type": "number", "label": "Icon Size", "default": 48, "min": 16, "max": 128, "placeholder": "48", "description": "Icon size in pixels (16-128)" },
+        { "key": "useOriginalColors", "type": "boolean", "label": "Use Original Colors", "default": true, "description": "Use brand logo colors instead of theme color" },
+        { "key": "iconColor", "type": "string", "label": "Icon Color", "required": false, "placeholder": "#ffffff", "description": "Override all icon colors (hex)" },
+        { "key": "gap", "type": "number", "label": "Gap", "default": 16, "min": 0, "max": 64, "placeholder": "16", "description": "Spacing between cells (0-64px)" },
+        { "key": "animationDuration", "type": "number", "label": "Animation Duration (s)", "default": 1, "min": 0.5, "max": 10, "step": 0.5, "placeholder": "1", "description": "Animation duration (0.5-10s)" }
+      ],
+      "example": {
+        "skills": [
+          { "type": "header", "title": "Programming Languages" },
+          { "type": "skill", "name": "Python", "id": "python" },
+          { "type": "skill", "name": "JavaScript", "id": "javascript" },
+          { "type": "skill", "name": "Bash", "id": "gnubash" },
+          { "type": "skill", "name": "C++", "id": "cplusplus" },
+          { "type": "header", "title": "Databases" },
+          { "type": "skill", "name": "MySQL", "id": "mysql" },
+          { "type": "skill", "name": "PostgreSQL", "id": "postgresql" },
+          { "type": "skill", "name": "MongoDB", "id": "mongodb" },
+          { "type": "header", "title": "AI Tools" },
+          { "type": "skill", "name": "Claude", "id": "claude" },
+          { "type": "skill", "name": "Gemini", "id": "googlegemini" }
+        ],
+        "title": "My Skills",
+        "subtitle": "Technologies I work with"
+      }
+    },
     "repository-card": {
       "name": "Repository Card",
       "endpoint": "/api/v1/repository-card.svg",

@@ -286,6 +286,120 @@
         }
         .color-field input[type="text"] { flex: 1; }
 
+        /* ── Skills Editor ── */
+        .skills-editor-header {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 10px;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .skills-editor-header h3 {
+            font-size: 12px; font-weight: 600; color: var(--text-secondary);
+        }
+        .skills-editor-actions { display: flex; gap: 6px; flex-wrap: wrap;}
+        .skill-entry {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            animation: fadeSlideIn 0.2s ease;
+        }
+        .skill-entry.section-header-entry {
+            border-left: 3px solid var(--accent);
+        }
+        .skill-entry-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 8px 12px;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border-muted);
+            cursor: pointer; user-select: none;
+        }
+        .skill-entry-header:hover { background: var(--bg-secondary); }
+        .skill-entry-header-left {
+            display: flex; align-items: center; gap: 6px;
+        }
+        .skill-entry-number {
+            font-size: 12px; font-weight: 600; color: var(--accent);
+        }
+        .skill-entry-title {
+            font-size: 12px; color: var(--text-secondary); margin-left: 8px;
+        }
+        .skill-entry-type-badge {
+            font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 3px;
+            text-transform: uppercase; letter-spacing: 0.3px;
+        }
+        .skill-entry-type-badge.header {
+            background: var(--accent); color: #fff;
+        }
+        .skill-entry-type-badge.skill {
+            background: var(--border); color: var(--text-secondary);
+        }
+        .skill-entry-actions {
+            display: flex; align-items: center; gap: 2px;
+        }
+        .skill-entry-move {
+            background: none; border: none; color: var(--text-muted);
+            cursor: pointer; font-size: 14px; padding: 2px 4px; border-radius: 4px;
+            transition: color var(--transition-fast), background var(--transition-fast);
+            line-height: 1;
+        }
+        .skill-entry-move:hover { color: var(--accent); background: var(--accent-glow); }
+        .skill-entry-move:disabled { opacity: 0.3; cursor: not-allowed; }
+        .skill-entry-move:disabled:hover { color: var(--text-muted); background: none; }
+        .skill-entry-remove {
+            background: none; border: none; color: var(--text-muted);
+            cursor: pointer; font-size: 18px; line-height: 1;
+            padding: 2px 6px; border-radius: 4px;
+            transition: color var(--transition-fast), background var(--transition-fast);
+        }
+        .skill-entry-remove:hover { color: var(--error); background: rgba(248, 81, 73, 0.1); }
+        .skill-entry-fields { padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+        .skill-entry-fields.collapsed { display: none; }
+        .skill-entry-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .skill-entry-row.full { grid-template-columns: 1fr; }
+        .skill-field-group { display: flex; flex-direction: column; gap: 2px; position: relative; }
+        .skill-field-group label {
+            font-size: 11px; color: var(--text-muted); font-weight: 500;
+        }
+        .skill-field-group input {
+            height: 30px; padding: 0 8px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-muted);
+            border-radius: 4px;
+            color: var(--text-primary);
+            font-family: var(--font); font-size: 12px;
+            transition: border-color var(--transition-fast);
+        }
+        .skill-field-group input:focus {
+            outline: none; border-color: var(--accent);
+        }
+        .skill-autocomplete {
+            position: absolute; top: 100%; left: 0; right: 0;
+            z-index: 200;
+            max-height: 200px; overflow-y: auto;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        .skill-autocomplete-item {
+            padding: 6px 10px;
+            cursor: pointer;
+            font-size: 12px;
+            color: var(--text-primary);
+            display: flex; align-items: center; gap: 8px;
+            transition: background var(--transition-fast);
+        }
+        .skill-autocomplete-item:hover { background: var(--bg-tertiary); }
+        .skill-autocomplete-item img {
+            width: 16px; height: 16px;
+        }
+        .skill-autocomplete-item .slug-text {
+            color: var(--text-muted); font-size: 10px; margin-left: auto;
+        }
+
         /* ── Buttons ── */
         .btn {
             display: inline-flex; align-items: center; justify-content: center; gap: 6px;
@@ -707,8 +821,12 @@
             showAllWidgets: true,
             paramValues: {},       // { widgetSlug: { paramKey: value } }
             csvEntries: {},        // { widgetSlug: [ entries ] } (only for experience-timeline)
+            skillEntries: {},      // { widgetSlug: [ entries ] } (for skill-table)
             generated: false,
         };
+
+        // ── Simple Icons Slugs Cache ──
+        let simpleIconsSlugs = null; // { name, slug }[] - fetched once
 
         // ── Utilities ──
         function debounce(fn, delay) {
@@ -737,6 +855,7 @@
                     showAllWidgets: state.showAllWidgets,
                     paramValues: state.paramValues,
                     csvEntries: state.csvEntries,
+                    skillEntries: state.skillEntries,
                 };
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
             } catch (e) { /* quota exceeded or private browsing */ }
@@ -755,6 +874,7 @@
                 if (data.showAllWidgets !== undefined) state.showAllWidgets = data.showAllWidgets;
                 if (data.paramValues) state.paramValues = data.paramValues;
                 if (data.csvEntries) state.csvEntries = data.csvEntries;
+                if (data.skillEntries) state.skillEntries = data.skillEntries;
             } catch (e) { /* corrupted data, ignore */ }
         }
 
@@ -812,7 +932,7 @@
             const stored = state.paramValues[widgetSlug] || {};
             const values = {};
             for (const p of widget.params) {
-                if (p.type === 'csv-editor') continue;
+                if (p.type === 'csv-editor' || p.type === 'skills-editor') continue;
                 if (stored[p.key] !== undefined) {
                     values[p.key] = stored[p.key];
                 } else if (p.default !== undefined) {
@@ -849,6 +969,11 @@
             for (const param of widget.params) {
                 if (param.type === 'csv-editor') {
                     renderCSVEditor(container);
+                    continue;
+                }
+
+                if (param.type === 'skills-editor') {
+                    renderSkillsEditor(container);
                     continue;
                 }
 
@@ -1098,6 +1223,403 @@
             return csv;
         }
 
+        // ── Skills Editor ──
+        function getSkillEntries(widgetSlug) {
+            if (state.skillEntries[widgetSlug]) return state.skillEntries[widgetSlug];
+            return [{ type: 'skill', name: '', id: '', customTitle: '' }];
+        }
+
+        async function loadSimpleIconsSlugs() {
+            if (simpleIconsSlugs) return simpleIconsSlugs;
+            try {
+                const resp = await fetch('https://raw.githubusercontent.com/simple-icons/simple-icons/refs/heads/master/slugs.md');
+                if (!resp.ok) return [];
+                const text = await resp.text();
+                const lines = text.split('\n');
+                const result = [];
+                for (const line of lines) {
+                    const match = line.match(/^\|\s*`([^`]+)`\s*\|\s*`([^`]+)`\s*\|/);
+                    if (match) {
+                        result.push({ name: match[1], slug: match[2] });
+                    }
+                }
+                simpleIconsSlugs = result;
+                return result;
+            } catch {
+                return [];
+            }
+        }
+
+        function renderSkillsEditor(container) {
+            const entries = getSkillEntries(state.currentWidget);
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'field-group';
+
+            const header = document.createElement('div');
+            header.className = 'skills-editor-header';
+            header.innerHTML = `<h3>Skills <a href="https://simpleicons.org/" target="_blank" rel="noopener noreferrer" style="font-size:11px;font-weight:400;color:var(--accent);text-decoration:none;margin-left:6px" title="Browse available icons">Browse Icons &nearr;</a></h3>
+                <div class="skills-editor-actions">
+                    <button class="btn btn-secondary btn-sm" id="skillsLoadExample">Load Example</button>
+                    <button class="btn btn-secondary btn-sm" id="skillsAddSection">+ Section</button>
+                    <button class="btn btn-primary btn-sm" id="skillsAddSkill">+ Skill</button>
+                </div>`;
+            wrapper.appendChild(header);
+
+            const entriesContainer = document.createElement('div');
+            entriesContainer.id = 'skillEntries';
+            entriesContainer.style.display = 'flex';
+            entriesContainer.style.flexDirection = 'column';
+            entriesContainer.style.gap = '8px';
+
+            entries.forEach((entry, idx) => {
+                if (entry.type === 'header') {
+                    entriesContainer.appendChild(createSectionHeaderCard(entry, idx, entries.length));
+                } else {
+                    entriesContainer.appendChild(createSkillEntryCard(entry, idx, entries.length));
+                }
+            });
+
+            wrapper.appendChild(entriesContainer);
+            container.appendChild(wrapper);
+
+            // Load simpleicons slugs in background
+            loadSimpleIconsSlugs();
+
+            // Add skill
+            wrapper.querySelector('#skillsAddSkill').addEventListener('click', () => {
+                const current = getSkillEntries(state.currentWidget);
+                current.push({ type: 'skill', name: '', id: '', customTitle: '' });
+                state.skillEntries[state.currentWidget] = current;
+                saveState();
+                renderParameterFields();
+                updateOutput();
+            });
+
+            // Add section header
+            wrapper.querySelector('#skillsAddSection').addEventListener('click', () => {
+                const current = getSkillEntries(state.currentWidget);
+                current.push({ type: 'header', title: '' });
+                state.skillEntries[state.currentWidget] = current;
+                saveState();
+                renderParameterFields();
+                updateOutput();
+            });
+
+            // Load example
+            wrapper.querySelector('#skillsLoadExample').addEventListener('click', () => {
+                const widget = CONFIG.widgets[state.currentWidget];
+                const exampleData = widget.example && widget.example.skills;
+                state.skillEntries[state.currentWidget] = exampleData
+                    ? JSON.parse(JSON.stringify(exampleData))
+                    : [{ type: 'skill', name: '', id: '', customTitle: '' }];
+                // Also load title/subtitle from example if available
+                if (widget.example) {
+                    if (!state.paramValues[state.currentWidget]) state.paramValues[state.currentWidget] = {};
+                    if (widget.example.title) state.paramValues[state.currentWidget].title = widget.example.title;
+                    if (widget.example.subtitle) state.paramValues[state.currentWidget].subtitle = widget.example.subtitle;
+                }
+                saveState();
+                renderParameterFields();
+                updateOutput();
+            });
+        }
+
+        function createSkillEntryCard(entry, index, total) {
+            const card = document.createElement('div');
+            card.className = 'skill-entry';
+
+            const displayName = entry.name || entry.id || 'New Skill';
+
+            card.innerHTML = `
+                <div class="skill-entry-header" data-index="${index}">
+                    <div class="skill-entry-header-left">
+                        <span class="skill-entry-number">#${index + 1}</span>
+                        <span class="skill-entry-type-badge skill">Skill</span>
+                        <span class="skill-entry-title">${escapeAttr(displayName)}</span>
+                    </div>
+                    <div class="skill-entry-actions">
+                        <button class="skill-entry-move" data-dir="up" data-index="${index}" title="Move up" ${index === 0 ? 'disabled' : ''}>&uarr;</button>
+                        <button class="skill-entry-move" data-dir="down" data-index="${index}" title="Move down" ${index >= total - 1 ? 'disabled' : ''}>&darr;</button>
+                        <button class="skill-entry-remove" data-index="${index}" title="Remove">&times;</button>
+                    </div>
+                </div>
+                <div class="skill-entry-fields" id="skillFields-${index}">
+                    <div class="skill-entry-row full">
+                        <div class="skill-field-group" style="position:relative">
+                            <label>Search Icon</label>
+                            <input type="text" data-skill-field="name" data-skill-index="${index}" value="${escapeAttr(entry.name)}" placeholder="Type to search (e.g. Python, React)" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="skill-entry-row full">
+                        <div class="skill-field-group">
+                            <label id="idLabel-${index}">${entry.id && entry.id.startsWith('http') ? 'Icon URL' : 'Simple Icon Slug'}</label>
+                            <input type="${entry.id && entry.id.startsWith('http') ? 'url' : 'text'}" data-skill-field="id" data-skill-index="${index}" value="${escapeAttr(entry.id)}" placeholder="${entry.id && entry.id.startsWith('http') ? 'https://...' : 'e.g. python, react'}">
+                        </div>
+                    </div>
+                    <div class="skill-entry-row full">
+                        <div class="skill-field-group">
+                            <label>Custom Title (optional)</label>
+                            <input type="text" data-skill-field="customTitle" data-skill-index="${index}" value="${escapeAttr(entry.customTitle || '')}" placeholder="Override display name">
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Toggle collapse
+            card.querySelector('.skill-entry-header').addEventListener('click', (e) => {
+                if (e.target.closest('.skill-entry-remove') || e.target.closest('.skill-entry-move')) return;
+                const fields = card.querySelector('.skill-entry-fields');
+                fields.classList.toggle('collapsed');
+            });
+
+            // Move up/down
+            card.querySelectorAll('.skill-entry-move').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const dir = btn.dataset.dir;
+                    const idx = parseInt(btn.dataset.index);
+                    const entries = getSkillEntries(state.currentWidget);
+                    if (dir === 'up' && idx > 0) {
+                        [entries[idx - 1], entries[idx]] = [entries[idx], entries[idx - 1]];
+                    } else if (dir === 'down' && idx < entries.length - 1) {
+                        [entries[idx], entries[idx + 1]] = [entries[idx + 1], entries[idx]];
+                    }
+                    state.skillEntries[state.currentWidget] = entries;
+                    saveState();
+                    renderParameterFields();
+                    updateOutput();
+                });
+            });
+
+            // Remove
+            card.querySelector('.skill-entry-remove').addEventListener('click', (e) => {
+                e.stopPropagation();
+                const entries = getSkillEntries(state.currentWidget);
+                if (entries.length <= 1) return;
+                entries.splice(index, 1);
+                state.skillEntries[state.currentWidget] = entries;
+                saveState();
+                renderParameterFields();
+                updateOutput();
+            });
+
+            // Autocomplete on name field
+            const nameInput = card.querySelector('input[data-skill-field="name"]');
+            const idInput = card.querySelector('input[data-skill-field="id"]');
+            const idLabel = card.querySelector(`#idLabel-${index}`);
+            let autocompleteEl = null;
+
+            nameInput.addEventListener('input', debounce(async (e) => {
+                const entries = getSkillEntries(state.currentWidget);
+                entries[index].name = e.target.value;
+                state.skillEntries[state.currentWidget] = entries;
+                // Update header title
+                const titleEl = card.querySelector('.skill-entry-title');
+                if (titleEl) titleEl.textContent = entries[index].name || entries[index].id || 'New Skill';
+
+                const query = e.target.value.trim().toLowerCase();
+                if (!query || query.length < 1) {
+                    removeAutocomplete();
+                    saveState();
+                    updateOutput();
+                    return;
+                }
+
+                const slugs = await loadSimpleIconsSlugs();
+                const matches = slugs.filter(s =>
+                    s.name.toLowerCase().includes(query) || s.slug.toLowerCase().includes(query)
+                ).slice(0, 15);
+
+                removeAutocomplete();
+                if (matches.length === 0) {
+                    // No match - switch to URL mode
+                    idLabel.textContent = 'Icon URL';
+                    idInput.type = 'url';
+                    idInput.placeholder = 'https://...';
+                    saveState();
+                    updateOutput();
+                    return;
+                }
+
+                // Switch to slug mode
+                idLabel.textContent = 'Simple Icon Slug';
+                idInput.type = 'text';
+                idInput.placeholder = 'e.g. python, react';
+
+                autocompleteEl = document.createElement('div');
+                autocompleteEl.className = 'skill-autocomplete';
+
+                for (const m of matches) {
+                    const item = document.createElement('div');
+                    item.className = 'skill-autocomplete-item';
+                    item.innerHTML = `<img src="https://cdn.simpleicons.org/${encodeURIComponent(m.slug)}" alt="" onerror="this.style.display='none'">`
+                        + `<span>${escapeAttr(m.name)}</span>`
+                        + `<span class="slug-text">${escapeAttr(m.slug)}</span>`;
+                    item.addEventListener('mousedown', (ev) => {
+                        ev.preventDefault();
+                        const entries = getSkillEntries(state.currentWidget);
+                        entries[index].name = m.name;
+                        entries[index].id = m.slug;
+                        state.skillEntries[state.currentWidget] = entries;
+                        nameInput.value = m.name;
+                        idInput.value = m.slug;
+                        idLabel.textContent = 'Simple Icon Slug';
+                        idInput.type = 'text';
+                        idInput.placeholder = 'e.g. python, react';
+                        const titleEl = card.querySelector('.skill-entry-title');
+                        if (titleEl) titleEl.textContent = m.name;
+                        removeAutocomplete();
+                        saveState();
+                        updateOutput();
+                    });
+                    autocompleteEl.appendChild(item);
+                }
+
+                nameInput.parentElement.appendChild(autocompleteEl);
+                saveState();
+                updateOutput();
+            }, 200));
+
+            nameInput.addEventListener('blur', () => {
+                setTimeout(removeAutocomplete, 150);
+            });
+
+            function removeAutocomplete() {
+                if (autocompleteEl && autocompleteEl.parentElement) {
+                    autocompleteEl.parentElement.removeChild(autocompleteEl);
+                }
+                autocompleteEl = null;
+            }
+
+            // ID field change
+            idInput.addEventListener('input', (e) => {
+                const entries = getSkillEntries(state.currentWidget);
+                entries[index].id = e.target.value;
+                state.skillEntries[state.currentWidget] = entries;
+                saveState();
+                updateOutput();
+            });
+
+            // Custom title field change
+            card.querySelector('input[data-skill-field="customTitle"]').addEventListener('input', (e) => {
+                const entries = getSkillEntries(state.currentWidget);
+                entries[index].customTitle = e.target.value;
+                state.skillEntries[state.currentWidget] = entries;
+                saveState();
+                updateOutput();
+            });
+
+            return card;
+        }
+
+        function createSectionHeaderCard(entry, index, total) {
+            const card = document.createElement('div');
+            card.className = 'skill-entry section-header-entry';
+
+            const displayTitle = entry.title || 'New Section';
+
+            card.innerHTML = `
+                <div class="skill-entry-header" data-index="${index}">
+                    <div class="skill-entry-header-left">
+                        <span class="skill-entry-number">#${index + 1}</span>
+                        <span class="skill-entry-type-badge header">Section</span>
+                        <span class="skill-entry-title">${escapeAttr(displayTitle)}</span>
+                    </div>
+                    <div class="skill-entry-actions">
+                        <button class="skill-entry-move" data-dir="up" data-index="${index}" title="Move up" ${index === 0 ? 'disabled' : ''}>&uarr;</button>
+                        <button class="skill-entry-move" data-dir="down" data-index="${index}" title="Move down" ${index >= total - 1 ? 'disabled' : ''}>&darr;</button>
+                        <button class="skill-entry-remove" data-index="${index}" title="Remove">&times;</button>
+                    </div>
+                </div>
+                <div class="skill-entry-fields" id="skillFields-${index}">
+                    <div class="skill-entry-row full">
+                        <div class="skill-field-group">
+                            <label>Section Title</label>
+                            <input type="text" data-section-field="title" data-section-index="${index}" value="${escapeAttr(entry.title)}" placeholder="e.g. Programming Languages">
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Toggle collapse
+            card.querySelector('.skill-entry-header').addEventListener('click', (e) => {
+                if (e.target.closest('.skill-entry-remove') || e.target.closest('.skill-entry-move')) return;
+                const fields = card.querySelector('.skill-entry-fields');
+                fields.classList.toggle('collapsed');
+            });
+
+            // Move up/down
+            card.querySelectorAll('.skill-entry-move').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const dir = btn.dataset.dir;
+                    const idx = parseInt(btn.dataset.index);
+                    const entries = getSkillEntries(state.currentWidget);
+                    if (dir === 'up' && idx > 0) {
+                        [entries[idx - 1], entries[idx]] = [entries[idx], entries[idx - 1]];
+                    } else if (dir === 'down' && idx < entries.length - 1) {
+                        [entries[idx], entries[idx + 1]] = [entries[idx + 1], entries[idx]];
+                    }
+                    state.skillEntries[state.currentWidget] = entries;
+                    saveState();
+                    renderParameterFields();
+                    updateOutput();
+                });
+            });
+
+            // Remove
+            card.querySelector('.skill-entry-remove').addEventListener('click', (e) => {
+                e.stopPropagation();
+                const entries = getSkillEntries(state.currentWidget);
+                if (entries.length <= 1) return;
+                entries.splice(index, 1);
+                state.skillEntries[state.currentWidget] = entries;
+                saveState();
+                renderParameterFields();
+                updateOutput();
+            });
+
+            // Title change
+            card.querySelector('input[data-section-field="title"]').addEventListener('input', (e) => {
+                const entries = getSkillEntries(state.currentWidget);
+                entries[index].title = e.target.value;
+                state.skillEntries[state.currentWidget] = entries;
+                const titleEl = card.querySelector('.skill-entry-title');
+                if (titleEl) titleEl.textContent = e.target.value || 'New Section';
+                saveState();
+                updateOutput();
+            });
+
+            return card;
+        }
+
+        function buildSkillsString() {
+            const entries = getSkillEntries(state.currentWidget);
+            const parts = [];
+            for (const e of entries) {
+                if (e.type === 'header') {
+                    if (e.title && e.title.trim()) {
+                        parts.push('--' + e.title.trim() + '--');
+                    }
+                    continue;
+                }
+                // Skill entry
+                const id = (e.id || '').trim();
+                if (!id) continue;
+                const customTitle = (e.customTitle || '').trim();
+                const name = (e.name || '').trim();
+                if (customTitle) {
+                    parts.push(customTitle + ':' + id);
+                } else if (name && name.toLowerCase() !== id.toLowerCase()) {
+                    parts.push(name + ':' + id);
+                } else {
+                    parts.push(id);
+                }
+            }
+            return parts.join('|');
+        }
+
         // ── URL Building ──
         function buildUrl(themeOverride) {
             const widget = CONFIG.widgets[state.currentWidget];
@@ -1111,6 +1633,12 @@
                 if (p.type === 'csv-editor') {
                     const csv = buildCSVString();
                     if (csv) params.set('experienceCSV', csv);
+                    continue;
+                }
+
+                if (p.type === 'skills-editor') {
+                    const skills = buildSkillsString();
+                    if (skills) params.set('skills', skills);
                     continue;
                 }
 
@@ -1422,6 +1950,9 @@
             state.paramValues[state.currentWidget] = {};
             if (state.currentWidget === 'experience-timeline') {
                 state.csvEntries[state.currentWidget] = [{ company: '', start: '', end: '', title: '', logo: '', color: '#4285F4' }];
+            }
+            if (state.skillEntries[state.currentWidget]) {
+                state.skillEntries[state.currentWidget] = [{ type: 'skill', name: '', id: '', customTitle: '' }];
             }
             saveState();
             renderParameterFields();

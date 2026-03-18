@@ -15,6 +15,7 @@ import { handler as mostStarredHandler } from '../src/handlers/v1/most-starred.j
 import { handler as timeseriesHistoryHandler } from '../src/handlers/v1/timeseries-history.js';
 import { handler as experienceTimelineHandler } from '../src/handlers/v1/experience-timeline.js';
 import { handler as contributionStreakHandler } from '../src/handlers/v1/contribution-streak.js';
+import { handler as skillTableHandler } from '../src/handlers/v1/skill-table.js';
 
 // Import error utility for 404 responses
 import { createNotFoundSVG } from '../src/utils/errors.js';
@@ -28,6 +29,7 @@ router.get(['/v1/most-starred.svg', '/v1/most-starred'], wrapHandler(mostStarred
 router.get(['/v1/timeseries-history.svg', '/v1/timeseries-history'], wrapHandler(timeseriesHistoryHandler));
 router.get(['/v1/experience-timeline.svg', '/v1/experience-timeline'], wrapHandler(experienceTimelineHandler));
 router.get(['/v1/contribution-streak.svg', '/v1/contribution-streak'], wrapHandler(contributionStreakHandler));
+router.get(['/v1/skill-table.svg', '/v1/skill-table'], wrapHandler(skillTableHandler));
 
 // OPTIONS support for CORS preflight requests
 router.options('*', (req, res) => {
