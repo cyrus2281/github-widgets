@@ -49,7 +49,10 @@ export async function handler(event) {
       gap: gapStr = '16',
       animationDuration: animationDurationStr = '1',
       theme = 'radical',
+      nocache,
     } = queryParams;
+
+    const noCache = parseBoolean(nocache, false);
 
     // Validate skills parameter
     if (!skills) {
@@ -95,7 +98,7 @@ export async function handler(event) {
     const cacheKey = generateCacheKey('skill-table', decodedSkills, JSON.stringify(opts), theme);
 
     // Check cache
-    const cachedResponse = cache.get(cacheKey);
+    const cachedResponse = !noCache && cache.get(cacheKey);
     if (cachedResponse) {
       console.log('[Cache] HIT:', cacheKey.substring(0, 50) + '...');
       return {
@@ -115,14 +118,16 @@ export async function handler(event) {
     const svg = await generateSkillTableSVG(decodedSkills, opts, theme);
 
     // Cache the response
-    cache.set(cacheKey, svg);
-    console.log('[Cache] SET:', cacheKey.substring(0, 50) + '...');
+    if (!noCache) {
+      cache.set(cacheKey, svg);
+      console.log('[Cache] SET:', cacheKey.substring(0, 50) + '...');
+    }
 
     return {
       statusCode: 200,
       headers: {
         'Content-Type': 'image/svg+xml',
-        'Cache-Control': 'public, max-age=3600',
+        'Cache-Control': noCache ? 'no-store, no-cache' : 'public, max-age=3600',
         'X-Cache': 'MISS',
       },
       body: svg,

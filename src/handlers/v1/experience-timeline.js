@@ -1,6 +1,6 @@
 import { generateExperienceTimeline } from '../../widgets/experience_timeline/generateExperienceTimeline.js';
 import { cache, generateCacheKey } from '../../utils/cache.js';
-import { parseQueryParams } from '../../utils/validation.js';
+import { parseQueryParams, parseBoolean } from '../../utils/validation.js';
 import { handleError, createValidationErrorSVG } from '../../utils/errors.js';
 
 /**
@@ -94,7 +94,10 @@ export async function handler(event) {
       embedLogos: embedLogosStr = 'true',
       animationTotalDuration: animationTotalDurationStr = '5',
       theme = 'radical',
+      nocache,
     } = queryParams;
+
+    const noCache = parseBoolean(nocache, false);
 
     const includeStartDate = queryParams.includeStartDate !== 'false';
     const includeEndDate = queryParams.includeEndDate !== 'false';
@@ -148,7 +151,7 @@ export async function handler(event) {
     const cacheKey = generateCacheKey('experience-timeline', decodedCSV, JSON.stringify(cacheKeyOptions));
 
     // Check cache
-    const cachedResponse = cache.get(cacheKey);
+    const cachedResponse = !noCache && cache.get(cacheKey);
     if (cachedResponse) {
       console.log('[Cache] HIT:', cacheKey.substring(0, 50) + '...');
       return {
@@ -182,15 +185,17 @@ export async function handler(event) {
     }, theme);
 
     // Cache the response
-    cache.set(cacheKey, svg);
-    console.log('[Cache] SET:', cacheKey.substring(0, 50) + '...');
+    if (!noCache) {
+      cache.set(cacheKey, svg);
+      console.log('[Cache] SET:', cacheKey.substring(0, 50) + '...');
+    }
 
     // Return SVG
     return {
       statusCode: 200,
       headers: {
         'Content-Type': 'image/svg+xml',
-        'Cache-Control': 'public, max-age=3600',
+        'Cache-Control': noCache ? 'no-store, no-cache' : 'public, max-age=3600',
         'X-Cache': 'MISS',
       },
       body: svg,
