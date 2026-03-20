@@ -1,6 +1,6 @@
 import { generateActivitySVG } from '../../widgets/github_timeseries/generateActivitySVG.js';
 import { cache, generateCacheKey } from '../../utils/cache.js';
-import { validateUsername, validateDateRange, parseQueryParams } from '../../utils/validation.js';
+import { validateUsername, validateDateRange, parseQueryParams, parseBoolean } from '../../utils/validation.js';
 import { handleError, createForbiddenSVG, createValidationErrorSVG } from '../../utils/errors.js';
 
 /**
@@ -12,7 +12,9 @@ export async function handler(event) {
   try {
     // Parse query parameters
     const queryParams = parseQueryParams(event.rawQuery);
-    const { userName, range, theme = 'radical' } = queryParams;
+    const { userName, range, theme = 'radical', nocache } = queryParams;
+
+    const noCache = parseBoolean(nocache, false);
 
     // Check LOCK_GITHUB_USER environment variable
     const lockedUser = process.env.LOCK_GITHUB_USER;
@@ -60,7 +62,7 @@ export async function handler(event) {
     );
 
     // Check cache
-    const cachedResponse = cache.get(cacheKey);
+    const cachedResponse = !noCache && cache.get(cacheKey);
     if (cachedResponse) {
       console.log('[Cache] HIT:', cacheKey);
       return {
@@ -88,15 +90,17 @@ export async function handler(event) {
     }, theme);
 
     // Cache the response
-    cache.set(cacheKey, svg);
-    console.log('[Cache] SET:', cacheKey);
+    if (!noCache) {
+      cache.set(cacheKey, svg);
+      console.log('[Cache] SET:', cacheKey);
+    }
 
     // Return SVG
     return {
       statusCode: 200,
       headers: {
         'Content-Type': 'image/svg+xml',
-        'Cache-Control': 'public, max-age=3600',
+        'Cache-Control': noCache ? 'no-store, no-cache' : 'public, max-age=3600',
         'X-Cache': 'MISS',
       },
       body: svg,

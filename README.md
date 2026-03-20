@@ -268,6 +268,7 @@ Generate a GitHub contribution timeseries chart as an SVG image.
 | `userName` | string | Conditional* | GitHub username to generate chart for |
 | `range` | string | Optional | Date range in format `YYYY-MM-DD:YYYY-MM-DD` (max 365 days) |
 | `theme` | string | Optional | Color theme. Default `radical` |
+| `nocache` | boolean | Optional | Bypass server cache and instruct client not to cache. Defaults to `false`. |
 
 *Required unless `LOCK_GITHUB_USER` environment variable is set.
 
@@ -287,7 +288,7 @@ Generate a GitHub contribution timeseries chart as an SVG image.
 **Response:**
 
 - **Content-Type**: `image/svg+xml`
-- **Cache-Control**: `public, max-age=3600`
+- **Cache-Control**: `public, max-age=3600` (or `no-store, no-cache` when `nocache=true`)
 - **X-Cache**: `HIT` or `MISS` (indicates cache status)
 
 ---
@@ -315,6 +316,7 @@ Generate a professional experience timeline as an SVG image.
 | `embedLogos` | boolean | Optional | Whether to embed company logos in the timeline. Defaults to `true`. |
 | `animationTotalDuration` | number | Optional | Total duration of the animation in seconds. Defaults to `5`. |
 | `theme` | string | Optional | Color theme. Default `radical` |
+| `nocache` | boolean | Optional | Bypass server cache and instruct client not to cache. Defaults to `false`. |
 
 **CSV Format:**
 
@@ -375,7 +377,7 @@ const url = `https://your-site.netlify.app/api/v1/experience-timeline.svg?experi
 **Response:**
 
 - **Content-Type**: `image/svg+xml`
-- **Cache-Control**: `public, max-age=3600`
+- **Cache-Control**: `public, max-age=3600` (or `no-store, no-cache` when `nocache=true`)
 - **X-Cache**: `HIT` or `MISS` (indicates cache status)
 
 **Error Responses:**
@@ -403,6 +405,7 @@ Generate a widget displaying your most starred GitHub repositories with animated
 | `title` | string | Optional | Custom title for the widget. Defaults to `"Most Starred"`. |
 | `animationDuration` | number | Optional | Duration of card entrance animations in seconds (0.5-10). Defaults to `3.5`. |
 | `theme` | string | Optional | Color theme. Default `radical` |
+| `nocache` | boolean | Optional | Bypass server cache and instruct client not to cache. Defaults to `false`. |
 
 *Required unless `LOCK_GITHUB_USER` environment variable is set.
 
@@ -428,7 +431,7 @@ Generate a widget displaying your most starred GitHub repositories with animated
 **Response:**
 
 - **Content-Type**: `image/svg+xml`
-- **Cache-Control**: `public, max-age=3600`
+- **Cache-Control**: `public, max-age=3600` (or `no-store, no-cache` when `nocache=true`)
 - **X-Cache**: `HIT` or `MISS` (indicates cache status)
 
 **Error Responses:**
@@ -462,6 +465,7 @@ Generate a comprehensive GitHub user statistics widget displaying various metric
 | `width` | number | Optional | Width of the SVG in pixels (300-1000). Defaults to `600`. |
 | `animationDuration` | number | Optional | Duration of animations in seconds (0.5-10). Defaults to `2`. |
 | `theme` | string | Optional | Color theme. Default `radical` |
+| `nocache` | boolean | Optional | Bypass server cache and instruct client not to cache. Defaults to `false`. |
 
 *Required unless `LOCK_GITHUB_USER` environment variable is set.
 
@@ -496,7 +500,7 @@ Generate a comprehensive GitHub user statistics widget displaying various metric
 **Response:**
 
 - **Content-Type**: `image/svg+xml`
-- **Cache-Control**: `public, max-age=3600`
+- **Cache-Control**: `public, max-age=3600` (or `no-store, no-cache` when `nocache=true`)
 - **X-Cache**: `HIT` or `MISS` (indicates cache status)
 
 **Error Responses:**
@@ -527,6 +531,7 @@ Generate a repository card widget displaying GitHub repository information simil
 | `showForks` | boolean | Optional | Display fork count. Defaults to `true`. |
 | `width` | number | Optional | Width of the card in pixels (300-600). Defaults to `400`. |
 | `height` | number | Optional | Height of the card in pixels (100-200). Defaults to `120`. |
+| `nocache` | boolean | Optional | Bypass server cache and instruct client not to cache. Defaults to `false`. |
 
 *Required unless `LOCK_GITHUB_USER` environment variable is set.
 
@@ -552,7 +557,7 @@ Generate a repository card widget displaying GitHub repository information simil
 **Response:**
 
 - **Content-Type**: `image/svg+xml`
-- **Cache-Control**: `public, max-age=3600`
+- **Cache-Control**: `public, max-age=3600` (or `no-store, no-cache` when `nocache=true`)
 - **X-Cache**: `HIT` or `MISS` (indicates cache status)
 
 **Error Responses:**
@@ -576,6 +581,7 @@ Generate a contribution streak widget displaying total contributions, current st
 | `userName` | string | Conditional* | GitHub username to fetch contribution data for |
 | `theme` | string | Optional | Color theme. Default `radical` |
 | `animationDuration` | number | Optional | Duration of animations in seconds (0.5-10). Defaults to `2`. |
+| `nocache` | boolean | Optional | Bypass server cache and instruct client not to cache. Defaults to `false`. |
 
 *Required unless `LOCK_GITHUB_USER` environment variable is set.
 
@@ -598,7 +604,7 @@ Generate a contribution streak widget displaying total contributions, current st
 **Response:**
 
 - **Content-Type**: `image/svg+xml`
-- **Cache-Control**: `public, max-age=3600`
+- **Cache-Control**: `public, max-age=3600` (or `no-store, no-cache` when `nocache=true`)
 - **X-Cache**: `HIT` or `MISS` (indicates cache status)
 
 **Error Responses:**
@@ -630,6 +636,7 @@ Generate a visual skill table with technology icons as an SVG image. Icons are s
 | `gap` | number | Optional | Spacing between cells in pixels (0-64). Defaults to `16`. |
 | `animationDuration` | number | Optional | Animation duration in seconds (0.5-10). Defaults to `1`. |
 | `theme` | string | Optional | Color theme. Default `radical` |
+| `nocache` | boolean | Optional | Bypass server cache and instruct client not to cache. Defaults to `false`. |
 
 **Skills Format:**
 
@@ -663,7 +670,7 @@ Find icon slugs at [simpleicons.org](https://simpleicons.org/).
 **Response:**
 
 - **Content-Type**: `image/svg+xml`
-- **Cache-Control**: `public, max-age=3600`
+- **Cache-Control**: `public, max-age=3600` (or `no-store, no-cache` when `nocache=true`)
 - **X-Cache**: `HIT` or `MISS` (indicates cache status)
 
 **Error Responses:**
