@@ -19,7 +19,8 @@
       "sample": "https://raw.githubusercontent.com/cyrus2281/github-widgets/refs/heads/main/samples/timeseries-history-sample.svg",
       "params": [
         { "key": "userName", "type": "string", "label": "Username", "required": true, "placeholder": "octocat", "description": "GitHub username" },
-        { "key": "range", "type": "string", "label": "Date Range", "required": false, "placeholder": "YYYY-MM-DD:YYYY-MM-DD", "description": "Date range (max 365 days)" }
+        { "key": "range", "type": "string", "label": "Date Range", "required": false, "placeholder": "YYYY-MM-DD:YYYY-MM-DD", "description": "Date range (max 365 days)" },
+        { "key": "nocache", "type": "boolean", "label": "No Cache", "default": false, "description": "Bypass cache and force regeneration" }
       ]
     },
     "experience-timeline": {
@@ -40,7 +41,8 @@
         { "key": "embedLogos", "type": "boolean", "label": "Embed Logos", "default": true, "description": "Embed company logos in timeline" },
         { "key": "includeStartDate", "type": "boolean", "label": "Include Start Date", "default": true, "description": "Show start date labels" },
         { "key": "includeEndDate", "type": "boolean", "label": "Include End Date", "default": true, "description": "Show end date labels" },
-        { "key": "animationTotalDuration", "type": "number", "label": "Animation Duration (s)", "default": 5, "placeholder": "5", "description": "Total animation duration in seconds" }
+        { "key": "animationTotalDuration", "type": "number", "label": "Animation Duration (s)", "default": 5, "placeholder": "5", "description": "Total animation duration in seconds" },
+        { "key": "nocache", "type": "boolean", "label": "No Cache", "default": false, "description": "Bypass cache and force regeneration" }
       ],
       "example": {
         "experienceCSV": [
@@ -60,7 +62,8 @@
         { "key": "userName", "type": "string", "label": "Username", "required": true, "placeholder": "torvalds", "description": "GitHub username" },
         { "key": "top", "type": "number", "label": "Top N", "default": 3, "min": 1, "max": 10, "placeholder": "3", "description": "Number of repos (1-10)" },
         { "key": "title", "type": "string", "label": "Title", "required": false, "placeholder": "Most Starred", "description": "Custom widget title" },
-        { "key": "animationDuration", "type": "number", "label": "Animation Duration (s)", "min": 0.5, "max": 10, "step": 0.5, "placeholder": "3.5", "description": "Card animation duration (0.5-10s)" }
+        { "key": "animationDuration", "type": "number", "label": "Animation Duration (s)", "min": 0.5, "max": 10, "step": 0.5, "placeholder": "3.5", "description": "Card animation duration (0.5-10s)" },
+        { "key": "nocache", "type": "boolean", "label": "No Cache", "default": false, "description": "Bypass cache and force regeneration" }
       ]
     },
     "user-stats": {
@@ -81,7 +84,8 @@
         { "key": "showIssues", "type": "boolean", "label": "Show Issues", "default": true, "description": "Display issues" },
         { "key": "showRepos", "type": "boolean", "label": "Show Repos", "default": true, "description": "Display total repositories" },
         { "key": "showContributedTo", "type": "boolean", "label": "Show Contributed To", "default": true, "description": "Display contributed repos" },
-        { "key": "showLogo", "type": "boolean", "label": "Show Logo", "default": true, "description": "Display GitHub logo" }
+        { "key": "showLogo", "type": "boolean", "label": "Show Logo", "default": true, "description": "Display GitHub logo" },
+        { "key": "nocache", "type": "boolean", "label": "No Cache", "default": false, "description": "Bypass cache and force regeneration" }
       ]
     },
     "contribution-streak": {
@@ -92,7 +96,8 @@
       "sample": "https://raw.githubusercontent.com/cyrus2281/github-widgets/refs/heads/main/samples/contribution-streak-sample.svg",
       "params": [
         { "key": "userName", "type": "string", "label": "Username", "required": true, "placeholder": "octocat", "description": "GitHub username" },
-        { "key": "animationDuration", "type": "number", "label": "Animation Duration (s)", "default": 2, "min": 0.5, "max": 10, "step": 0.5, "placeholder": "2", "description": "Animation duration (0.5-10s)" }
+        { "key": "animationDuration", "type": "number", "label": "Animation Duration (s)", "default": 2, "min": 0.5, "max": 10, "step": 0.5, "placeholder": "2", "description": "Animation duration (0.5-10s)" },
+        { "key": "nocache", "type": "boolean", "label": "No Cache", "default": false, "description": "Bypass cache and force regeneration" }
       ]
     },
     "skill-table": {
@@ -111,7 +116,8 @@
         { "key": "useOriginalColors", "type": "boolean", "label": "Use Original Colors", "default": true, "description": "Use brand logo colors instead of theme color" },
         { "key": "iconColor", "type": "string", "label": "Icon Color", "required": false, "placeholder": "#ffffff", "description": "Override all icon colors (hex)" },
         { "key": "gap", "type": "number", "label": "Gap", "default": 16, "min": 0, "max": 64, "placeholder": "16", "description": "Spacing between cells (0-64px)" },
-        { "key": "animationDuration", "type": "number", "label": "Animation Duration (s)", "default": 1, "min": 0.5, "max": 10, "step": 0.5, "placeholder": "1", "description": "Animation duration (0.5-10s)" }
+        { "key": "animationDuration", "type": "number", "label": "Animation Duration (s)", "default": 1, "min": 0.5, "max": 10, "step": 0.5, "placeholder": "1", "description": "Animation duration (0.5-10s)" },
+        { "key": "nocache", "type": "boolean", "label": "No Cache", "default": false, "description": "Bypass cache and force regeneration" }
       ],
       "example": {
         "skills": [
@@ -146,7 +152,8 @@
         { "key": "showStars", "type": "boolean", "label": "Show Stars", "default": true, "description": "Display star count" },
         { "key": "showForks", "type": "boolean", "label": "Show Forks", "default": true, "description": "Display fork count" },
         { "key": "width", "type": "number", "label": "Width", "default": 400, "min": 300, "max": 600, "placeholder": "400", "description": "Card width (300-600px)" },
-        { "key": "height", "type": "number", "label": "Height", "default": 120, "min": 100, "max": 200, "placeholder": "120", "description": "Card height (100-200px)" }
+        { "key": "height", "type": "number", "label": "Height", "default": 120, "min": 100, "max": 200, "placeholder": "120", "description": "Card height (100-200px)" },
+        { "key": "nocache", "type": "boolean", "label": "No Cache", "default": false, "description": "Bypass cache and force regeneration" }
       ]
     }
   }
