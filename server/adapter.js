@@ -17,7 +17,7 @@ import { handleError } from '../src/utils/errors.js';
 // Value: Promise<netlifyResponse>
 const inFlight = new Map();
 
-// Set HEARTBEAT=true to enable XML comment keep-alive chunks during slow generation.
+// Set SVG_HEADER_HEARTBEAT=true to enable XML comment keep-alive chunks during slow generation.
 // Keeps proxy/browser connections alive on cache misses. Disabled by default.
 const HEARTBEAT_ENABLED = process.env.SVG_HEADER_HEARTBEAT === 'true';
 
@@ -79,19 +79,32 @@ export function sendNetlifyResponse(res, netlifyResponse) {
 /**
  * Wrap a Netlify handler function for use with Express
  *
- * Immediately commits 200 + headers via res.writeHead() then starts a periodic
- * XML comment heartbeat to keep the connection alive during slow SVG generation.
- * Once the handler resolves (or rejects), the heartbeat is cleared and the SVG
- * body (or error card) is written and the response is ended.
+ * When SVG_HEADER_HEARTBEAT is not enabled, uses the standard request/response
+ * flow: await handler, then send the complete response.
  *
- * Also provides in-flight deduplication: concurrent identical requests share
- * one handler execution instead of spawning redundant GitHub API calls.
+ * When SVG_HEADER_HEARTBEAT=true:
+ * - Immediately commits 200 + headers via res.writeHead() so the connection
+ *   is kept alive from the start.
+ * - Streams XML comment heartbeat chunks every 1.5s during generation to
+ *   prevent proxy/browser idle-timeout disconnects on cache misses.
+ * - Deduplicates concurrent identical requests so they share one handler
+ *   execution instead of spawning redundant GitHub API calls.
  *
  * @param {Function} handler - Netlify handler function
  * @returns {Function} Express middleware function
  */
 export function wrapHandler(handler) {
-  return async (req, res) => {
+  return async (req, res, next) => {
+    if (!HEARTBEAT_ENABLED) {
+      try {
+        const response = await handler(expressToNetlifyEvent(req));
+        sendNetlifyResponse(res, response);
+      } catch (error) {
+        next(error);
+      }
+      return;
+    }
+
     // Commit 200 + headers immediately so the connection is kept alive.
     // Spreading res.getHeaders() propagates CORS headers set by cors() middleware.
     // Once res.writeHead() is called the status code is locked — errors are
@@ -104,7 +117,7 @@ export function wrapHandler(handler) {
 
     // Heartbeat: write XML comment chunks to keep the connection active.
     // For cache hits the handler resolves in <50ms — the interval never fires.
-    let heartbeat = HEARTBEAT_ENABLED && setInterval(() => {
+    let heartbeat = setInterval(() => {
       try {
         res.write(HEARTBEAT_CHUNK);
       } catch {
