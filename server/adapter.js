@@ -17,6 +17,10 @@ import { handleError } from '../src/utils/errors.js';
 // Value: Promise<netlifyResponse>
 const inFlight = new Map();
 
+// Set HEARTBEAT=true to enable XML comment keep-alive chunks during slow generation.
+// Keeps proxy/browser connections alive on cache misses. Disabled by default.
+const HEARTBEAT_ENABLED = process.env.SVG_HEADER_HEARTBEAT === 'true';
+
 // Interval between heartbeat chunks. Must be well below common proxy timeouts
 // (GitHub camo: ~10s, nginx default: 60s). 1500ms gives ~6 beats before a 10s timeout.
 const HEARTBEAT_MS = 1500;
@@ -100,7 +104,7 @@ export function wrapHandler(handler) {
 
     // Heartbeat: write XML comment chunks to keep the connection active.
     // For cache hits the handler resolves in <50ms — the interval never fires.
-    let heartbeat = setInterval(() => {
+    let heartbeat = HEARTBEAT_ENABLED && setInterval(() => {
       try {
         res.write(HEARTBEAT_CHUNK);
       } catch {

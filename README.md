@@ -731,6 +731,11 @@ Find icon slugs at [simpleicons.org](https://simpleicons.org/).
   - Only used when running the standalone Express server
   - Example: `PORT=8080`
 
+- **`SVG_HEADER_HEARTBEAT`** - Enable connection keep-alive heartbeat (Standalone Server / Docker only)
+  - Default: `false`
+  - When `true`, streams XML comment chunks every 1.5 seconds during slow SVG generation to prevent proxy and browser idle-timeout disconnects
+  - Example: `SVG_HEADER_HEARTBEAT=true`
+
 ## Deployment
 
 This application supports two deployment options, each with distinct advantages:
