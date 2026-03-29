@@ -85,6 +85,7 @@ A flexible application for generating dynamic GitHub contribution widgets as SVG
 - 🚀 **Flexible Deployment** - Deploy as serverless functions (Netlify), standalone server (Express), or Docker container
 - 🔄 **Extensible** - Easy to add new widget types and API versions
 - 🛠 **SVG Error Handling** - All errors returned as SVG images with appropriate HTTP status codes
+- 🔗 **Timeout-Resilient** *(Express/Docker only)* - Streams XML comment heartbeats during slow generation to prevent proxy and browser idle-timeout disconnects; deduplicates concurrent identical requests
 
 ## Themes
 
@@ -1024,6 +1025,21 @@ The application follows a modular, extensible architecture:
 Cache headers:
 - `X-Cache: HIT` - Response served from cache
 - `X-Cache: MISS` - Response generated fresh
+
+### Connection Keep-Alive *(Express/Docker only)*
+
+Some widgets make multiple sequential GitHub API calls and can take several seconds to generate on a cold cache. To prevent proxies and browsers from dropping the connection during generation, the Express adapter (`server/adapter.js`) uses HTTP chunked transfer encoding:
+
+1. Response headers and `200 OK` are committed immediately when the request arrives.
+2. An XML comment (`<!-- heartbeat -->`) is written every 1.5 seconds while generation is in progress, keeping the connection active.
+3. Once generation completes, the full SVG body is written and the response is ended.
+
+XML comments are valid before the root `<svg>` element and are ignored by SVG parsers, so they have no effect on the rendered image.
+
+**In-flight deduplication** is also applied at this layer: if two requests arrive for the same uncached widget simultaneously, they share a single handler execution rather than each spawning redundant GitHub API calls.
+
+> [!NOTE]
+> This technique applies to the **Express and Docker** deployment paths only. Netlify Lambda Functions do not support streaming responses — the function runs internally and sends the complete response when finished. Netlify's function timeout is 10 seconds; the slowest widgets complete in 6–7 seconds, so this is not a concern for Netlify deployments. On cold cache, Netlify clients will simply wait the full generation time before receiving the image.
 
 ## Adding New Endpoints
 
