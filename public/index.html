@@ -425,6 +425,62 @@
             border-top: 8px solid #161b22;
         }
 
+        /* Scroll to Top Button */
+        .scroll-to-top {
+            position: fixed;
+            bottom: 32px;
+            left: 32px;
+            background-color: #21262d;
+            color: #e6edf3;
+            border: 1px solid #30363d;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(12px);
+        }
+
+        .scroll-to-top.visible {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
+        .scroll-to-top:hover {
+            background-color: #30363d;
+            border-color: #58a6ff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        .scroll-to-top svg {
+            width: 20px;
+            height: 20px;
+            fill: #e6edf3;
+        }
+
+        @media (max-width: 768px) {
+            .scroll-to-top {
+                width: 42px;
+                height: 42px;
+                bottom: 24px;
+                left: 24px;
+            }
+
+            .scroll-to-top svg {
+                width: 18px;
+                height: 18px;
+            }
+        }
+
         @media (max-width: 768px) {
             .floating-playground {
                 width: 56px;
@@ -497,6 +553,11 @@
         <div id="error"></div>
         <div id="content" class="markdown-body"></div>
     </div>
+    <button class="scroll-to-top" id="scrollToTop" aria-label="Scroll to top" title="Scroll to top">
+        <svg viewBox="0 0 16 16" version="1.1" aria-hidden="true">
+            <path d="M3.47 7.78a.75.75 0 0 1 0-1.06l4.25-4.25a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 1 1-1.06 1.06L8.75 4.31v7.44a.75.75 0 0 1-1.5 0V4.31L4.53 7.78a.75.75 0 0 1-1.06 0Z"></path>
+        </svg>
+    </button>
     <div class="playground-tooltip" id="playgroundTooltip">▶ Try the live playground!</div>
     <button class="floating-playground" id="floatingPlayground" aria-label="Live Playground" title="Live Playground">
         <svg viewBox="0 0 16 16" version="1.1" aria-hidden="true">
@@ -544,23 +605,50 @@
 
                 const markdown = await response.text();
                 
-                // Configure marked options for GitHub-flavored markdown
-                marked.setOptions({
+                // Configure marked with GitHub-compatible heading IDs
+                marked.use({
                     gfm: true,
                     breaks: true,
-                    headerIds: true,
-                    mangle: false
+                    renderer: {
+                        heading({ text, depth, raw }) {
+                            const id = (raw || text.replace(/<[^>]*>/g, ''))
+                                .toLowerCase()
+                                .replace(/[^\w\s-]/g, '')
+                                .trim()
+                                .replace(/\s+/g, '-')
+
+                            return `<h${depth} id="${id}">${text}</h${depth}>\n`;
+                        }
+                    }
                 });
 
                 // Convert markdown to HTML
                 const html = marked.parse(markdown);
-                
+
                 // Render the HTML
                 contentEl.innerHTML = html;
-                
+
                 // Hide loading, show content
                 loadingEl.style.display = 'none';
                 contentEl.classList.add('loaded');
+
+                // Handle in-page anchor clicks with smooth scroll
+                contentEl.addEventListener('click', (e) => {
+                    const anchor = e.target.closest('a[href^="#"]');
+                    if (anchor) {
+                        // e.preventDefault();
+                        const id = decodeURIComponent(anchor.getAttribute('href').slice(1));
+                        const target = document.getElementById(id);
+                        if (target) target.scrollIntoView({ behavior: 'smooth' });
+                    }
+                });
+
+                // If URL has a hash, scroll to it once content is loaded
+                if (window.location.hash) {
+                    const id = decodeURIComponent(window.location.hash.slice(1));
+                    const target = document.getElementById(id);
+                    if (target) target.scrollIntoView({ behavior: 'smooth' });
+                }
 
             } catch (error) {
                 console.error('Error loading README:', error);
@@ -569,6 +657,19 @@
                 errorEl.classList.add('show');
             }
         }
+        // Scroll to top button functionality
+        function initScrollToTop() {
+            const btn = document.getElementById('scrollToTop');
+
+            window.addEventListener('scroll', () => {
+                btn.classList.toggle('visible', window.scrollY > 300);
+            }, { passive: true });
+
+            btn.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+
         // Floating playground button functionality
         function initFloatingPlayground() {
             const floatingPlayground = document.getElementById('floatingPlayground');
@@ -629,6 +730,7 @@
             document.addEventListener('DOMContentLoaded', () => {
                 loadRepoInfo();
                 loadAndRenderMarkdown();
+                initScrollToTop();
                 initFloatingPlayground();
                 initFloatingStar();
             });
