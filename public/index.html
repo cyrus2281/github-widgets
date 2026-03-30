@@ -275,6 +275,74 @@
             display: block;
         }
 
+        /* Floating Playground Button */
+        .floating-playground {
+            position: fixed;
+            bottom: 108px;
+            right: 32px;
+            background: linear-gradient(135deg, #238636 0%, #2ea043 100%);
+            color: #ffffff;
+            border: none;
+            border-radius: 50%;
+            width: 64px;
+            height: 64px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(46, 160, 67, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .floating-playground:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(46, 160, 67, 0.6);
+        }
+
+        .floating-playground svg {
+            width: 32px;
+            height: 32px;
+            fill: #ffffff;
+        }
+
+        /* Playground Tooltip */
+        .playground-tooltip {
+            position: fixed;
+            bottom: 180px;
+            right: 32px;
+            background-color: #161b22;
+            color: #e6edf3;
+            padding: 12px 16px;
+            border-radius: 6px;
+            border: 1px solid #30363d;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            font-size: 14px;
+            white-space: nowrap;
+            z-index: 999;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        .playground-tooltip.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .playground-tooltip::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            right: 20px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 8px solid #161b22;
+        }
+
         /* Floating Star Button */
         .floating-star {
             position: fixed;
@@ -358,6 +426,24 @@
         }
 
         @media (max-width: 768px) {
+            .floating-playground {
+                width: 56px;
+                height: 56px;
+                bottom: 92px;
+                right: 24px;
+            }
+
+            .floating-playground svg {
+                width: 28px;
+                height: 28px;
+            }
+
+            .playground-tooltip {
+                bottom: 156px;
+                right: 24px;
+                font-size: 12px;
+            }
+
             .floating-star {
                 width: 56px;
                 height: 56px;
@@ -411,6 +497,12 @@
         <div id="error"></div>
         <div id="content" class="markdown-body"></div>
     </div>
+    <div class="playground-tooltip" id="playgroundTooltip">▶ Try the live playground!</div>
+    <button class="floating-playground" id="floatingPlayground" aria-label="Live Playground" title="Live Playground">
+        <svg viewBox="0 0 16 16" version="1.1" aria-hidden="true">
+            <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Zm4.879-2.773 4.264 2.559a.25.25 0 0 1 0 .428l-4.264 2.559A.25.25 0 0 1 6 10.559V5.442a.25.25 0 0 1 .379-.215Z"></path>
+        </svg>
+    </button>
     <div class="star-tooltip" id="starTooltip">⭐ Star this repo on GitHub!</div>
     <button class="floating-star" id="floatingStar" aria-label="Star on GitHub" title="Star on GitHub">
         <svg viewBox="0 0 16 16" version="1.1" aria-hidden="true">
@@ -477,6 +569,28 @@
                 errorEl.classList.add('show');
             }
         }
+        // Floating playground button functionality
+        function initFloatingPlayground() {
+            const floatingPlayground = document.getElementById('floatingPlayground');
+            const playgroundTooltip = document.getElementById('playgroundTooltip');
+            let tooltipTimeout;
+
+            floatingPlayground.addEventListener('mouseenter', () => {
+                clearTimeout(tooltipTimeout);
+                playgroundTooltip.classList.add('show');
+            });
+
+            floatingPlayground.addEventListener('mouseleave', () => {
+                tooltipTimeout = setTimeout(() => {
+                    playgroundTooltip.classList.remove('show');
+                }, 300);
+            });
+
+            floatingPlayground.addEventListener('click', () => {
+                window.location.href = './playground.html';
+            });
+        }
+
         // Floating star button functionality
         function initFloatingStar() {
             const floatingStar = document.getElementById('floatingStar');
@@ -515,11 +629,13 @@
             document.addEventListener('DOMContentLoaded', () => {
                 loadRepoInfo();
                 loadAndRenderMarkdown();
+                initFloatingPlayground();
                 initFloatingStar();
             });
         } else {
             loadRepoInfo();
             loadAndRenderMarkdown();
+            initFloatingPlayground();
             initFloatingStar();
         }
     </script>
