@@ -1791,10 +1791,7 @@
 
                 // Use fetch + object URL to guarantee SVG animations restart
                 fetch(url)
-                    .then(r => {
-                        if (!r.ok) throw new Error('Failed');
-                        return r.blob();
-                    })
+                    .then(r => r.blob())
                     .then(blob => {
                         const objectUrl = URL.createObjectURL(blob);
                         const img = new Image();
