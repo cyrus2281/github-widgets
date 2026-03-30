@@ -977,6 +977,11 @@
                     continue;
                 }
 
+                if (param.type === 'logo-input') {
+                    renderLogoInput(container, param, values[param.key]);
+                    continue;
+                }
+
                 if (param.type === 'boolean') {
                     if (!hasToggles) {
                         const divider = document.createElement('div');
@@ -1047,6 +1052,107 @@
 
                 container.appendChild(group);
             }
+        }
+
+        // ── Logo Input (with Simple Icons autocomplete) ──
+        function renderLogoInput(container, param, currentValue) {
+            const group = document.createElement('div');
+            group.className = 'field-group';
+
+            const label = document.createElement('label');
+            label.className = 'field-label';
+            label.innerHTML = param.label + (param.required ? ' <span class="required">*</span>' : '');
+
+            const inputWrapper = document.createElement('div');
+            inputWrapper.style.position = 'relative';
+
+            const input = document.createElement('input');
+            input.className = 'field-input';
+            input.dataset.key = param.key;
+            const isUrl = currentValue && (currentValue.startsWith('http://') || currentValue.startsWith('https://'));
+            input.type = isUrl ? 'url' : 'text';
+            input.placeholder = param.placeholder || 'slug or SVG URL';
+            input.autocomplete = 'off';
+            if (currentValue) input.value = currentValue;
+
+            input.addEventListener('input', onParamChange);
+
+            let autocompleteEl = null;
+
+            function removeAutocomplete() {
+                if (autocompleteEl && autocompleteEl.parentElement) {
+                    autocompleteEl.parentElement.removeChild(autocompleteEl);
+                }
+                autocompleteEl = null;
+            }
+
+            input.addEventListener('input', debounce(async (e) => {
+                const val = e.target.value.trim();
+
+                if (val.startsWith('http://') || val.startsWith('https://')) {
+                    input.type = 'url';
+                    removeAutocomplete();
+                    return;
+                }
+
+                input.type = 'text';
+
+                if (!val) {
+                    removeAutocomplete();
+                    return;
+                }
+
+                const slugs = await loadSimpleIconsSlugs();
+                const query = val.toLowerCase();
+                const matches = slugs.filter(s =>
+                    s.name.toLowerCase().includes(query) || s.slug.toLowerCase().includes(query)
+                ).slice(0, 15);
+
+                removeAutocomplete();
+                if (matches.length === 0) return;
+
+                autocompleteEl = document.createElement('div');
+                autocompleteEl.className = 'skill-autocomplete';
+
+                for (const m of matches) {
+                    const item = document.createElement('div');
+                    item.className = 'skill-autocomplete-item';
+                    item.innerHTML = `<img src="https://cdn.simpleicons.org/${encodeURIComponent(m.slug)}" alt="" onerror="this.style.display='none'">`
+                        + `<span>${escapeAttr(m.name)}</span>`
+                        + `<span class="slug-text">${escapeAttr(m.slug)}</span>`;
+
+                    item.addEventListener('mousedown', (ev) => {
+                        ev.preventDefault();
+                        input.value = m.slug;
+                        input.type = 'text';
+                        if (!state.paramValues[state.currentWidget]) {
+                            state.paramValues[state.currentWidget] = {};
+                        }
+                        state.paramValues[state.currentWidget][param.key] = m.slug;
+                        removeAutocomplete();
+                        saveState();
+                        updateOutput();
+                    });
+                    autocompleteEl.appendChild(item);
+                }
+
+                inputWrapper.appendChild(autocompleteEl);
+            }, 200));
+
+            input.addEventListener('blur', () => setTimeout(removeAutocomplete, 150));
+
+            inputWrapper.appendChild(input);
+            group.appendChild(label);
+            group.appendChild(inputWrapper);
+
+            if (param.description) {
+                const hint = document.createElement('div');
+                hint.className = 'field-hint';
+                hint.textContent = param.description;
+                group.appendChild(hint);
+            }
+
+            container.appendChild(group);
         }
 
         // ── CSV Editor ──
@@ -1639,6 +1745,12 @@
                 if (p.type === 'skills-editor') {
                     const skills = buildSkillsString();
                     if (skills) params.set('skills', skills);
+                    continue;
+                }
+
+                if (p.type === 'logo-input') {
+                    const val = values[p.key];
+                    if (val && String(val).trim()) params.set(p.key, String(val).trim());
                     continue;
                 }
 

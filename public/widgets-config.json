@@ -107,7 +107,7 @@
       "alt": "Skill Table",
       "sample": "https://raw.githubusercontent.com/cyrus2281/github-widgets/refs/heads/main/samples/skill-table-sample.svg",
       "params": [
-        { "key": "skills", "type": "skills-editor", "label": "Skills", "required": true, "description": "Pipe-separated skill entries" },
+        { "key": "skills", "type": "skills-editor", "label": "Skills", "required": true, "description": "Skill entries with icon — use a Simple Icons slug or a custom SVG/image URL" },
         { "key": "columns", "type": "number", "label": "Columns", "default": 4, "min": 1, "max": 10, "placeholder": "4", "description": "Number of columns (1-10)" },
         { "key": "title", "type": "string", "label": "Title", "required": false, "placeholder": "My Skills", "description": "Optional title above the table" },
         { "key": "subtitle", "type": "string", "label": "Subtitle", "required": false, "placeholder": "Technologies I work with", "description": "Optional subtitle" },
@@ -136,6 +136,30 @@
         ],
         "title": "My Skills",
         "subtitle": "Technologies I work with"
+      }
+    },
+    "qr-code": {
+      "name": "QR Code",
+      "endpoint": "/api/v1/qr-code.svg",
+      "description": "QR Code generator with optional centered logo and title",
+      "alt": "QR Code",
+      "sample": "https://raw.githubusercontent.com/cyrus2281/github-widgets/refs/heads/main/samples/qr-code-sample.svg",
+      "params": [
+        { "key": "content", "type": "string", "label": "Content", "required": true, "placeholder": "https://github.com/...", "description": "Text or URL to encode in the QR code" },
+        { "key": "logo", "type": "logo-input", "label": "Logo", "required": false, "placeholder": "github", "description": "Simple Icons slug (e.g. 'github') or SVG/image URL" },
+        { "key": "logoColor", "type": "string", "label": "Logo Color", "required": false, "placeholder": "ffffff", "description": "Override logo color (hex, without #). Ignored when Use Theme Color is on." },
+        { "key": "useThemeColor", "type": "boolean", "label": "Use Theme Color", "default": false, "description": "Use the theme's accent color for the logo instead of the brand color" },
+        { "key": "title", "type": "string", "label": "Title", "required": false, "placeholder": "Scan Me", "description": "Optional title displayed above the QR code" },
+        { "key": "size", "type": "number", "label": "Size", "default": 300, "min": 100, "max": 800, "placeholder": "300", "description": "QR code size in pixels (100-800)" },
+        { "key": "margin", "type": "number", "label": "Margin", "default": 2, "min": 0, "max": 4, "placeholder": "2", "description": "Quiet zone modules around the QR code (0-4)" },
+        { "key": "animate", "type": "boolean", "label": "Animate Logo", "default": false, "description": "Spin the logo on its vertical axis" },
+        { "key": "animationDuration", "type": "number", "label": "Animation Duration (s)", "default": 3, "min": 1, "max": 10, "step": 0.5, "placeholder": "3", "description": "Logo spin duration in seconds (1-10)" },
+        { "key": "nocache", "type": "boolean", "label": "No Cache", "default": false, "description": "Bypass cache and force regeneration" }
+      ],
+      "example": {
+        "content": "https://github.com/cyrus2281/github-widgets",
+        "logo": "github",
+        "title": "GitHub Widgets"
       }
     },
     "repository-card": {

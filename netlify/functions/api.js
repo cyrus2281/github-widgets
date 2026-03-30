@@ -5,6 +5,7 @@ import { handler as userStatsHandler } from '../../src/handlers/v1/user-stats.js
 import { handler as repositoryCardHandler } from '../../src/handlers/v1/repository-card.js';
 import { handler as contributionStreakHandler } from '../../src/handlers/v1/contribution-streak.js';
 import { handler as skillTableHandler } from '../../src/handlers/v1/skill-table.js';
+import { handler as qrCodeHandler } from '../../src/handlers/v1/qr-code.js';
 
 import { createNotFoundSVG } from '../../src/utils/errors.js';
 
@@ -97,6 +98,10 @@ async function routeV1(endpoint, event) {
     case 'skill-table.svg':
     case 'skill-table':
       return skillTableHandler(event);
+
+    case 'qr-code.svg':
+    case 'qr-code':
+      return qrCodeHandler(event);
 
     default:
       return createNotFoundSVG(`Endpoint ${endpoint}`);

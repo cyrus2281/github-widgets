@@ -25,6 +25,9 @@ A flexible application for generating dynamic GitHub contribution widgets as SVG
 ### Skill Table
 ![skill-table-sample](https://raw.githubusercontent.com/cyrus2281/github-widgets/refs/heads/main/samples/skill-table-sample.svg)
 
+### QR Code
+![qr-code-sample](https://raw.githubusercontent.com/cyrus2281/github-widgets/refs/heads/main/samples/qr-code-sample.svg)
+
 
 > [!TIP]
 > Try the widgets live in the [Playground](https://github-widgets.netlify.app/playground.html) - customize parameters and see real-time previews!
@@ -39,6 +42,7 @@ A flexible application for generating dynamic GitHub contribution widgets as SVG
     - [Repository Card](#repository-card)
     - [Contribution Streak](#contribution-streak)
     - [Skill Table](#skill-table)
+    - [QR Code](#qr-code)
   - [Contents](#contents)
   - [Features](#features)
   - [Themes](#themes)
@@ -60,6 +64,7 @@ A flexible application for generating dynamic GitHub contribution widgets as SVG
       - [GET `/api/v1/repository-card.svg`](#get-apiv1repository-cardsvg)
       - [GET `/api/v1/contribution-streak.svg`](#get-apiv1contribution-streaksvg)
       - [GET `/api/v1/skill-table.svg`](#get-apiv1skill-tablesvg)
+      - [GET `/api/v1/qr-code.svg`](#get-apiv1qr-codesvg)
     - [Embedding in Markdown](#embedding-in-markdown)
     - [Embedding in HTML](#embedding-in-html)
   - [Environment Variables](#environment-variables)
@@ -678,6 +683,73 @@ Find icon slugs at [simpleicons.org](https://simpleicons.org/).
 
 - `400 Bad Request` - Missing skills parameter, no valid entries, or input too long
 - `500 Internal Server Error` - Server error during SVG generation
+
+#### GET `/api/v1/qr-code.svg`
+
+![qr-code-sample](https://raw.githubusercontent.com/cyrus2281/github-widgets/refs/heads/main/samples/qr-code-sample.svg)
+
+Generate a styled SVG QR code for any text or URL, with an optional centered logo (from [Simple Icons](https://simpleicons.org/) or a custom URL), an optional title, and an optional vertical-axis spin animation on the logo.
+
+**Query Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `content` | string | Yes | Text or URL to encode in the QR code (max 2000 characters) |
+| `logo` | string | Optional | Simple Icons slug (e.g. `github`) or custom icon URL |
+| `logoColor` | string | Optional | Override logo color with a hex value (e.g. `ffffff`, no `#`) |
+| `title` | string | Optional | Title displayed above the QR code |
+| `size` | number | Optional | QR code size in pixels (100–800). Defaults to `300`. |
+| `margin` | number | Optional | Quiet zone modules around the QR code (0–4). Defaults to `2`. |
+| `animate` | boolean | Optional | Spin the logo on its vertical axis. Defaults to `false`. |
+| `animationDuration` | number | Optional | Logo spin duration in seconds (1–10). Defaults to `3`. |
+| `theme` | string | Optional | Color theme. Default `radical` |
+| `nocache` | boolean | Optional | Bypass server cache and instruct client not to cache. Defaults to `false`. |
+
+**Logo Format:**
+
+The `logo` parameter accepts two formats:
+
+| Format | Description | Example |
+|--------|-------------|---------|
+| slug | Simple Icons slug | `github` |
+| URL | Custom icon URL (SVG or raster image) | `https://example.com/logo.svg` |
+
+Find icon slugs at [simpleicons.org](https://simpleicons.org/).
+
+> [!NOTE]
+> The QR code uses error correction level H (high), which allows up to 30% of the QR code data to be recovered. This is required to safely overlay a logo in the center while keeping the code scannable.
+
+**Examples:**
+
+```bash
+# Basic QR code
+/api/v1/qr-code.svg?content=https://github.com/cyrus2281
+
+# With GitHub logo and title
+/api/v1/qr-code.svg?content=https://github.com/cyrus2281/github-widgets&logo=github&title=GitHub%20Widgets
+
+# With animated logo
+/api/v1/qr-code.svg?content=https://github.com&logo=github&animate=true
+
+# With custom icon URL and color override
+/api/v1/qr-code.svg?content=https://example.com&logo=https://example.com/logo.svg&logoColor=ffffff
+
+# Larger QR code with theme
+/api/v1/qr-code.svg?content=https://github.com&logo=github&size=500&theme=ocean
+```
+
+**Response:**
+
+- **Content-Type**: `image/svg+xml`
+- **Cache-Control**: `public, max-age=3600` (or `no-store, no-cache` when `nocache=true`)
+- **X-Cache**: `HIT` or `MISS` (indicates cache status)
+
+**Error Responses:**
+
+- `400 Bad Request` - Missing content parameter, empty content, or content exceeds 2000 characters
+- `500 Internal Server Error` - Server error during SVG generation
+
+---
 
 ### Embedding in Markdown
 
