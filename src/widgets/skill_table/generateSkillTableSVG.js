@@ -1,3 +1,4 @@
+import * as SimpleIcons from 'simple-icons';
 import { THEMES } from '../../utils/themes.js';
 import { stampSvg } from '../../utils/svgTimestamp.js';
 
@@ -59,53 +60,75 @@ function escapeXML(str) {
 }
 
 /**
- * Fetch an SVG icon and convert to a base64 data URI.
+ * Get icon data for inline SVG rendering.
+ * Slug-based icons are resolved from the bundled simple-icons package (no network request).
+ * Custom URL icons are fetched from the network and inlined if SVG, or embedded as data URI.
  * @param {string|null} slug - Simple Icons slug
  * @param {string|null} url - Direct icon URL
  * @param {string|null} colorHex - Hex color without # (e.g. "ffffff")
- * @returns {Promise<{dataURI: string|null, brandTitle: string|null}>}
+ * @returns {Promise<{type: 'svg'|'datauri'|'none', viewBox?: {width:number,height:number}, innerContent?: string, dataURI?: string, brandTitle: string|null}>}
  */
-async function fetchIconAsDataURI(slug, url, colorHex) {
-  const targetUrl = slug
-    ? `https://cdn.simpleicons.org/${encodeURIComponent(slug)}${colorHex ? '/' + colorHex : ''}`
-    : url;
+async function fetchIconData(slug, url, colorHex) {
+  if (slug) {
+    // Resolve from bundled simple-icons — no network request, works in all environments
+    const key = `si${slug.charAt(0).toUpperCase()}${slug.slice(1)}`;
+    const icon = SimpleIcons[key];
+    if (!icon) return { type: 'none', brandTitle: null };
 
-  if (!targetUrl) return { dataURI: null, brandTitle: null };
+    const fillColor = colorHex ? `#${colorHex}` : `#${icon.hex}`;
+    return {
+      type: 'svg',
+      viewBox: { width: 24, height: 24 },
+      innerContent: `<path d="${icon.path}" fill="${fillColor}"/>`,
+      brandTitle: icon.title,
+    };
+  }
 
+  if (!url) return { type: 'none', brandTitle: null };
+
+  // Custom URL: fetch from network and inline SVG content, or embed as data URI for raster images
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 8000);
-    const res = await fetch(targetUrl, { signal: controller.signal });
+    const res = await fetch(url, { signal: controller.signal });
     clearTimeout(timeout);
 
-    if (!res.ok) return { dataURI: null, brandTitle: null };
+    if (!res.ok) return { type: 'none', brandTitle: null };
 
-    let text = await res.text();
-    const ct = res.headers.get('content-type') || 'image/svg+xml';
+    const ct = (res.headers.get('content-type') || 'image/svg+xml').split(';')[0].trim();
 
-    // Extract brand title from simpleicons SVG <title> tag
-    let brandTitle = null;
-    const titleMatch = text.match(/<title>([^<]+)<\/title>/);
-    if (titleMatch) brandTitle = titleMatch[1];
+    if (ct.includes('svg')) {
+      const text = await res.text();
 
-    // For custom URL SVGs, apply color override if requested
-    if (!slug && colorHex && ct.includes('svg')) {
-      const color = '#' + colorHex;
-      // Replace fill attributes on all elements
-      text = text.replace(/fill="[^"]*"/g, `fill="${color}"`);
-      // If no fill attribute exists, add one to the root <svg> element
-      if (!text.includes('fill=')) {
-        text = text.replace(/<svg/, `<svg fill="${color}"`);
+      const viewBoxMatch = text.match(/viewBox="([^"]+)"/);
+      const vbParts = (viewBoxMatch ? viewBoxMatch[1] : '0 0 24 24').split(/[\s,]+/).map(Number);
+      const vbWidth = vbParts[2] || 24;
+      const vbHeight = vbParts[3] || 24;
+
+      let innerContent = text
+        .replace(/<\?xml[^>]*\?>/g, '')
+        .replace(/<title>[^<]*<\/title>/g, '')
+        .replace(/<desc>[^<]*<\/desc>/g, '')
+        .replace(/<svg[^>]*>/g, '')
+        .replace(/<\/svg>/g, '')
+        .trim();
+
+      if (colorHex) {
+        const color = `#${colorHex}`;
+        innerContent = innerContent.replace(/fill="[^"]*"/g, `fill="${color}"`);
+        if (!innerContent.includes('fill=')) {
+          innerContent = `<g fill="${color}">${innerContent}</g>`;
+        }
       }
+
+      return { type: 'svg', viewBox: { width: vbWidth, height: vbHeight }, innerContent, brandTitle: null };
+    } else {
+      const buf = await res.arrayBuffer();
+      const base64 = Buffer.from(buf).toString('base64');
+      return { type: 'datauri', dataURI: `data:${ct};base64,${base64}`, brandTitle: null };
     }
-
-    // Convert SVG text to base64 data URI
-    const base64 = Buffer.from(text).toString('base64');
-    const dataURI = `data:${ct.split(';')[0]};base64,${base64}`;
-
-    return { dataURI, brandTitle };
   } catch {
-    return { dataURI: null, brandTitle: null };
+    return { type: 'none', brandTitle: null };
   }
 }
 
@@ -149,7 +172,7 @@ export async function generateSkillTableSVG(skillsString, opts = {}, theme = 'ra
   // Fetch all icons in parallel
   const skillEntries = entries.filter(e => e.type === 'skill');
   const iconResults = await Promise.all(
-    skillEntries.map(e => fetchIconAsDataURI(e.slug || null, e.url || null, fetchColorHex))
+    skillEntries.map(e => fetchIconData(e.slug || null, e.url || null, fetchColorHex))
   );
 
   // Attach icon data and resolve display titles
@@ -157,7 +180,7 @@ export async function generateSkillTableSVG(skillsString, opts = {}, theme = 'ra
   for (const entry of entries) {
     if (entry.type === 'skill') {
       const result = iconResults[iconIdx++];
-      entry.dataURI = result.dataURI;
+      entry.iconData = result;
       // Use brand title from SVG if available and entry title is just the slug
       if (result.brandTitle && entry.slug && entry.title === entry.slug) {
         entry.displayTitle = result.brandTitle;
@@ -314,8 +337,17 @@ export async function generateSkillTableSVG(skillsString, opts = {}, theme = 'ra
     // Cell background (subtle)
     svgParts.push(`<rect x="${item.x}" y="${item.y}" width="${cellWidth}" height="${cellHeight - titleLineHeight}" rx="10" fill="${THEME.fadeShadow}"/>`);
 
-    if (item.dataURI) {
-      svgParts.push(`<image href="${item.dataURI}" x="${iconX}" y="${iconY}" width="${iconSize}" height="${iconSize}"/>`);
+    if (item.iconData && item.iconData.type === 'svg' && item.iconData.innerContent) {
+      // Inline SVG content directly — avoids GitHub proxy stripping data: URIs from <image> elements
+      const { width: vbW, height: vbH } = item.iconData.viewBox;
+      const uniformScale = Math.min(iconSize / vbW, iconSize / vbH);
+      const scaledW = vbW * uniformScale;
+      const scaledH = vbH * uniformScale;
+      const offsetX = iconX + (iconSize - scaledW) / 2;
+      const offsetY = iconY + (iconSize - scaledH) / 2;
+      svgParts.push(`<g transform="translate(${offsetX.toFixed(2)},${offsetY.toFixed(2)}) scale(${uniformScale.toFixed(4)})">${item.iconData.innerContent}</g>`);
+    } else if (item.iconData && item.iconData.type === 'datauri') {
+      svgParts.push(`<image href="${item.iconData.dataURI}" x="${iconX}" y="${iconY}" width="${iconSize}" height="${iconSize}"/>`);
     } else {
       // Placeholder for failed icons
       svgParts.push(`<rect x="${iconX}" y="${iconY}" width="${iconSize}" height="${iconSize}" rx="8" fill="${THEME.grid}" stroke="${THEME.border}" stroke-width="1"/>`);
