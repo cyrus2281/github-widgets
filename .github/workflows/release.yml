@@ -11,9 +11,53 @@ on:
           - patch
           - minor
           - major
+  push:
+    branches:
+      - main
 
 jobs:
+  detect-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version_type: ${{ steps.detect.outputs.version_type }}
+      should_release: ${{ steps.detect.outputs.should_release }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Detect version type from commit
+        id: detect
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "version_type=${{ github.event.inputs.version_type }}" >> $GITHUB_OUTPUT
+            echo "should_release=true" >> $GITHUB_OUTPUT
+          else
+            COMMIT_MSG=$(git log -1 --pretty=%s)
+            echo "Commit message: $COMMIT_MSG"
+            if echo "$COMMIT_MSG" | grep -qE '^[a-z]+(\(.+\))?!:'; then
+              echo "Detected: major (breaking change)"
+              echo "version_type=major" >> $GITHUB_OUTPUT
+              echo "should_release=true" >> $GITHUB_OUTPUT
+            elif echo "$COMMIT_MSG" | grep -qE '^feat(\(.+\))?:'; then
+              echo "Detected: minor (new feature)"
+              echo "version_type=minor" >> $GITHUB_OUTPUT
+              echo "should_release=true" >> $GITHUB_OUTPUT
+            elif echo "$COMMIT_MSG" | grep -qE '^fix(\(.+\))?:'; then
+              echo "Detected: patch (bug fix)"
+              echo "version_type=patch" >> $GITHUB_OUTPUT
+              echo "should_release=true" >> $GITHUB_OUTPUT
+            else
+              echo "No release needed for this commit type"
+              echo "version_type=none" >> $GITHUB_OUTPUT
+              echo "should_release=false" >> $GITHUB_OUTPUT
+            fi
+          fi
+
   release:
+    needs: detect-version
+    if: needs.detect-version.outputs.should_release == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -38,7 +82,7 @@ jobs:
       - name: Bump npm version
         id: version
         run: |
-          NEW_VERSION=$(npm version ${{ github.event.inputs.version_type }} --no-git-tag-version)
+          NEW_VERSION=$(npm version ${{ needs.detect-version.outputs.version_type }} --no-git-tag-version)
           echo "new_version=${NEW_VERSION}" >> $GITHUB_OUTPUT
           echo "version_number=${NEW_VERSION#v}" >> $GITHUB_OUTPUT
 
